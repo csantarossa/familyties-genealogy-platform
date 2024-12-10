@@ -30,7 +30,7 @@ const TreeNode = ({ data }) => {
           width={180}
           height={180}
           alt="Persons main image"
-          className="rounded-lg m-5"
+          className="rounded-lg m-5 object-cover"
         />
         <div>
           <CardHeader>
