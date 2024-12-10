@@ -28,16 +28,16 @@ import db from "../utils/postgres";
 const dancingScript = Dancing_Script({ subsets: ["latin"] });
 
 export default function Home() {
-  const test = async (req, res) => {
-    try {
-      const connection = await db.connect();
-      const result = await connection.query("SELECT * FROM person");
-      res.status(200).json(result.rows);
-    } catch (err) {
-      console.error("Database query error:", err);
-      res.status(500).json({ error: "Internal Server Error" });
-    }
-  };
+  // const test = async (req, res) => {
+  //   try {
+  //     const connection = await db.connect();
+  //     const result = await connection.query("SELECT * FROM person");
+  //     res.status(200).json(result.rows);
+  //   } catch (err) {
+  //     console.error("Database query error:", err);
+  //     res.status(500).json({ error: "Internal Server Error" });
+  //   }
+  // };
 
   const [loginUser, setLoginUser] = useState({
     email: "",
@@ -53,7 +53,7 @@ export default function Home() {
   };
 
   return (
-    <WavyBackground backgroundFill="#f4f4f4" className="" onClick={test}>
+    <WavyBackground backgroundFill="#f4f4f4" className="">
       <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
         <h1
           className={`text-[48px] font-bold ${dancingScript.className} antialiased`}

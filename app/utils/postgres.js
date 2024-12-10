@@ -1,9 +1,9 @@
-import { createClient } from "@vercel/postgres";
+// import { createClient } from "@vercel/postgres";
 
-let database;
+// let database;
 
-if (!database) {
-  database = createClient();
-}
+// if (!database) {
+//   database = createClient();
+// }
 
-export default database;
+// export default database;
