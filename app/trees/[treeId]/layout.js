@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { Navbar } from "./components/Navbar";
 
 export const metadata = {
   title: "Create Next App",
@@ -10,11 +9,6 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body suppressHydrationWarning={true}>
-        <div className="flex justify-center items-center p-5 gap-10 rounded-2xl shadow-lg w-fit absolute z-50 bg-white left-[50%] translate-x-[-50%]">
-          {/* <Link href={"#"}>Logo</Link> */}
-          <Navbar />
-        </div>
-
         <main>{children}</main>
       </body>
     </html>
