@@ -1,5 +1,5 @@
 "use client";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext } from "react";
 import {
   Card,
   CardContent,
@@ -16,7 +16,7 @@ import { SidePanelContext } from "../page";
 const TreeNode = ({ data }) => {
   const [sidePanelContent, setSidePanelContent] = useContext(SidePanelContext);
 
-  // Opens the panel when a tree member is clicked - see SidePanel.jsx
+  // Opens the panel when a tree member is clicked
   const openPanel = () => {
     setSidePanelContent({
       firstname: data.firstname,
@@ -37,18 +37,21 @@ const TreeNode = ({ data }) => {
       },
       dod: {
         date: data.dod,
-        // birthTown: data.birthTown,
-        // birthCity: data.birthCity,
-        // birthState: data.birthState,
-        // birthCountry: data.birthCountry,
       },
       additionalInfo: data.additionalInfo,
     });
   };
 
   return (
-    <div>
-      {/* For children */}
+    <div className="nodrag">
+      {/* Handles for children */}
+      <Handle type="source" position={Position.Bottom} />
+      <Handle type="target" position={Position.Top} />
+
+      {/* Handles for spouses */}
+      <Handle type="source" position={Position.Right} />
+
+      {/* Card content */}
       <Card
         onClick={openPanel}
         className="w-fit flex justify-between items-center p-4 gap-4"
@@ -101,11 +104,9 @@ const TreeNode = ({ data }) => {
             <p className="text-xs">
               {data.dob} - {data.dod}
             </p>
-            {/* <p>{sidePanelContent.birthTown}</p> */}
           </CardHeader>
         </div>
       </Card>
-      <Handle type="source" position={Position.Bottom} />
     </div>
   );
 };

@@ -94,7 +94,7 @@ function FlowSpace() {
       }
       setTreeRootId(rootId);
 
-      // Generate layout
+      // Generate layout using entitree-flex
       const { nodes: entitreeNodes, rels: entitreeEdges } = layoutFromMap(
         rootId,
         tree,
@@ -103,9 +103,9 @@ function FlowSpace() {
 
       // Debugging: Log generated nodes and edges
       console.log("Generated nodes:", entitreeNodes);
-      console.log("Generated edges:", entitreeEdges);
+      console.log("Generated edges from entitree-flex:", entitreeEdges);
 
-      // Transform nodes and edges for ReactFlow
+      // Transform nodes for ReactFlow
       const reactFlowNodes = entitreeNodes.map((node) => ({
         id: node.id,
         type: "treeCard",
@@ -113,18 +113,76 @@ function FlowSpace() {
         data: node.data,
       }));
 
-      const reactFlowEdges = entitreeEdges.map((edge) => ({
-        id: `e${edge.source.id}-${edge.target.id}`,
-        source: edge.source.id,
-        target: edge.target.id,
-        type: "smoothstep",
-      }));
+      // Generate additional edges from relationships
+      const relationshipEdges = generateEdges(tree);
+
+      // Combine entitree edges with relationship edges
+      const reactFlowEdges = [
+        ...entitreeEdges.map((edge) => ({
+          id: `e${edge.source.id}-${edge.target.id}`,
+          source: edge.source.id,
+          target: edge.target.id,
+          type: "smoothstep",
+        })),
+        ...relationshipEdges,
+      ];
 
       setNodes(reactFlowNodes);
       setEdges(reactFlowEdges);
+      console.log(reactFlowEdges);
     } catch (error) {
       console.error("Error fetching and laying out the tree:", error);
     }
+  };
+
+  const generateEdges = (tree) => {
+    const edges = [];
+
+    Object.values(tree).forEach((node) => {
+      // Parent-Child relationships
+      node.parents.forEach((parentId) => {
+        if (tree[parentId]) {
+          edges.push({
+            id: `e${parentId}-${node.id}`,
+            source: `${parentId}`,
+            target: `${node.id}`,
+            sourceHandle: "bottom", // Parent handle
+            targetHandle: "top", // Child handle
+            type: "smoothstep",
+          });
+        }
+      });
+
+      // Spouse relationships
+      node.spouses.forEach((spouseId) => {
+        if (tree[spouseId]) {
+          edges.push({
+            id: `e${node.id}-${spouseId}`,
+            source: `${node.id}`,
+            target: `${spouseId}`,
+            sourceHandle: "right", // Spouse handle
+            targetHandle: "left", // Spouse handle
+            type: "smoothstep",
+          });
+        }
+      });
+
+      // Sibling relationships
+      node.siblings.forEach((siblingId) => {
+        if (tree[siblingId]) {
+          edges.push({
+            id: `e${node.id}-${siblingId}`,
+            source: `${node.id}`,
+            target: `${siblingId}`,
+            sourceHandle: "left", // Sibling handle
+            targetHandle: "right", // Sibling handle
+            type: "smoothstep",
+          });
+        }
+      });
+    });
+
+    return edges;
   };
 
   const findRootId = (data) => {
