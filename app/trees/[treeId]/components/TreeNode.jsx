@@ -44,13 +44,14 @@ const TreeNode = ({ data }) => {
 
   return (
     <div className="nodrag">
-      {/* Handles for children */}
-      <Handle type="source" position={Position.Bottom} />
-      <Handle type="target" position={Position.Top} />
-
-      {/* Handles for spouses */}
-      <Handle type="source" position={Position.Right} />
-
+      <Handle type="source" position={Position.Bottom} id="bottom" />
+      {/* For children */}
+      <Handle type="target" position={Position.Top} id="top" />
+      {/* For parents */}
+      <Handle type="source" position={Position.Right} id="right" />
+      {/* For spouse */}
+      <Handle type="target" position={Position.Left} id="left" />
+      {/* For spouse */}
       {/* Card content */}
       <Card
         onClick={openPanel}

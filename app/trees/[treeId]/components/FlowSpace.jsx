@@ -52,20 +52,24 @@ function FlowSpace() {
         tree[person.person_id] = {
           id: `${person.person_id}`,
           name: `${person.person_firstname} ${person.person_lastname}`,
-          parents: person.parents || [],
+          // parents: person.parents || [],
           children: person.children || [],
           siblings: person.siblings || [],
-          spouses: person.spouses || [],
+          spouses: person.spouse || [],
           data: {
             mainImg: person.person_main_img || "/person_placeholder.png",
-            firstname: person.person_firstname.toLowerCase() || "Unknown",
-            middlename: person.person_middlename.toLowerCase() || "Unknown",
-            lastname: person.person_lastname.toLowerCase() || "Unknown",
-            dob: new Date(person.person_dob).toLocaleDateString() || "Unknown",
+            firstname: person.person_firstname?.toLowerCase() || "",
+            middlename: person.person_middlename
+              ? person.person_middlename.toLowerCase()
+              : "",
+            lastname: person.person_lastname.toLowerCase() || "",
+            dob: person.person_dob
+              ? new Date(person.person_dob).toLocaleDateString()
+              : "Unknown",
             dod: person.person_dod
               ? new Date(person.person_dod).toLocaleDateString()
               : "Alive",
-            gender: person.person_gender.toLowerCase() || "Unknown",
+            gender: person.person_gender?.toLowerCase() || "",
             img: "/img.png",
             tags: person.person_tags || [],
             birthTown: person.birth_town || "",
@@ -113,23 +117,15 @@ function FlowSpace() {
         data: node.data,
       }));
 
-      // Generate additional edges from relationships
       const relationshipEdges = generateEdges(tree);
 
-      // Combine entitree edges with relationship edges
-      const reactFlowEdges = [
-        ...entitreeEdges.map((edge) => ({
-          id: `e${edge.source.id}-${edge.target.id}`,
-          source: edge.source.id,
-          target: edge.target.id,
-          type: "smoothstep",
-        })),
-        ...relationshipEdges,
-      ];
+      const reactFlowEdges = [...relationshipEdges];
 
-      setNodes(reactFlowNodes);
+      setNodes([...reactFlowNodes]);
       setEdges(reactFlowEdges);
-      console.log(reactFlowEdges);
+
+      console.log("Final ReactFlow nodes:", [...reactFlowNodes]);
+      console.log("Final ReactFlow edges:", reactFlowEdges);
     } catch (error) {
       console.error("Error fetching and laying out the tree:", error);
     }
@@ -139,44 +135,38 @@ function FlowSpace() {
     const edges = [];
 
     Object.values(tree).forEach((node) => {
-      // Parent-Child relationships
-      node.parents.forEach((parentId) => {
-        if (tree[parentId]) {
+      // Parent-Child relationships (top-to-bottom)
+      node.children.forEach((childId) => {
+        if (tree[childId]) {
           edges.push({
-            id: `e${parentId}-${node.id}`,
-            source: `${parentId}`,
-            target: `${node.id}`,
-            sourceHandle: "bottom", // Parent handle
-            targetHandle: "top", // Child handle
+            id: `parent-child-${node.id}-${childId}`,
+            source: `${node.id}`, // Parent is the source
+            target: `${childId}`, // Child is the target
+            sourceHandle: "bottom", // Parent's bottom handle
+            targetHandle: "top", // Child's top handle
             type: "smoothstep",
+            style: {
+              stroke: "#AAA",
+              strokeWidth: 2,
+            },
           });
         }
       });
 
-      // Spouse relationships
+      // Spouse relationships (left-to-right)
       node.spouses.forEach((spouseId) => {
         if (tree[spouseId]) {
           edges.push({
-            id: `e${node.id}-${spouseId}`,
-            source: `${node.id}`,
-            target: `${spouseId}`,
-            sourceHandle: "right", // Spouse handle
-            targetHandle: "left", // Spouse handle
+            id: `spouse-${node.id}-${spouseId}`,
+            source: `${node.id}`, // Spouse 1 is the source
+            target: `${spouseId}`, // Spouse 2 is the target
+            sourceHandle: "right", // Spouse 1's right handle
+            targetHandle: "left", // Spouse 2's left handle
             type: "smoothstep",
-          });
-        }
-      });
-
-      // Sibling relationships
-      node.siblings.forEach((siblingId) => {
-        if (tree[siblingId]) {
-          edges.push({
-            id: `e${node.id}-${siblingId}`,
-            source: `${node.id}`,
-            target: `${siblingId}`,
-            sourceHandle: "left", // Sibling handle
-            targetHandle: "right", // Sibling handle
-            type: "smoothstep",
+            style: {
+              stroke: "#009E60",
+              strokeWidth: 2,
+            },
           });
         }
       });
