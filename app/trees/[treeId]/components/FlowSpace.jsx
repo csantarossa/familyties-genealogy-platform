@@ -62,7 +62,9 @@ function FlowSpace() {
             middlename: person.person_middlename
               ? person.person_middlename.toLowerCase()
               : "",
-            lastname: person.person_lastname.toLowerCase() || "",
+            lastname: person.person_lastname
+              ? person.person_lastname.toLowerCase()
+              : "",
             dob: person.person_dob
               ? new Date(person.person_dob).toLocaleDateString()
               : "Unknown",
