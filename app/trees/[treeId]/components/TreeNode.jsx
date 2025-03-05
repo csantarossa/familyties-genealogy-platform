@@ -67,7 +67,7 @@ const TreeNode = ({ data }) => {
           </Badge>
         ) : null}
 
-        <div className="relative w-32 h-32">
+        <div className="relative w-24 h-24 ">
           <Image
             src={data.mainImg}
             alt="Person's main image"
@@ -77,7 +77,7 @@ const TreeNode = ({ data }) => {
           />
         </div>
         <div className="">
-          <CardHeader className="p-0 h-32 flex-col flex justify-between">
+          <CardHeader className="p-0 h-24 flex-col flex justify-between">
             <div className="">
               <div className="flex items-center justify-end gap-1">
                 {data.tags.map((tag, index) => (
@@ -87,10 +87,10 @@ const TreeNode = ({ data }) => {
                 ))}
               </div>
               <div className="flex gap-1">
-                <CardTitle className="text-base font-medium capitalize">
+                <CardTitle className="text-sm font-medium capitalize">
                   {data.firstname}
                 </CardTitle>
-                <CardTitle className="text-base font-normal capitalize">
+                <CardTitle className="text-sm font-normal capitalize">
                   {data.middlename}
                 </CardTitle>
               </div>
@@ -102,9 +102,9 @@ const TreeNode = ({ data }) => {
               </CardDescription>
             </div>
 
-            <p className="text-xs">
+            {/* <p className="text-xs">
               {data.dob} - {data.dod}
-            </p>
+            </p> */}
           </CardHeader>
         </div>
       </Card>

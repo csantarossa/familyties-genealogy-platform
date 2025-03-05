@@ -6,3 +6,9 @@ export async function getPeople() {
   const data = await sql`select * from person`;
   return data;
 }
+
+export async function getRelationships() {
+  const sql = neon(process.env.DATABASE_URL);
+  const data = await sql`select * from relationships`;
+  return data;
+}

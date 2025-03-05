@@ -1,42 +1,60 @@
 "use client";
+import React, { useEffect, useMemo } from "react";
 import {
   ReactFlow,
-  Controls,
   Background,
-  ConnectionLineType,
+  useNodesState,
+  useEdgesState,
+  Controls,
 } from "@xyflow/react";
+import dagre from "@dagrejs/dagre";
 import "@xyflow/react/dist/style.css";
-import { useEffect, useMemo, useState } from "react";
 import TreeNode from "./TreeNode";
-import { layoutFromMap } from "entitree-flex";
-import { getPeople } from "@/app/actions";
+import { getPeople, getRelationships } from "@/app/actions";
 
-const nodeWidth = 300;
-const nodeHeight = 200;
+const dagreGraph = new dagre.graphlib.Graph().setDefaultEdgeLabel(() => ({}));
 
-const entitreeSettings = {
-  clone: true,
-  enableFlex: true,
-  firstDegreeSpacing: 100,
-  nextAfterAccessor: "spouses",
-  nextAfterSpacing: 100,
-  nextBeforeAccessor: "siblings",
-  nextBeforeSpacing: 100,
-  nodeHeight,
-  nodeWidth,
-  orientation: "vertical",
-  rootX: 0,
-  rootY: 0,
-  secondDegreeSpacing: 100,
-  sourcesAccessor: "parents",
-  sourceTargetSpacing: 100,
-  targetsAccessor: "children",
+const nodeWidth = 310;
+const nodeHeight = 210;
+
+const getLayoutedElements = (nodes, edges) => {
+  dagreGraph.setGraph({ rankdir: "TB", align: "UL" }); // Vertical layout with top-left alignment
+
+  nodes.forEach((node) => {
+    dagreGraph.setNode(node.id, { width: nodeWidth, height: nodeHeight });
+  });
+
+  edges.forEach((edge) => {
+    dagreGraph.setEdge(edge.source, edge.target);
+  });
+
+  dagre.layout(dagreGraph);
+
+  const newNodes = nodes.map((node) => {
+    const nodeWithPosition = dagreGraph.node(node.id);
+    return {
+      ...node,
+      targetPosition: "top",
+      sourcePosition: "bottom",
+      position: {
+        x: nodeWithPosition.x - nodeWidth / 2,
+        y: nodeWithPosition.y - nodeHeight / 2,
+      },
+    };
+  });
+
+  // const spouseEdges = edges.filter((edge) => edge.id.startsWith("e")); // Filter spouse edges
+  const otherEdges = edges.filter((edge) => !edge.id.startsWith("e"));
+
+  return {
+    nodes: newNodes,
+    edges: [...otherEdges], // Ensure spouses appear last for better layout
+  };
 };
 
 function FlowSpace() {
-  const [treeRootId, setTreeRootId] = useState(null);
-  const [nodes, setNodes] = useState([]);
-  const [edges, setEdges] = useState([]);
+  const [nodes, setNodes] = useNodesState([]);
+  const [edges, setEdges] = useEdgesState([]);
 
   useEffect(() => {
     fetchAndLayoutTree();
@@ -44,187 +62,114 @@ function FlowSpace() {
 
   const fetchAndLayoutTree = async () => {
     try {
-      const data = await getPeople();
+      const people = await getPeople(); // Fetch people data from the API
+      const relationships = await getRelationships(); // Fetch relationships from the API
+      console.log(relationships);
 
-      // Transform data into a map suitable for entitree-flex
       const tree = {};
-      data.forEach((person) => {
+      people.forEach((person) => {
         tree[person.person_id] = {
           id: `${person.person_id}`,
           name: `${person.person_firstname} ${person.person_lastname}`,
-          // parents: person.parents || [],
-          children: person.children || [],
-          siblings: person.siblings || [],
-          spouses: person.spouse || [],
           data: {
-            mainImg: person.person_main_img || "/person_placeholder.png",
-            firstname: person.person_firstname?.toLowerCase() || "",
-            middlename: person.person_middlename
-              ? person.person_middlename.toLowerCase()
-              : "",
-            lastname: person.person_lastname
-              ? person.person_lastname.toLowerCase()
-              : "",
+            id: person.person_id,
+            firstname: person.person_firstname || "",
+            middlename: person.person_middlename || "",
+            lastname: person.person_lastname || "",
             dob: person.person_dob
               ? new Date(person.person_dob).toLocaleDateString()
               : "Unknown",
             dod: person.person_dod
               ? new Date(person.person_dod).toLocaleDateString()
               : "Alive",
-            gender: person.person_gender?.toLowerCase() || "",
-            img: "/img.png",
+            gender: person.person_gender || "",
+            mainImg: person.person_main_img || "/person_placeholder.png",
             tags: person.person_tags || [],
             birthTown: person.birth_town || "",
             birthCity: person.birth_city || "",
             birthState: person.birth_state || "",
             birthCountry: person.birth_country || "",
+            gallery: person.gallery || [],
+            confidence: getConfidenceScore(person.confidence),
             additionalInfo: {
               career: person.additional_information?.career || [],
               education: person.additional_information?.education || [],
               hobbies: person.additional_information?.hobbies || [],
             },
-            gallery: person.gallery,
-            confidence: getConfidenceScore(person.confidence),
           },
         };
       });
 
-      // Debugging: Log tree structure
-      console.log("Tree structure:", tree);
-
-      // Find the root ID
-      const rootId = findRootId(data);
-      if (!tree[rootId]) {
-        console.error("Root ID not found in tree:", rootId);
-        return;
-      }
-      setTreeRootId(rootId);
-
-      // Generate layout using entitree-flex
-      const { nodes: entitreeNodes, rels: entitreeEdges } = layoutFromMap(
-        rootId,
-        tree,
-        entitreeSettings
-      );
-
-      // Debugging: Log generated nodes and edges
-      console.log("Generated nodes:", entitreeNodes);
-      console.log("Generated edges from entitree-flex:", entitreeEdges);
-
-      // Transform nodes for ReactFlow
-      const reactFlowNodes = entitreeNodes.map((node) => ({
+      const reactFlowNodes = Object.values(tree).map((node) => ({
         id: node.id,
         type: "treeCard",
-        position: { x: node.x, y: node.y },
         data: node.data,
+        position: { x: 0, y: 0 },
       }));
 
-      const relationshipEdges = generateEdges(tree);
+      const relationshipEdges = generateEdges(relationships, tree);
+      const layoutedElements = getLayoutedElements(
+        reactFlowNodes,
+        relationshipEdges
+      );
 
-      const reactFlowEdges = [...relationshipEdges];
-
-      setNodes([...reactFlowNodes]);
-      setEdges(reactFlowEdges);
-
-      console.log("Final ReactFlow nodes:", [...reactFlowNodes]);
-      console.log("Final ReactFlow edges:", reactFlowEdges);
+      setNodes(layoutedElements.nodes);
+      setEdges(layoutedElements.edges);
     } catch (error) {
       console.error("Error fetching and laying out the tree:", error);
     }
   };
 
-  const generateEdges = (tree) => {
+  const generateEdges = (relationships, tree) => {
     const edges = [];
 
-    Object.values(tree).forEach((node) => {
-      // Parent-Child relationships (top-to-bottom)
-      node.children.forEach((childId) => {
-        if (tree[childId]) {
-          edges.push({
-            id: `parent-child-${node.id}-${childId}`,
-            source: `${node.id}`, // Parent is the source
-            target: `${childId}`, // Child is the target
-            sourceHandle: "bottom", // Parent's bottom handle
-            targetHandle: "top", // Child's top handle
-            type: "smoothstep",
-            style: {
-              stroke: "#AAA",
-              strokeWidth: 2,
-            },
-          });
-        }
-      });
+    relationships.forEach((relationship) => {
+      const { person_1, person_2, relationship_type } = relationship;
 
-      // Spouse relationships (left-to-right)
-      node.spouses.forEach((spouseId) => {
-        if (tree[spouseId]) {
-          edges.push({
-            id: `spouse-${node.id}-${spouseId}`,
-            source: `${node.id}`, // Spouse 1 is the source
-            target: `${spouseId}`, // Spouse 2 is the target
-            sourceHandle: "right", // Spouse 1's right handle
-            targetHandle: "left", // Spouse 2's left handle
-            type: "smoothstep",
-            style: {
-              stroke: "#009E60",
-              strokeWidth: 2,
-            },
-          });
+      if (tree[person_1] && tree[person_2]) {
+        const edge = {
+          id: `${relationship_type}-${person_1}-${person_2}`,
+          source: `${person_1}`,
+          target: `${person_2}`,
+          type: "smoothstep",
+          style: {
+            stroke: relationship_type === "spouse" ? "#00f" : "#AAA",
+            strokeWidth: 2,
+          },
+        };
+
+        if (relationship_type === "spouse") {
+          edge.sourceHandle = "right";
+          edge.targetHandle = "left";
         }
-      });
+
+        edges.push(edge);
+      }
     });
 
     return edges;
   };
 
-  const findRootId = (data) => {
-    return data.reduce(
-      (oldest, person) =>
-        new Date(person.person_dob).getTime() <
-        new Date(oldest.person_dob).getTime()
-          ? person
-          : oldest,
-      data[0]
-    ).person_id;
-  };
-
   const getConfidenceScore = (confidence) => {
-    let result;
-    if (confidence === 1) {
-      result = "Verified";
-    } else if (confidence === 2) {
-      result = "Unverified";
-    } else {
-      result = null;
-    }
-    return result;
+    if (confidence === 1) return "Verified";
+    if (confidence === 2) return "Unverified";
+    return null;
   };
 
-  // Tree Node Configuration
   const nodeTypes = useMemo(() => ({ treeCard: TreeNode }), []);
 
   return (
     <div className="w-screen h-screen bg-zinc-200/50">
-      <div
-        style={{
-          height: "100%",
-          width: "100%",
-          position: "relative",
-          zIndex: 0,
-        }}
+      <ReactFlow
+        nodes={nodes}
+        edges={edges}
+        nodeTypes={nodeTypes}
+        fitView
+        style={{ backgroundColor: "#F7F9FB" }}
       >
-        <ReactFlow
-          nodes={nodes}
-          edges={edges}
-          connectionLineType={ConnectionLineType.SmoothStep}
-          fitView
-          nodeTypes={nodeTypes}
-          style={{ backgroundColor: "#F7F9FB" }}
-        >
-          <Background style={{ zIndex: -1 }} />
-          <Controls />
-        </ReactFlow>
-      </div>
+        <Controls />
+        <Background style={{ zIndex: -1 }} />
+      </ReactFlow>
     </div>
   );
 }
