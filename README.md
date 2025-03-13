@@ -1,36 +1,30 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# FamilyTies: Genealogy Project
 
-## Getting Started
+## To Download
 
-First, run the development server:
+1. Make a directory in a designated folder for your projects (e.g. `/software-projects`)
+2. Open the terminal and navigate to the directory.
+3. Enter `git clone https://github.com/csantarossa/familyties-genealogy-platform.git` in the terminal.
+4. Navigate inside `familyties-genealogy-platform` and type `npm install` to download all the packages.
+5. Make a `.env` file in the **root folder**. _Make sure you add this to the `.gitignore` so it doesn't get uploaded to GitHub._
+6. Copy and paste `DATABASE_URL=<ask someone for database string>` into your .env file
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+Type `npm run dev`, and checkout these URLs to make sure its all good:
+http://localhost:3000/login
+http://localhost:3000/signup
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+## Version Control Process
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. `git branch <name your branch something relevant>`
+2. `git branch` (make sure you are in the right branch - `git checkout <branch-name>` to swap branches if not in the new one)
+3. `git pull` to get the latest updates
+4. As you progress, make sure you `git add .` and `git commit -m "description here"` to save updates. This is useful if you mess things up so much you need to just go back to a commit when everything worked fine and start again.
+5. When you are ready to make a Pull Request (PR), `git push origin main` then go to GitHub and it will prompt you to submit a PR. Follow the steps and get it submitted for review.
 
-## Learn More
+Once reviewed it will either be merged to main, or you will need to clean things up so that there are no conflicts.
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+###### END
