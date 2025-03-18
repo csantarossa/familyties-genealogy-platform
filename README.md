@@ -21,7 +21,7 @@ http://localhost:3000/signup
 2. `git branch` (make sure you are in the right branch - `git checkout <branch-name>` to swap branches if not in the new one)
 3. `git pull` to get the latest updates
 4. As you progress, make sure you `git add .` and `git commit -m "description here"` to save updates. This is useful if you mess things up so much you need to just go back to a commit when everything worked fine and start again.
-5. When you are ready to make a Pull Request (PR), `git push origin main` then go to GitHub and it will prompt you to submit a PR. Follow the steps and get it submitted for review.
+5. When you are ready to make a Pull Request (PR), `git push origin <branch name>` then go to GitHub and it will prompt you to submit a PR. Follow the steps and get it submitted for review.
 
 Once reviewed it will either be merged to main, or you will need to clean things up so that there are no conflicts.
 
