@@ -5,9 +5,9 @@ const sql = neon(process.env.DATABASE_URL);
 
 export async function DELETE(req, { params }) {
   try {
-    const treeId = params.id; // ✅ Extract tree ID from URL
+    const { id } = await params;
 
-    await sql`DELETE FROM trees WHERE tree_id = ${treeId}`;
+    await sql`DELETE FROM trees WHERE tree_id = ${id}`;
 
     return NextResponse.json({
       success: true,

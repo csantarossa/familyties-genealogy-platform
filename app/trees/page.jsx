@@ -23,8 +23,9 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { getTrees } from "../actions";
 import { useUser } from "../contexts/UserContext";
-import { Trash, TreesIcon } from "lucide-react";
+import { PlusCircleIcon, PlusIcon, Trash, TreesIcon } from "lucide-react";
 import toast from "react-hot-toast";
+import NewTreeModal from "./components/NewTreeModal";
 const dancingScript = Dancing_Script({ subsets: ["latin"] });
 
 export default function Home() {
@@ -36,12 +37,13 @@ export default function Home() {
     setTrees(data);
   };
 
-  // Ensure useEffect runs only when `user` is available
   useEffect(() => {
     if (user) {
       handleGetTrees();
     }
-  }, [user]); // ✅ Re-run when `user` changes
+  }, [user]);
+
+  const handleCreateTree = async () => {};
 
   const handleDeleteTree = async (tree) => {
     const approval = confirm(`Do you want to delete tree: ${tree.tree_name}?`);
@@ -77,6 +79,8 @@ export default function Home() {
       <main className="flex flex-col gap-8 items-center justify-center ">
         <div>Welcome back, {user?.firstname}!</div>
         <div className="flex flex-row flex-wrap gap-8">
+          <NewTreeModal />
+
           {trees.map((tree) => (
             <Link key={tree.tree_id} href={`/trees/${tree.tree_id}`}>
               <button className="w-48 h-40 flex flex-col justify-start p-6 bg-slate-100 rounded-lg">
