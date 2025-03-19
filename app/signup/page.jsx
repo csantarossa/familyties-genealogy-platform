@@ -13,6 +13,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { useState } from "react";
+import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
   const [newUser, setNewUser] = useState({
@@ -22,6 +24,37 @@ export default function Home() {
     password: "",
     confirmedPassword: "",
   });
+
+  const router = useRouter();
+
+  const handleSignup = async (e) => {
+    e.preventDefault();
+    try {
+      if (newUser.password === newUser.confirmedPassword) {
+        const response = await fetch("/api/signup", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            firstname: newUser.firstname,
+            lastname: newUser.lastname,
+            email: newUser.email,
+            password: newUser.password,
+          }),
+        });
+        const data = await response.json();
+        if (data.success) {
+          toast("Account created! Please log in");
+          // router.push("/login");
+        } else {
+          toast.error(data.message);
+        }
+      } else {
+        toast.error("Passwords don't match");
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   return (
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
@@ -33,8 +66,9 @@ export default function Home() {
               Get started on your family tree today.
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <form>
+
+          <form onSubmit={handleSignup}>
+            <CardContent>
               <div className="grid w-full items-center gap-4">
                 <div className="flex gap-3">
                   <div className="flex flex-col space-y-1.5 w-[40%]">
@@ -100,15 +134,14 @@ export default function Home() {
                   />
                 </div>
               </div>
-            </form>
-          </CardContent>
-
-          <CardFooter className="flex justify-between">
-            <Link href="/login">
-              <Button variant="outline">Login</Button>
-            </Link>
-            <Button>Create Account</Button>
-          </CardFooter>
+            </CardContent>
+            <CardFooter className="flex justify-between">
+              <Link href="/login">
+                <Button variant="outline">Login</Button>
+              </Link>
+              <Button type="submit">Create Account</Button>
+            </CardFooter>
+          </form>
         </Card>
       </main>
       <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center"></footer>

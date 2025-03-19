@@ -11,6 +11,8 @@ import dagre from "@dagrejs/dagre";
 import "@xyflow/react/dist/style.css";
 import TreeNode from "./TreeNode";
 import { getPeople, getRelationships } from "@/app/actions";
+import { useParams } from "next/navigation";
+import BackButton from "./BackButton";
 
 const dagreGraph = new dagre.graphlib.Graph().setDefaultEdgeLabel(() => ({}));
 
@@ -56,14 +58,17 @@ function FlowSpace() {
   const [nodes, setNodes] = useNodesState([]);
   const [edges, setEdges] = useEdgesState([]);
 
+  const params = useParams();
+  const treeId = params.treeId;
+
   useEffect(() => {
-    fetchAndLayoutTree();
+    fetchAndLayoutTree(treeId);
   }, []);
 
-  const fetchAndLayoutTree = async () => {
+  const fetchAndLayoutTree = async (treeId) => {
     try {
-      const people = await getPeople(); // Fetch people data from the API
-      const relationships = await getRelationships(); // Fetch relationships from the API
+      const people = await getPeople(treeId); // Fetch people data from the API
+      const relationships = await getRelationships(treeId); // Fetch relationships from the API
       console.log(relationships);
 
       const tree = {};
@@ -167,6 +172,7 @@ function FlowSpace() {
         fitView
         style={{ backgroundColor: "#F7F9FB" }}
       >
+        <BackButton />
         <Controls />
         <Background style={{ zIndex: -1 }} />
       </ReactFlow>

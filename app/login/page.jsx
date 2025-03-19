@@ -14,7 +14,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { useState } from "react";
-import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
+import { login, useUser } from "../contexts/UserContext";
+import toast from "react-hot-toast";
+
 const dancingScript = Dancing_Script({ subsets: ["latin"] });
 
 export default function Home() {
@@ -23,12 +26,31 @@ export default function Home() {
     password: "",
   });
 
-  const handleLogin = (e) => {
-    e.preventDefault();
-    // Create API route to login user
+  const router = useRouter();
+  const { login } = useUser(); // ✅ Get login function from context
 
-    // If successful, login user and redirect to home or trees
-    redirect("/trees/home");
+  const handleLogin = async (e) => {
+    e.preventDefault();
+
+    const response = await fetch("/api/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email: loginUser.email,
+        password: loginUser.password,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      // Redirect if login is successful
+      login(data.user);
+      toast.success("Welcome back!");
+      router.push("/trees");
+    } else {
+      toast.error(data.message);
+    }
   };
 
   return (

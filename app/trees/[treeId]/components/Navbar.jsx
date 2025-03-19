@@ -22,11 +22,15 @@ import {
 } from "@/components/ui/menubar";
 import { Input } from "@/components/ui/input";
 import { AddPersonModalContext } from "../page";
+import { useUser, logout } from "@/app/contexts/UserContext";
+import { useRouter } from "next/navigation";
 
 const dancingScript = Dancing_Script({ subsets: ["latin"] });
 
 export function Navbar() {
   const [addPersonModal, setAddPersonModal] = useContext(AddPersonModalContext);
+  const { user, logout } = useUser();
+  const router = useRouter();
 
   return (
     <Menubar className="border-none">
@@ -39,7 +43,7 @@ export function Navbar() {
       <div className="w-[0.8px] h-full bg-black opacity-40"></div>
       <div></div>
       <MenubarMenu>
-        <MenubarTrigger>File</MenubarTrigger>
+        {/* <MenubarTrigger>File</MenubarTrigger>
         <MenubarContent>
           <MenubarItem>New Tree</MenubarItem>
           <MenubarItem>Open Tree</MenubarItem>
@@ -70,7 +74,7 @@ export function Navbar() {
           <MenubarItem>Print</MenubarItem>
         </MenubarContent>
       </MenubarMenu>
-      <MenubarMenu>
+      <MenubarMenu> */}
         <MenubarTrigger>MyTree</MenubarTrigger>
         <MenubarContent>
           <MenubarItem onClick={() => setAddPersonModal(true)}>
@@ -106,16 +110,15 @@ export function Navbar() {
       <MenubarMenu>
         <MenubarTrigger>Account</MenubarTrigger>
         <MenubarContent>
-          <MenubarRadioGroup value="andy">
-            <MenubarRadioItem value="andy">Light Mode</MenubarRadioItem>
-            <MenubarRadioItem value="benoit">Dark Mode</MenubarRadioItem>
-          </MenubarRadioGroup>
-          <MenubarSeparator />
           <MenubarItem>Preferences</MenubarItem>
-          <MenubarSeparator />
           <MenubarItem>Settings</MenubarItem>
-          <MenubarSeparator />
-          <MenubarItem className="bg-[#4877c3] text-white font-semibold">
+          <MenubarItem
+            className="bg-[#4877c3] text-white font-semibold cursor-pointer"
+            onClick={() => {
+              logout(); // ✅ Clears user from localStorage and context
+              router.push("/login"); // ✅ Redirects to login page
+            }}
+          >
             Log Out
           </MenubarItem>
         </MenubarContent>
