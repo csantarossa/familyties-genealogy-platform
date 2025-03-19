@@ -23,7 +23,8 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { getTrees } from "../actions";
 import { useUser } from "../contexts/UserContext";
-import { TreesIcon } from "lucide-react";
+import { Trash, TreesIcon } from "lucide-react";
+import toast from "react-hot-toast";
 const dancingScript = Dancing_Script({ subsets: ["latin"] });
 
 export default function Home() {
@@ -42,6 +43,30 @@ export default function Home() {
     }
   }, [user]); // ✅ Re-run when `user` changes
 
+  const handleDeleteTree = async (tree) => {
+    const approval = confirm(`Do you want to delete tree: ${tree.tree_name}?`);
+    if (!approval) return;
+
+    try {
+      const response = await fetch(`/api/trees/${tree.tree_id}`, {
+        method: "DELETE",
+      });
+      const data = await response.json();
+
+      if (data.success) {
+        toast.success("Tree deleted successfully");
+        setTrees((prevTrees) =>
+          prevTrees.filter((t) => t.tree_id !== tree.tree_id)
+        );
+      } else {
+        toast.error("Failed to delete tree");
+      }
+    } catch (error) {
+      console.error("Error deleting tree:", error);
+      toast.error("An error occurred while deleting the tree.");
+    }
+  };
+
   return (
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
       <h1
@@ -54,12 +79,21 @@ export default function Home() {
         <div className="flex flex-row flex-wrap gap-8">
           {trees.map((tree) => (
             <Link key={tree.tree_id} href={`/trees/${tree.tree_id}`}>
-              <button className="w-40 h-40 flex flex-col justify-start p-6 bg-slate-100 rounded-lg ">
-                <div className="flex flex-col justify-start items-start overflow-hidden">
-                  <div className="flex justify-between w-full items-center ">
-                    <h1 className="font-semibold text-start">
+              <button className="w-48 h-40 flex flex-col justify-start p-6 bg-slate-100 rounded-lg">
+                <div className="flex flex-col justify-start items-start overflow-hidden gap-1">
+                  <div className="flex justify-between w-full items-start gap-1">
+                    <h1 className="font-semibold text-start w-full leading-none">
                       {tree.tree_name}
                     </h1>
+                    <Trash
+                      size={18}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        handleDeleteTree(tree);
+                      }}
+                      className="w-fit h-fit"
+                    />
                   </div>
 
                   <p className="text-sm text-gray-700 text-start">
