@@ -9,9 +9,9 @@ import {
 
 const AddPersonButton = () => {
   return (
-    <div className="flex justify-center items-center p-3 rounded-md gap-1 bg-[#FFF] shadow-sm font-medium">
+    <div className="flex justify-center items-center p-3 px-4 rounded-md text-white gap-1 bg-[#252525] shadow-sm text-sm font-medium">
       Add Person
-      <Plus size={20} className="stroke-[2px]" />
+      <Plus size={18} className="stroke-[2px]" />
     </div>
   );
 };
