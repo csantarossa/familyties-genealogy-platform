@@ -30,6 +30,7 @@ import UserPlus from "@geist-ui/icons/userPlus";
 import toast from "react-hot-toast";
 import { AddPersonModalContext } from "../page";
 import { Spinner } from "@nextui-org/spinner";
+import { ChevronLeft } from "lucide-react";
 
 const AddPersonModal = ({ trigger }) => {
   const [addPersonModal, setAddPersonModal] = useContext(AddPersonModalContext); // Manage open state
@@ -45,10 +46,6 @@ const AddPersonModal = ({ trigger }) => {
     relationType: "",
   });
 
-  const handleFormProgress = () => {
-    setProgress({ ...progress, progressBar: 50, page: 2 });
-  };
-
   const handleSubmitForm = async (e) => {
     e.preventDefault();
     setProgress({ ...progress, progressBar: 100 });
@@ -61,7 +58,7 @@ const AddPersonModal = ({ trigger }) => {
     // Close the modal
     setAddPersonModal(false);
     setProgress({ progressBar: 0, page: 1 });
-    toast.success("{Persons name} has been added!");
+    toast.success(`${newPerson?.firstname} has been added`);
     // clear all the data in the state
   };
 
@@ -158,7 +155,9 @@ const AddPersonModal = ({ trigger }) => {
                 <Button
                   type="button"
                   className="flex"
-                  onClick={handleFormProgress}
+                  onClick={() => {
+                    setProgress({ ...progress, progressBar: 50, page: 2 });
+                  }}
                 >
                   Next
                   <ArrowRightCircle className="" size={24} />
@@ -249,11 +248,12 @@ const AddPersonModal = ({ trigger }) => {
                 <Button
                   type="button"
                   onClick={() =>
-                    setProgress({ ...progress, page1: true, progressBar: 2 })
+                    setProgress({ ...progress, progressBar: 0, page: 1 })
                   }
                   variant="outline"
                 >
-                  Return
+                  <ChevronLeft size={18} />
+                  Back
                 </Button>
                 <AlertDialogAction
                   type="submit"

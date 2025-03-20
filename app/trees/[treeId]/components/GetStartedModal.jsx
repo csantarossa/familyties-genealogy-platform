@@ -162,22 +162,17 @@ const GetStartedModal = ({ treeId }) => {
               />
             </div>
 
-            <div className="w-full flex justify-between items-center pt-3">
-              <Button type="button" variant="outline">
-                Return
-              </Button>
-              <AlertDialogAction
-                type="submit"
-                className="flex"
-                onClick={() => {
-                  handleSubmitForm();
-                  setFormOpen(!formOpen);
-                }}
-              >
-                Add
-                <UserPlus className="" size={24} />
-              </AlertDialogAction>
-            </div>
+            <AlertDialogAction
+              type="submit"
+              className="flex w-full"
+              onClick={() => {
+                handleSubmitForm();
+                setFormOpen(!formOpen);
+              }}
+            >
+              Add your first person!
+              <UserPlus className="" size={24} />
+            </AlertDialogAction>
           </form>
         </AlertDialogContent>
       </AlertDialog>

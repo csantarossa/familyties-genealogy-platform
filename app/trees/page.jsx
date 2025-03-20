@@ -26,11 +26,13 @@ import { useUser } from "../contexts/UserContext";
 import { PlusCircleIcon, PlusIcon, Trash, TreesIcon } from "lucide-react";
 import toast from "react-hot-toast";
 import NewTreeModal from "./components/NewTreeModal";
+import { useRouter } from "next/navigation";
 const dancingScript = Dancing_Script({ subsets: ["latin"] });
 
 export default function Home() {
   const [trees, setTrees] = useState([]);
-  const { user } = useUser();
+  const { user, logout } = useUser();
+  const router = useRouter();
 
   const handleGetTrees = async () => {
     const data = await getTrees(user.id);
@@ -42,8 +44,6 @@ export default function Home() {
       handleGetTrees();
     }
   }, [user]);
-
-  const handleCreateTree = async () => {};
 
   const handleDeleteTree = async (tree) => {
     const approval = confirm(`Do you want to delete tree: ${tree.tree_name}?`);
@@ -109,7 +109,16 @@ export default function Home() {
           ))}
         </div>
       </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center"></footer>
+      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
+        <Button
+          onClick={() => {
+            logout();
+            router.push("/login");
+          }}
+        >
+          Log Out
+        </Button>
+      </footer>
     </div>
   );
 }

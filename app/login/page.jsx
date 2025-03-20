@@ -74,6 +74,7 @@ export default function Home() {
                   <Label htmlFor="name">Email</Label>
                   <Input
                     id="email"
+                    required
                     placeholder="Email Address"
                     value={loginUser.email}
                     onChange={(e) =>
@@ -85,6 +86,7 @@ export default function Home() {
                   <Label htmlFor="framework">Password</Label>
                   <Input
                     type="password"
+                    required
                     placeholder="Password"
                     value={loginUser.password}
                     onChange={(e) =>
