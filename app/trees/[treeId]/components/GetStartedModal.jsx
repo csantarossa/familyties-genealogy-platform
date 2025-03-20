@@ -72,10 +72,10 @@ const GetStartedModal = ({ treeId }) => {
         <AlertDialogContent className="w-[430px] h-fit">
           <AlertDialogHeader className="flex h-full flex-col justify-between items-start">
             <AlertDialogTitle className="">
-              Welcome! Let's Get Started 🎉
+              Welcome! Let&apos;s Get Started 🎉
             </AlertDialogTitle>
             <AlertDialogDescription>
-              Lets create your first person on this new family tree.
+              Let&apos;s create your first person on this new family tree.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <form
