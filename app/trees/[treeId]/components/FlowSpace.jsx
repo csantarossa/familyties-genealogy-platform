@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   ReactFlow,
   Background,
@@ -13,6 +13,7 @@ import TreeNode from "./TreeNode";
 import { getPeople, getRelationships } from "@/app/actions";
 import { useParams } from "next/navigation";
 import BackButton from "./BackButton";
+import GetStartedModal from "./GetStartedModal";
 
 const dagreGraph = new dagre.graphlib.Graph().setDefaultEdgeLabel(() => ({}));
 
@@ -57,6 +58,7 @@ const getLayoutedElements = (nodes, edges) => {
 function FlowSpace() {
   const [nodes, setNodes] = useNodesState([]);
   const [edges, setEdges] = useEdgesState([]);
+  const [loading, setLoading] = useState(true); // ✅ Added loading state
 
   const params = useParams();
   const treeId = params.treeId;
@@ -66,6 +68,7 @@ function FlowSpace() {
   }, []);
 
   const fetchAndLayoutTree = async (treeId) => {
+    setLoading(true);
     try {
       const people = await getPeople(treeId); // Fetch people data from the API
       const relationships = await getRelationships(treeId); // Fetch relationships from the API
@@ -120,6 +123,7 @@ function FlowSpace() {
 
       setNodes(layoutedElements.nodes);
       setEdges(layoutedElements.edges);
+      setLoading(false);
     } catch (error) {
       console.error("Error fetching and laying out the tree:", error);
     }
@@ -172,9 +176,17 @@ function FlowSpace() {
         fitView
         style={{ backgroundColor: "#F7F9FB" }}
       >
-        <BackButton />
-        <Controls />
-        <Background style={{ zIndex: -1 }} />
+        {loading ? ( // ✅ Show nothing while loading
+          <></>
+        ) : nodes.length === 0 ? ( // ✅ Show modal only when loading is finished and no nodes exist
+          <GetStartedModal treeId={treeId} />
+        ) : (
+          <>
+            <BackButton />
+            <Controls />
+            <Background style={{ zIndex: -1 }} />
+          </>
+        )}
       </ReactFlow>
     </div>
   );

@@ -34,6 +34,16 @@ import { Spinner } from "@nextui-org/spinner";
 const AddPersonModal = ({ trigger }) => {
   const [addPersonModal, setAddPersonModal] = useContext(AddPersonModalContext); // Manage open state
   const [progress, setProgress] = useState({ progressBar: 0, page: 1 });
+  const [newPerson, setNewPerson] = useState({
+    firstname: "",
+    middlename: "",
+    lastname: "",
+    dob: "",
+    dod: "",
+    img: "",
+    relation: "",
+    relationType: "",
+  });
 
   const handleFormProgress = () => {
     setProgress({ ...progress, progressBar: 50, page: 2 });
@@ -42,9 +52,11 @@ const AddPersonModal = ({ trigger }) => {
   const handleSubmitForm = async (e) => {
     e.preventDefault();
     setProgress({ ...progress, progressBar: 100 });
-
-    // Simulate async operation
-    await new Promise((resolve) => setTimeout(resolve, 120));
+    try {
+      await fetch(`/api/`);
+    } catch (error) {
+      toast.error("Error: Person was not created");
+    }
 
     // Close the modal
     setAddPersonModal(false);
@@ -78,27 +90,53 @@ const AddPersonModal = ({ trigger }) => {
                   <Label htmlFor="email" className="text-sm font-medium">
                     Firstname *
                   </Label>
-                  <Input type="text" id="firstname" placeholder="Firstname" />
+                  <Input
+                    type="text"
+                    id="firstname"
+                    placeholder="Firstname"
+                    onChange={(e) =>
+                      setNewPerson({ ...newPerson, firstname: e.target.value })
+                    }
+                  />
                 </div>
                 <div className="grid w-full max-w-sm items-center gap-1.5">
                   <Label htmlFor="email" className="text-sm font-medium">
                     Middlename
                   </Label>
-                  <Input type="text" id="middlename" placeholder="Middlename" />
+                  <Input
+                    type="text"
+                    id="middlename"
+                    placeholder="Middlename"
+                    onChange={(e) =>
+                      setNewPerson({ ...newPerson, middlename: e.target.value })
+                    }
+                  />
                 </div>
               </div>
               <div className="grid w-full items-center gap-1.5">
                 <Label htmlFor="email" className="text-sm font-medium">
                   Lastname *
                 </Label>
-                <Input type="text" id="lastname" placeholder="Lastname" />
+                <Input
+                  type="text"
+                  id="lastname"
+                  placeholder="Lastname"
+                  onChange={(e) =>
+                    setNewPerson({ ...newPerson, lastname: e.target.value })
+                  }
+                />
               </div>
               <div className="flex gap-4">
                 <div className="grid w-full items-center gap-1.5">
                   <Label htmlFor="dob" className="text-sm font-medium">
                     Date of Birth *
                   </Label>
-                  <DatePickerDemo placeholder={"Pick a date"} />
+                  <DatePickerDemo
+                    placeholder={"Pick a date"}
+                    onChange={(e) =>
+                      setNewPerson({ ...newPerson, dob: e.target.value })
+                    }
+                  />
                 </div>
                 <div className="grid w-full items-center gap-1.5">
                   <div>
@@ -106,7 +144,12 @@ const AddPersonModal = ({ trigger }) => {
                       Date of Death
                     </Label>
                   </div>
-                  <DatePickerDemo placeholder={"Leave empty if alive"} />
+                  <DatePickerDemo
+                    placeholder={"Leave empty if alive"}
+                    onChange={(e) =>
+                      setNewPerson({ ...newPerson, dod: e.target.value })
+                    }
+                  />
                 </div>
               </div>
 
@@ -136,7 +179,13 @@ const AddPersonModal = ({ trigger }) => {
                   <Label htmlFor="email" className="text-sm font-medium">
                     Profile Image
                   </Label>
-                  <Input id="picture" type="file" />
+                  <Input
+                    id="picture"
+                    type="file"
+                    onChange={(e) =>
+                      setNewPerson({ ...newPerson, img: e.target.value })
+                    }
+                  />
                 </div>
               </div>
               <div className="flex flex-row justify-center gap-4 items-center">
