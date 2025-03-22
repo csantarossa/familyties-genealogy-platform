@@ -15,7 +15,7 @@ import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { login, useUser } from "../contexts/UserContext";
+import { useUser } from "../contexts/UserContext";
 import toast from "react-hot-toast";
 
 const dancingScript = Dancing_Script({ subsets: ["latin"] });
@@ -27,7 +27,7 @@ export default function Home() {
   });
 
   const router = useRouter();
-  const { login } = useUser(); // ✅ Get login function from context
+  const { user, login } = useUser();
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -44,7 +44,6 @@ export default function Home() {
     const data = await response.json();
 
     if (data.success) {
-      // Redirect if login is successful
       login(data.user);
       toast.success("Welcome back!");
       router.push("/trees");
@@ -97,11 +96,11 @@ export default function Home() {
               </div>
 
               <br />
-              <CardDescription>
+              {/* <CardDescription>
                 <a href="#" className="underline">
                   Forgot Password?
                 </a>
-              </CardDescription>
+              </CardDescription> */}
             </CardContent>
 
             <CardFooter className="flex justify-between">

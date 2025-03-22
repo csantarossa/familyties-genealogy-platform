@@ -5,6 +5,7 @@ import {
   AlertDialogTrigger,
   AlertDialogTitle,
   AlertDialogCancel,
+  AlertDialogAction,
 } from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,13 +13,12 @@ import { Progress } from "@/components/ui/progress";
 import React, { useState } from "react";
 import { DatePickerDemo } from "../[treeId]/components/DatePicker";
 import { Button } from "@/components/ui/button";
-import { ArrowRightCircle } from "lucide-react";
+import { ArrowRightCircle, ChevronRight } from "lucide-react";
 import { useUser } from "@/app/contexts/UserContext";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 
-const NewTreeModal = () => {
-  const router = useRouter();
+const NewTreeModal = ({ onTreeCreated }) => {
   const { user } = useUser();
   const [newTree, setNewTree] = useState({
     title: "",
@@ -33,7 +33,7 @@ const NewTreeModal = () => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          user_id: user?.id, // Ensure user ID is passed
+          user_id: user?.id,
           title: newTree.title,
           desc: newTree.desc,
         }),
@@ -43,8 +43,10 @@ const NewTreeModal = () => {
 
       if (data.success) {
         toast.success("Tree created successfully!");
-        setNewTree({ title: "", desc: "" }); // Reset form
-        window.location.reload();
+        setNewTree({ title: "", desc: "" });
+
+        // ✅ Call the parent function to refetch trees
+        onTreeCreated?.();
       } else {
         toast.error(data.message || "Failed to create tree");
       }
@@ -98,10 +100,13 @@ const NewTreeModal = () => {
 
             <div className="w-full flex justify-between items-center pt-3">
               <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <Button type="submit" className="flex">
+              <AlertDialogAction
+                type="submit"
+                className="flex justify-center items-center gap-1"
+              >
                 Create
-                <ArrowRightCircle className="" size={24} />
-              </Button>
+                <ChevronRight className="w-fit" size={20} />
+              </AlertDialogAction>
             </div>
           </form>
         </AlertDialogContent>

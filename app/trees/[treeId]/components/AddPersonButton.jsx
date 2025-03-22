@@ -1,11 +1,5 @@
 import React from "react";
 import { Plus } from "@geist-ui/icons";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 
 const AddPersonButton = () => {
   return (

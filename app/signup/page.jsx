@@ -44,7 +44,7 @@ export default function Home() {
         const data = await response.json();
         if (data.success) {
           toast("Account created! Please log in");
-          router.push("/login");
+          router.replace("/login");
         } else {
           toast.error(data.message);
         }
@@ -137,7 +137,9 @@ export default function Home() {
             </CardContent>
             <CardFooter className="flex justify-between">
               <Link href="/login">
-                <Button variant="outline">Login</Button>
+                <Button variant="outline" type="button">
+                  Login
+                </Button>
               </Link>
               <Button type="submit">Create Account</Button>
             </CardFooter>

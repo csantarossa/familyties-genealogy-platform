@@ -39,9 +39,7 @@ const GetStartedModal = ({ treeId }) => {
     }));
   }, [dobDate, dodDate]);
 
-  const handleSubmitForm = async (e) => {
-    e.preventDefault();
-
+  const handleSubmitForm = async () => {
     try {
       const response = await fetch(`/api/trees/${treeId}`, {
         method: "POST",
@@ -57,10 +55,8 @@ const GetStartedModal = ({ treeId }) => {
 
       const data = await response.json();
       console.log("Success:", data);
-
-      // Optionally, close the modal
+      handleSubmitForm();
       setFormOpen(false);
-      window.location.reload();
     } catch (error) {
       console.error("Error submitting form:", error);
     }
@@ -162,14 +158,7 @@ const GetStartedModal = ({ treeId }) => {
               />
             </div>
 
-            <AlertDialogAction
-              type="submit"
-              className="flex w-full"
-              onClick={() => {
-                handleSubmitForm();
-                setFormOpen(!formOpen);
-              }}
-            >
+            <AlertDialogAction type="submit" className="flex w-full">
               Add your first person!
               <UserPlus className="" size={24} />
             </AlertDialogAction>

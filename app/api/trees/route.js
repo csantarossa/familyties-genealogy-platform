@@ -14,7 +14,6 @@ export async function POST(req) {
       );
     }
 
-    // Insert tree into database
     const result = await sql`
       INSERT INTO trees (tree_owner, tree_name, tree_desc)
       VALUES (${user_id}, ${title}, ${desc}) RETURNING tree_id

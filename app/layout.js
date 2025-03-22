@@ -12,13 +12,13 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <UserProvider>
-      <html lang="en">
-        <body className={`${plusJakarta.className} antialiased`}>
+    <html lang="en">
+      <body className={`${plusJakarta.className} antialiased`}>
+        <UserProvider>
           <Toaster />
           {children}
-        </body>
-      </html>
-    </UserProvider>
+        </UserProvider>
+      </body>
+    </html>
   );
 }

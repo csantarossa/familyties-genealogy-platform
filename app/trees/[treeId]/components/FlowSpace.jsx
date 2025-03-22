@@ -72,7 +72,6 @@ function FlowSpace() {
     try {
       const people = await getPeople(treeId); // Fetch people data from the API
       const relationships = await getRelationships(treeId); // Fetch relationships from the API
-      console.log(relationships);
 
       const tree = {};
       people.forEach((person) => {
