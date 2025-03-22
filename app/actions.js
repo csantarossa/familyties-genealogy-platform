@@ -9,7 +9,8 @@ export async function getPeople(treeId) {
 
 export async function getTrees(user_id) {
   const sql = neon(process.env.DATABASE_URL);
-  const data = await sql`select * from trees where tree_owner = ${user_id}`;
+  const data =
+    await sql`select * from trees where tree_owner = ${user_id} order by tree_created_at desc`;
   return data;
 }
 

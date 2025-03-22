@@ -44,7 +44,7 @@ export default function Home() {
         const data = await response.json();
         if (data.success) {
           toast("Account created! Please log in");
-          // router.push("/login");
+          router.push("/login");
         } else {
           toast.error(data.message);
         }

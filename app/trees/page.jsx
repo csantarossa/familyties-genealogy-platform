@@ -23,7 +23,14 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { getTrees } from "../actions";
 import { useUser } from "../contexts/UserContext";
-import { PlusCircleIcon, PlusIcon, Trash, TreesIcon } from "lucide-react";
+import {
+  MergeIcon,
+  PlusCircleIcon,
+  PlusIcon,
+  Trash,
+  TreeDeciduous,
+  TreesIcon,
+} from "lucide-react";
 import toast from "react-hot-toast";
 import NewTreeModal from "./components/NewTreeModal";
 import { useRouter } from "next/navigation";
@@ -35,8 +42,15 @@ export default function Home() {
   const router = useRouter();
 
   const handleGetTrees = async () => {
-    const data = await getTrees(user.id);
-    setTrees(data);
+    if (!user?.id) return; // prevent early fetch
+
+    try {
+      const data = await getTrees(user.id);
+      setTrees(data);
+    } catch (err) {
+      console.error("Error fetching trees:", err);
+      toast.error("Failed to fetch trees");
+    }
   };
 
   useEffect(() => {
@@ -64,7 +78,6 @@ export default function Home() {
         toast.error("Failed to delete tree");
       }
     } catch (error) {
-      console.error("Error deleting tree:", error);
       toast.error("An error occurred while deleting the tree.");
     }
   };
@@ -76,9 +89,17 @@ export default function Home() {
       >
         FamilyTies
       </h1>
-      <main className="flex flex-col gap-8 items-center justify-center ">
-        <div>Welcome back, {user?.firstname}!</div>
-        <div className="flex flex-row flex-wrap gap-8">
+      <main className="flex flex-col gap-8 items-start justify-center ">
+        <div className="flex flex-col gap-4">
+          <div className="flex gap-2 justify-start items-center">
+            <TreeDeciduous strokeWidth={2.2} size={24} />
+            <h1 className="text-2xl font-medium leadingno">Trees Dashboard</h1>
+          </div>
+
+          <div>Welcome back, {user?.firstname}!</div>
+        </div>
+
+        <div className="grid grid-cols-4 row-auto gap-8 h-96 overflow-y-scroll">
           <NewTreeModal />
 
           {trees.map((tree) => (

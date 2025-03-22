@@ -79,7 +79,7 @@ const TreeNode = ({ data }) => {
         <div className="">
           <CardHeader className="p-0 h-24 flex-col flex justify-between">
             <div className="">
-              <div className="flex items-center justify-end gap-1">
+              <div className="flex items-center justify-end gap-1 h-4">
                 {data.tags.map((tag, index) => (
                   <p className="text-xs" key={index}>
                     {tag}
@@ -97,9 +97,14 @@ const TreeNode = ({ data }) => {
               <CardTitle className="uppercase text-xl font-semibold">
                 {data.lastname}
               </CardTitle>
-              <CardDescription className="capitalize text-xs mt-1">
-                {data.gender}
-              </CardDescription>
+              <div className="flex justify-between gap-3">
+                <CardDescription className="capitalize text-xs mt-1">
+                  {data.gender}
+                </CardDescription>
+                <CardDescription className="capitalize text-xs mt-1">
+                  {data.dob}
+                </CardDescription>
+              </div>
             </div>
 
             {/* <p className="text-xs">
