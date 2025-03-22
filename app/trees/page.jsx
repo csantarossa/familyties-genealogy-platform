@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { getTrees } from "../actions";
 import { useUser } from "../contexts/UserContext";
-import { Trash, TreeDeciduous } from "lucide-react";
+import { Trash } from "lucide-react";
 import toast from "react-hot-toast";
 import NewTreeModal from "./components/NewTreeModal";
 import { useRouter } from "next/navigation";
@@ -60,10 +60,9 @@ export default function Home() {
       </h1>
       <main className="flex flex-col gap-8 items-start justify-center ">
         <div className="flex flex-col gap-4">
-          {/* <div className="flex gap-2 justify-start items-center">
-            <TreeDeciduous strokeWidth={2.2} size={24} />
+          <div className="flex gap-2 justify-start items-center">
             <h1 className="text-2xl font-medium leadingno">Trees Dashboard</h1>
-          </div> */}
+          </div>
 
           <div>Welcome back, {user?.firstname}!</div>
         </div>
@@ -77,21 +76,27 @@ export default function Home() {
               className="h-fit w-fit"
               href={`/trees/${tree.tree_id}`}
             >
-              <div className="w-48 h-40 flex flex-col justify-start p-6 bg-slate-100 rounded-lg cursor-pointer">
+              <div className="w-48 h-40 flex flex-col justify-start p-6 bg-gray-100 hover:bg-gray-50 rounded-lg cursor-pointer border-4 border-gray-100 duration-150">
                 <div className="flex flex-col justify-start items-start overflow-hidden gap-1">
                   <div className="flex justify-between w-full items-start gap-1">
                     <h1 className="font-semibold text-start w-full leading-none">
                       {tree.tree_name}
                     </h1>
-                    <Trash
-                      size={18}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        handleDeleteTree(tree);
-                      }}
-                      className="w-fit h-fit"
-                    />
+
+                    {/* Allows you do delete any tree except #2 as this is my demo tree */}
+                    {tree.tree_id === 2 ? (
+                      <></>
+                    ) : (
+                      <Trash
+                        size={18}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          e.preventDefault();
+                          handleDeleteTree(tree);
+                        }}
+                        className="w-fit h-fit"
+                      />
+                    )}
                   </div>
 
                   <p className="text-sm text-gray-700 text-start">

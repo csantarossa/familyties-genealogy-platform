@@ -12,10 +12,10 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Label } from "@radix-ui/react-label";
 import { Input } from "@/components/ui/input";
-import { DatePickerDemo } from "./DatePicker";
 import { Button } from "@/components/ui/button";
 import { ChevronRight, UserPlus } from "lucide-react";
 import { format } from "date-fns";
+import DatePickerInput from "./DatePickerInput";
 
 const GetStartedModal = ({ treeId }) => {
   const [dobDate, setDobDate] = useState(null);
@@ -125,11 +125,8 @@ const GetStartedModal = ({ treeId }) => {
                 <Label htmlFor="dob" className="text-sm font-medium">
                   Date of Birth *
                 </Label>
-                <DatePickerDemo
-                  date={dobDate}
-                  setDate={setDobDate}
-                  placeholder={"Pick a date"}
-                />
+
+                <DatePickerInput date={dobDate} setDate={setDobDate} />
               </div>
               <div className="grid w-full items-center gap-1.5">
                 <div>
@@ -137,11 +134,7 @@ const GetStartedModal = ({ treeId }) => {
                     Date of Death
                   </Label>
                 </div>
-                <DatePickerDemo
-                  date={dodDate}
-                  setDate={setDodDate}
-                  placeholder={"Leave empty if alive"}
-                />
+                <DatePickerInput />
               </div>
             </div>
 

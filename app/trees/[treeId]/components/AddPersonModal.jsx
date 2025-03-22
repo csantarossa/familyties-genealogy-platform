@@ -13,7 +13,6 @@ import {
 import AddPersonButton from "./AddPersonButton";
 import { Label } from "@radix-ui/react-label";
 import { Input } from "@/components/ui/input";
-import { DatePickerDemo } from "./DatePicker";
 import { ArrowRightCircle } from "@geist-ui/icons";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
@@ -31,6 +30,7 @@ import toast from "react-hot-toast";
 import { AddPersonModalContext } from "../page";
 import { Spinner } from "@nextui-org/spinner";
 import { ChevronLeft } from "lucide-react";
+import DatePickerInput from "./DatePickerInput";
 
 const AddPersonModal = ({ trigger }) => {
   const [addPersonModal, setAddPersonModal] = useContext(AddPersonModalContext); // Manage open state
@@ -128,7 +128,7 @@ const AddPersonModal = ({ trigger }) => {
                   <Label htmlFor="dob" className="text-sm font-medium">
                     Date of Birth *
                   </Label>
-                  <DatePickerDemo
+                  <DatePickerInput
                     placeholder={"Pick a date"}
                     onChange={(e) =>
                       setNewPerson({ ...newPerson, dob: e.target.value })
@@ -141,7 +141,7 @@ const AddPersonModal = ({ trigger }) => {
                       Date of Death
                     </Label>
                   </div>
-                  <DatePickerDemo
+                  <DatePickerInput
                     placeholder={"Leave empty if alive"}
                     onChange={(e) =>
                       setNewPerson({ ...newPerson, dod: e.target.value })

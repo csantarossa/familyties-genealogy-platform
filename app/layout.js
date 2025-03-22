@@ -15,7 +15,7 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body className={`${plusJakarta.className} antialiased`}>
         <UserProvider>
-          <Toaster />
+          <Toaster position="bottom-right" />
           {children}
         </UserProvider>
       </body>

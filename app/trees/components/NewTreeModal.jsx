@@ -11,9 +11,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import React, { useState } from "react";
-import { DatePickerDemo } from "../[treeId]/components/DatePicker";
 import { Button } from "@/components/ui/button";
-import { ArrowRightCircle, ChevronRight } from "lucide-react";
+import {
+  ArrowRightCircle,
+  ChevronRight,
+  Sprout,
+  WaypointsIcon,
+} from "lucide-react";
 import { useUser } from "@/app/contexts/UserContext";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
@@ -59,8 +63,8 @@ const NewTreeModal = ({ onTreeCreated }) => {
   return (
     <div className="z-50 w-48 h-40 flex flex-col justify-start border-4 border-slate-100 rounded-lg">
       <AlertDialog>
-        <AlertDialogTrigger className="w-full h-full">
-          New Tree
+        <AlertDialogTrigger className="w-full h-full flex gap-2 text-lg justify-center items-center font-medium hover:bg-gray-50 duration-150">
+          <Sprout size={24} strokeWidth={1.5} /> New Tree
         </AlertDialogTrigger>
         <AlertDialogContent className="w-[360px] h-fit">
           <AlertDialogHeader className="flex h-full flex-row justify-start items-start">
