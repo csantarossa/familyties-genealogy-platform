@@ -24,6 +24,7 @@ import { useRouter } from "next/navigation";
 
 const NewTreeModal = ({ onTreeCreated }) => {
   const { user } = useUser();
+  const [loading, setLoading] = useState(false);
   const [newTree, setNewTree] = useState({
     title: "",
     desc: "",
@@ -31,7 +32,7 @@ const NewTreeModal = ({ onTreeCreated }) => {
 
   const handleCreateTree = async (e) => {
     e.preventDefault();
-
+    setLoading(true);
     try {
       const response = await fetch("/api/trees", {
         method: "POST",
@@ -58,13 +59,20 @@ const NewTreeModal = ({ onTreeCreated }) => {
       console.error("Error creating tree:", error);
       toast.error("An error occurred while creating the tree.");
     }
+    setLoading(false);
   };
 
   return (
     <div className="z-50 w-48 h-40 flex flex-col justify-start border-4 border-slate-100 rounded-lg">
       <AlertDialog>
         <AlertDialogTrigger className="w-full h-full flex gap-2 text-lg justify-center items-center font-medium hover:bg-gray-50 duration-150">
-          <Sprout size={24} strokeWidth={1.5} /> New Tree
+          {loading ? (
+            <span className="loader"></span>
+          ) : (
+            <>
+              <Sprout size={24} strokeWidth={1.5} /> New Tree
+            </>
+          )}
         </AlertDialogTrigger>
         <AlertDialogContent className="w-[360px] h-fit">
           <AlertDialogHeader className="flex h-full flex-row justify-start items-start">
