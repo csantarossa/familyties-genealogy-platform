@@ -42,16 +42,16 @@ export default function Home() {
   const router = useRouter();
 
   const handleGetTrees = async () => {
-    const data = await getTrees(user.id);
-    setTrees(data);
+    // const data = await getTrees(user.id);
+    // setTrees(data);
   };
 
-  useEffect(() => {
-    console.log("setting user");
-    if (user) {
-      handleGetTrees();
-    }
-  }, [user]);
+  // useEffect(() => {
+  //   console.log("setting user");
+  //   if (user) {
+  //     handleGetTrees();
+  //   }
+  // }, [user]);
 
   const handleDeleteTree = async (tree) => {
     const approval = confirm(`Do you want to delete tree: ${tree.tree_name}?`);
@@ -96,7 +96,7 @@ export default function Home() {
         <div className="grid grid-cols-4 row-auto gap-8 h-96 overflow-y-scroll">
           <NewTreeModal />
 
-          {/* {trees.map((tree) => (
+          {trees.map((tree) => (
             <Link key={tree.tree_id} href={`/trees/${tree.tree_id}`}>
               <button className="w-48 h-40 flex flex-col justify-start p-6 bg-slate-100 rounded-lg">
                 <div className="flex flex-col justify-start items-start overflow-hidden gap-1">
@@ -121,7 +121,7 @@ export default function Home() {
                 </div>
               </button>
             </Link>
-          ))} */}
+          ))}
         </div>
       </main>
       <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
