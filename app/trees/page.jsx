@@ -24,11 +24,14 @@ export default function Home() {
   }, [user]);
 
   const handleGetTrees = async () => {
+    toast.loading("Fetching trees");
     const data = await getTrees(user.id);
     setTrees(data);
+    toast.dismiss();
   };
 
   const handleDeleteTree = async (tree) => {
+    const deleteTreeToast = toast.loading("Deleting the tree");
     const approval = confirm(`Do you want to delete tree: ${tree.tree_name}?`);
     if (!approval) return;
 
@@ -39,6 +42,7 @@ export default function Home() {
       const data = await response.json();
 
       if (data.success) {
+        toast.dismiss(deleteTreeToast);
         toast.success("Tree deleted successfully");
         setTrees((prevTrees) =>
           prevTrees.filter((t) => t.tree_id !== tree.tree_id)
@@ -49,6 +53,7 @@ export default function Home() {
     } catch (error) {
       toast.error("An error occurred while deleting the tree.");
     }
+    toast.dismiss(deleteTreeToast);
   };
 
   return (
