@@ -73,11 +73,15 @@ const AddPersonModal = ({ trigger }) => {
   };
 
   const loadRelationshipTypes = async () => {
+    toast.loading("Finding relationship types");
     const types = await getRelationshipTypes(treeId);
     setRelTypes(types);
+    toast.dismiss();
   };
 
   const handleSubmitForm = async (e) => {
+    const newPersonLoading = toast.loading("Creating new person");
+    newPersonLoading;
     e.preventDefault();
     setProgress({ ...progress, progressBar: 100 });
 
@@ -115,10 +119,12 @@ const AddPersonModal = ({ trigger }) => {
         relation: "",
         relationType: "",
       });
+      window.location.reload();
     } catch (error) {
       console.error(error);
       toast.error("Error: Person was not created");
     }
+    toast.dismiss(newPersonLoading);
   };
 
   return (
