@@ -23,10 +23,9 @@ export async function DELETE(req, { params }) {
   }
 }
 
-// Add person to tree
 export async function POST(req, { params }) {
   try {
-    const { id } = await params;
+    const { id } = params;
     const body = await req.json();
 
     const newPerson = {
@@ -45,27 +44,48 @@ export async function POST(req, { params }) {
       birthCountry: null,
       gallery: null,
       additionalInfo: null,
-      children: null,
-      spouse: null,
-      parents: null,
       treeId: id,
-      relation: body.relation?.trim() || null,
-      relationType: body.relationType?.trim() || null,
     };
 
-    // ✅ Perform SQL Insert
-    await sql`
-    INSERT INTO person 
-    (person_firstname, person_middlename, person_lastname, person_gender, person_dob, person_dod, person_tags, person_main_img, confidence, birth_town, birth_city, birth_state, birth_country, gallery, additional_information, children, spouse, parents, fk_tree_id) 
-    VALUES 
-    (${newPerson.firstname}, ${newPerson.middlename}, ${newPerson.lastname}, ${newPerson.gender}, ${newPerson.dob}, ${newPerson.dod}, ${newPerson.tags}, ${newPerson.img}, ${newPerson.confidence}, ${newPerson.birthTown}, ${newPerson.birthCity}, ${newPerson.birthState}, ${newPerson.birthCountry}, ${newPerson.gallery}, ${newPerson.additionalInfo}, ${newPerson.children}, ${newPerson.spouse}, ${newPerson.parents}, ${newPerson.treeId})`;
+    // 1. Insert person and get their ID
+    const result = await sql`
+      INSERT INTO person (
+        person_firstname, person_middlename, person_lastname, person_gender,
+        person_dob, person_dod, person_tags, person_main_img,
+        confidence, birth_town, birth_city, birth_state, birth_country,
+        gallery, additional_information, fk_tree_id
+      ) VALUES (
+        ${newPerson.firstname}, ${newPerson.middlename}, ${newPerson.lastname}, ${newPerson.gender},
+        ${newPerson.dob}, ${newPerson.dod}, ${newPerson.tags}, ${newPerson.img},
+        ${newPerson.confidence}, ${newPerson.birthTown}, ${newPerson.birthCity},
+        ${newPerson.birthState}, ${newPerson.birthCountry}, ${newPerson.gallery},
+        ${newPerson.additionalInfo}, ${newPerson.treeId}
+      )
+      RETURNING person_id
+    `;
 
-    // ✅ Return success response
+    const newPersonId = result[0].person_id;
+    console.log(body.relation, body.relationType);
+    // 2. If a relationship was selected, insert into the relationships table
+    if (body.relation && body.relationType) {
+      await sql`
+      INSERT INTO relationships (
+        person_1,
+        person_2,
+        fk_type_id
+      ) VALUES (
+        ${newPersonId},
+        ${body.relation},
+        ${body.relationType}
+      )
+    `;
+    }
+
     return NextResponse.json(
       {
         success: true,
         message: "Person added successfully",
-        person: newPerson,
+        personId: newPersonId,
       },
       { status: 201 }
     );

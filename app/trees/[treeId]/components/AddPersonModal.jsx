@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -21,45 +21,104 @@ import {
   SelectContent,
   SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
 import UserPlus from "@geist-ui/icons/userPlus";
 import toast from "react-hot-toast";
 import { AddPersonModalContext } from "../page";
-import { Spinner } from "@nextui-org/spinner";
 import { ChevronLeft } from "lucide-react";
 import DatePickerInput from "./DatePickerInput";
+import { useParams } from "next/navigation";
+import { format } from "date-fns";
+import { getPeople, getRelationshipTypes } from "@/app/actions";
 
 const AddPersonModal = ({ trigger }) => {
-  const [addPersonModal, setAddPersonModal] = useContext(AddPersonModalContext); // Manage open state
+  const params = useParams();
+  const treeId = params?.treeId;
+  const [addPersonModal, setAddPersonModal] = useContext(AddPersonModalContext);
   const [progress, setProgress] = useState({ progressBar: 0, page: 1 });
+  const [dobDate, setDobDate] = useState(null);
+  const [dodDate, setDodDate] = useState(null);
+  const [relation, setRelation] = useState({
+    relationId: null,
+    relationType: null,
+  });
+  const [nodes, setNodes] = useState([]);
+  const [relTypes, setRelTypes] = useState([]);
   const [newPerson, setNewPerson] = useState({
     firstname: "",
     middlename: "",
     lastname: "",
-    dob: "",
-    dod: "",
-    img: "",
-    relation: "",
-    relationType: "",
+    dob: null,
+    dod: null,
+    img: null,
+    relation: null,
+    relationType: null,
   });
+
+  useEffect(() => {
+    setNewPerson((prev) => ({
+      ...prev,
+      dob: dobDate ? format(dobDate, "yyyy-MM-dd") : null,
+      dod: dodDate ? format(dodDate, "yyyy-MM-dd") : null,
+    }));
+  }, [dobDate, dodDate]);
+
+  const getNodes = async () => {
+    toast.loading("Finding potential relations");
+    const people = await getPeople(treeId);
+    setNodes(people);
+    toast.dismiss();
+  };
+
+  const loadRelationshipTypes = async () => {
+    const types = await getRelationshipTypes(treeId);
+    setRelTypes(types);
+  };
 
   const handleSubmitForm = async (e) => {
     e.preventDefault();
     setProgress({ ...progress, progressBar: 100 });
+
+    // Sync relation into newPerson
+    const personToSubmit = {
+      ...newPerson,
+      relation: relation.relationId,
+      relationType: relation.relationType,
+    };
+
+    console.log(personToSubmit);
+
     try {
-      await fetch(`/api/`);
+      const res = await fetch(`/api/trees/${treeId}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(personToSubmit),
+      });
+
+      const result = await res.json();
+      if (!res.ok) {
+        throw new Error(result.message || "Unknown error");
+      }
+
+      toast.success(`${personToSubmit?.firstname} has been added`);
+      setAddPersonModal(false);
+      setProgress({ progressBar: 0, page: 1 });
+      setNewPerson({
+        firstname: "",
+        middlename: "",
+        lastname: "",
+        dob: null,
+        dod: null,
+        img: null,
+        relation: "",
+        relationType: "",
+      });
     } catch (error) {
+      console.error(error);
       toast.error("Error: Person was not created");
     }
-
-    // Close the modal
-    setAddPersonModal(false);
-    setProgress({ progressBar: 0, page: 1 });
-    toast.success(`${newPerson?.firstname} has been added`);
-    // clear all the data in the state
   };
 
   return (
@@ -128,12 +187,7 @@ const AddPersonModal = ({ trigger }) => {
                   <Label htmlFor="dob" className="text-sm font-medium">
                     Date of Birth *
                   </Label>
-                  <DatePickerInput
-                    placeholder={"Pick a date"}
-                    onChange={(e) =>
-                      setNewPerson({ ...newPerson, dob: e.target.value })
-                    }
-                  />
+                  <DatePickerInput setDate={setDobDate} />
                 </div>
                 <div className="grid w-full items-center gap-1.5">
                   <div>
@@ -141,12 +195,7 @@ const AddPersonModal = ({ trigger }) => {
                       Date of Death
                     </Label>
                   </div>
-                  <DatePickerInput
-                    placeholder={"Leave empty if alive"}
-                    onChange={(e) =>
-                      setNewPerson({ ...newPerson, dod: e.target.value })
-                    }
-                  />
+                  <DatePickerInput setDate={setDodDate} />
                 </div>
               </div>
 
@@ -192,26 +241,29 @@ const AddPersonModal = ({ trigger }) => {
                   <Label htmlFor="dob" className="text-sm font-medium">
                     Initial Relation
                   </Label>
-                  <Select>
-                    <SelectTrigger className="w-[180px]">
+                  <Select
+                    value={relation.relationId}
+                    onValueChange={(value) => {
+                      setRelation({ ...relation, relationId: value });
+                    }}
+                  >
+                    <SelectTrigger
+                      className="w-[180px]"
+                      onClick={() => getNodes()}
+                    >
                       <SelectValue placeholder="Select a person" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectGroup>
-                        <SelectLabel>Santarossa Family</SelectLabel>
-                        <SelectItem value="apple">Julie Santarossa</SelectItem>
-                        <SelectItem value="banana">
-                          Flavio Santarossa
-                        </SelectItem>
-                        <SelectItem value="blueberry">
-                          Corey Santarossa
-                        </SelectItem>
-                        <SelectItem value="grapes">
-                          Jarrod Santarossa
-                        </SelectItem>
-                        <SelectItem value="pineapple">
-                          Scott Santarossa
-                        </SelectItem>
+                      <SelectGroup className="flex flex-col gap-1">
+                        {nodes.map((node) => (
+                          <SelectItem
+                            className="cursor-pointer hover:bg-slate-50 capitalize"
+                            key={node.person_id}
+                            value={node.person_id.toString()}
+                          >
+                            {node.person_firstname} {node.person_lastname}
+                          </SelectItem>
+                        ))}
                       </SelectGroup>
                     </SelectContent>
                   </Select>
@@ -220,17 +272,29 @@ const AddPersonModal = ({ trigger }) => {
                   <Label htmlFor="dob" className="text-sm font-medium">
                     Type
                   </Label>
-                  <Select>
-                    <SelectTrigger className="w-[180px]">
+                  <Select
+                    value={relation.relationType}
+                    onValueChange={(value) =>
+                      setRelation({ ...relation, relationType: value })
+                    }
+                  >
+                    <SelectTrigger
+                      className="w-[180px]"
+                      onClick={() => loadRelationshipTypes()}
+                    >
                       <SelectValue placeholder="Relationship" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectGroup>
-                        {/* <SelectLabel>Type of relationship</SelectLabel> */}
-                        <SelectItem value="apple">Parent</SelectItem>
-                        <SelectItem value="banana">Child</SelectItem>
-                        <SelectItem value="blueberry">Sibling</SelectItem>
-                        <SelectItem value="grapes">Spouse</SelectItem>
+                      <SelectGroup className="flex flex-col gap-1">
+                        {relTypes.map((type) => (
+                          <SelectItem
+                            key={type.type_id}
+                            value={type.type_id.toString()}
+                            className="cursor-pointer hover:bg-slate-50 capitalize"
+                          >
+                            {type.type_name}
+                          </SelectItem>
+                        ))}
                       </SelectGroup>
                     </SelectContent>
                   </Select>
@@ -239,9 +303,9 @@ const AddPersonModal = ({ trigger }) => {
               <div className={`flex gap-4`}>
                 <div className="grid w-full items-center gap-1.5">
                   <Label htmlFor="email" className="text-sm font-medium">
-                    Yet to decide
+                    Notes
                   </Label>
-                  <Input id="picture" type="text" />
+                  <Input id="notes" type="text" />
                 </div>
               </div>
               <div className="w-full flex justify-between items-center pt-3">

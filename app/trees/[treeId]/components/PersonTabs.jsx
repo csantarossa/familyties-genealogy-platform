@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -17,9 +17,22 @@ import { Camera, Plus } from "@geist-ui/icons";
 import UploadImage from "./UploadImage";
 import Image from "next/image";
 import { Edit, Edit2 } from "lucide-react";
+import { getSpouses } from "@/app/actions";
 
 const PersonTabs = () => {
   const [sidePanelContent, setSidePanelContent] = useContext(SidePanelContext);
+
+  const [relationships, setRelationships] = useState([]);
+
+  useEffect(() => {
+    handleGetRelationships();
+  }, []);
+
+  console.log(sidePanelContent);
+  const handleGetRelationships = async () => {
+    const data = await getSpouses(sidePanelContent.id);
+    setRelationships(data);
+  };
 
   const birthLocation = [
     sidePanelContent.dob.birthTown,
@@ -108,19 +121,21 @@ const PersonTabs = () => {
             <CardHeader>
               <CardTitle className="text-lg">Relationships</CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="space-y-0 flex justify-start items-center gap-3">
-                {/* IMAGE HERE */}
-                <div>
-                  <Label htmlFor="spouse" className="font-semibold text-sm">
-                    Fetch from database if relationships exist
-                  </Label>
-                  <p className="border-none p-0 h-fit rounded-sm py-1 text-sm">
-                    Date from database (e.g. 01/04/2020 - Present)
-                  </p>
+            {relationships.map((item) => (
+              <CardContent key={item.relationship_id}>
+                <div className="space-y-0 flex justify-start items-center gap-3">
+                  {/* IMAGE HERE */}
+                  <div>
+                    <Label
+                      htmlFor="spouse"
+                      className="font-semibold text-sm flex"
+                    >
+                      {item.other_person_firstname} {item.other_person_lastname}
+                    </Label>
+                  </div>
                 </div>
-              </div>
-            </CardContent>
+              </CardContent>
+            ))}
             <hr />
 
             <hr />

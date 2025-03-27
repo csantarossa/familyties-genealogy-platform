@@ -132,21 +132,18 @@ function FlowSpace() {
     const edges = [];
 
     relationships.forEach((relationship) => {
-      const { person_1, person_2, relationship_type } = relationship;
+      const { person_1, person_2, fk_type_id } = relationship;
 
       if (tree[person_1] && tree[person_2]) {
         const edge = {
-          id: `${relationship_type}-${person_1}-${person_2}`,
+          id: `${fk_type_id}-${person_1}-${person_2}`,
           source: `${person_1}`,
           target: `${person_2}`,
           type: "smoothstep",
-          style: {
-            stroke: relationship_type === "spouse" ? "#00f" : "#AAA",
-            strokeWidth: 2,
-          },
+          style: { strokeWidth: 2, stroke: "#000" },
         };
 
-        if (relationship_type === "spouse") {
+        if (fk_type_id === 2) {
           edge.sourceHandle = "right";
           edge.targetHandle = "left";
         }

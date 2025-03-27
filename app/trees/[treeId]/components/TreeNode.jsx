@@ -19,6 +19,7 @@ const TreeNode = ({ data }) => {
   // Opens the panel when a tree member is clicked
   const openPanel = () => {
     setSidePanelContent({
+      id: data.id,
       firstname: data.firstname,
       middlename: data.middlename,
       lastname: data.lastname,

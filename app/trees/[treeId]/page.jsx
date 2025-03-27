@@ -29,7 +29,6 @@ function Home() {
         value={[sidePanelContent, setSidePanelContent]}
       >
         <div className="w-screen max-h-screen">
-          <Toaster position="bottom center" />
           <div className="flex justify-center items-center p-5 gap-10 rounded-2xl shadow-md w-fit absolute z-50 bg-white left-[50%] translate-x-[-50%]">
             {/* <Link href={"#"}>Logo</Link> */}
             <Navbar />
