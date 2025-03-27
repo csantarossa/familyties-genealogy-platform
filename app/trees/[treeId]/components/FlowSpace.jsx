@@ -14,6 +14,7 @@ import { getPeople, getRelationships } from "@/app/actions";
 import { useParams } from "next/navigation";
 import BackButton from "./BackButton";
 import GetStartedModal from "./GetStartedModal";
+import toast from "react-hot-toast";
 
 const dagreGraph = new dagre.graphlib.Graph().setDefaultEdgeLabel(() => ({}));
 
@@ -69,6 +70,7 @@ function FlowSpace() {
 
   const fetchAndLayoutTree = async (treeId) => {
     setLoading(true);
+    const setUpToast = toast.loading("Setting up the tree");
     try {
       const people = await getPeople(treeId); // Fetch people data from the API
       const relationships = await getRelationships(treeId); // Fetch relationships from the API
@@ -126,6 +128,7 @@ function FlowSpace() {
     } catch (error) {
       console.error("Error fetching and laying out the tree:", error);
     }
+    toast.dismiss(setUpToast);
   };
 
   const generateEdges = (relationships, tree) => {
