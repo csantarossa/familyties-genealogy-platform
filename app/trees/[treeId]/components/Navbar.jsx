@@ -24,6 +24,7 @@ import { Input } from "@/components/ui/input";
 import { AddPersonModalContext } from "../page";
 import { useUser, logout } from "@/app/contexts/UserContext";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 const dancingScript = Dancing_Script({ subsets: ["latin"] });
 
@@ -38,10 +39,15 @@ export function Navbar() {
         href={"/trees/home"}
         className={`${dancingScript.className} antialiased font-bold text-xl px-[16px]`}
       >
-        FamilyTies
+        <div className="flex justify-center items-center gap-2">
+          <div className="h-5 w-5 relative">
+            <Image objectFit="fit" layout="fill" alt="logo" src="/logo.png" />
+          </div>
+          FamilyTies
+        </div>
       </Link>
       <div className="w-[0.8px] h-full bg-black opacity-40"></div>
-      <div></div>
+
       <MenubarMenu>
         {/* <MenubarTrigger>File</MenubarTrigger>
         <MenubarContent>

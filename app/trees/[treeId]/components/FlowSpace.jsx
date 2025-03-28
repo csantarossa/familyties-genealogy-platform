@@ -135,24 +135,34 @@ function FlowSpace() {
     const edges = [];
 
     relationships.forEach((relationship) => {
-      const { person_1, person_2, fk_type_id } = relationship;
+      let { person_1, person_2, fk_type_id } = relationship;
 
-      if (tree[person_1] && tree[person_2]) {
-        const edge = {
-          id: `${fk_type_id}-${person_1}-${person_2}`,
-          source: `${person_1}`,
-          target: `${person_2}`,
-          type: "smoothstep",
-          style: { strokeWidth: 2, stroke: "#000" },
-        };
+      // Skip if people not found in tree
+      if (!tree[person_1] || !tree[person_2]) return;
 
-        if (fk_type_id === 2) {
-          edge.sourceHandle = "right";
-          edge.targetHandle = "left";
-        }
-
-        edges.push(edge);
+      // Relationship direction logic
+      if (fk_type_id === 1) {
+        // person_1 is child, so child -> parent
+        [person_1, person_2] = [person_1, person_2]; // no swap needed, this line optional
+      } else if (fk_type_id === 4) {
+        // person_1 is parent, so child <- parent
+        [person_1, person_2] = [person_2, person_1]; // swap to make parent -> child
       }
+
+      const edge = {
+        id: `${fk_type_id}-${person_1}-${person_2}`,
+        source: `${person_1}`,
+        target: `${person_2}`,
+        type: "smoothstep",
+        style: { strokeWidth: 2, stroke: "#000" },
+      };
+
+      if (fk_type_id === 2) {
+        edge.sourceHandle = "right";
+        edge.targetHandle = "left";
+      }
+
+      edges.push(edge);
     });
 
     return edges;
