@@ -293,8 +293,7 @@ const AddPersonModal = ({ trigger }) => {
                         </TooltipTrigger>
                         <TooltipContent>
                           <p className="w-52 text-center">
-                            What is the <strong>initial relations'</strong>{" "}
-                            relationship with the new person?
+                            How is the <strong>selected person</strong> related?
                           </p>
                         </TooltipContent>
                       </Tooltip>
