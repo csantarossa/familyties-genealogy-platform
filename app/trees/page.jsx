@@ -10,6 +10,7 @@ import { Trash } from "lucide-react";
 import toast from "react-hot-toast";
 import NewTreeModal from "./components/NewTreeModal";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 const dancingScript = Dancing_Script({ subsets: ["latin"] });
 
 export default function Home() {
@@ -58,11 +59,17 @@ export default function Home() {
 
   return (
     <div className="flex flex-col justify-center items-center h-screen p-10 py-20 gap-4 font-[family-name:var(--font-geist-sans)]">
-      <h1
-        className={`text-[48px] font-bold ${dancingScript.className} antialiased`}
-      >
-        FamilyTies
-      </h1>
+      <div className="flex justify-center items-center gap-2">
+        <div className="h-10 w-10 relative">
+          <Image objectFit="fit" layout="fill" alt="logo" src="/logo.png" />
+        </div>
+        <h1
+          className={`text-[48px] font-bold ${dancingScript.className} antialiased`}
+        >
+          FamilyTies
+        </h1>
+      </div>
+
       <main className="flex flex-col gap-8 items-start justify-center ">
         <div className="flex flex-col gap-4">
           <div className="flex gap-2 justify-start items-center">

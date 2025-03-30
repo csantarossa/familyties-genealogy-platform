@@ -45,18 +45,14 @@ const TreeNode = ({ data }) => {
 
   return (
     <div className="nodrag">
-      <Handle type="source" position={Position.Bottom} id="bottom" />
-      {/* For children */}
       <Handle type="target" position={Position.Top} id="top" />
-      {/* For parents */}
-      <Handle type="source" position={Position.Right} id="right" />
-      {/* For spouse */}
-      <Handle type="target" position={Position.Left} id="left" />
-      {/* For spouse */}
-      {/* Card content */}
+      {/* <Handle type="source" position={Position.Right} id="right" /> */}
+      <Handle type="source" position={Position.Bottom} id="bottom" />
+      {/* <Handle type="target" position={Position.Left} id="left" /> */}
+
       <Card
         onClick={openPanel}
-        className="w-fit flex justify-between items-center p-4 gap-4"
+        className="w-fit flex flex-row justify-between items-center p-4 gap-4"
       >
         {data.confidence === "Unverified" ? (
           <Badge
@@ -68,49 +64,46 @@ const TreeNode = ({ data }) => {
           </Badge>
         ) : null}
 
-        <div className="relative w-24 h-24 ">
-          <Image
-            src={data.mainImg}
-            alt="Person's main image"
-            layout="fill"
-            objectFit="cover"
-            className="rounded-lg"
-          />
-        </div>
-        <div className="">
-          <CardHeader className="p-0 h-24 flex-col flex justify-between">
-            <div className="">
-              <div className="flex items-center justify-end gap-1 h-4">
-                {data.tags.map((tag, index) => (
-                  <p className="text-xs" key={index}>
-                    {tag}
-                  </p>
-                ))}
-              </div>
-              <div className="flex gap-1">
-                <CardTitle className="text-sm font-medium capitalize">
-                  {data.firstname}
-                </CardTitle>
-                <CardTitle className="text-sm font-normal capitalize">
-                  {data.middlename}
-                </CardTitle>
-              </div>
-              <CardTitle className="uppercase text-xl font-semibold">
-                {data.lastname}
-              </CardTitle>
-              <div className="flex justify-between gap-3">
-                <CardDescription className="capitalize text-xs mt-1">
-                  {data.gender}
-                </CardDescription>
-                <CardDescription className="capitalize text-xs mt-1">
-                  {data.dob}
-                </CardDescription>
-              </div>
+        <div className="h-24 flex justify-center items-center">
+          {data.tags.length > 0 && (
+            <div className="flex items-center justify-end gap-2 h-4 absolute -top-3 -right-3 bg-white border py-3 px-2 rounded-lg">
+              {data.tags.map((tag, index) => (
+                <p className="text-xs" key={index}>
+                  {tag}
+                </p>
+              ))}
             </div>
+          )}
+          <div className="relative w-24 h-full">
+            <Image
+              src={data.mainImg}
+              alt="Person's main image"
+              layout="fill"
+              objectFit="cover"
+              className="rounded-lg"
+            />
+          </div>
 
-            {/* <p className="text-xs">
-              {data.dob} - {data.dod}
-            </p> */}
+          <CardHeader className="h-fit flex-col flex justify-between">
+            <div className="flex gap-1">
+              <CardTitle className="text-sm font-medium capitalize">
+                {data.firstname}
+              </CardTitle>
+              <CardTitle className="text-sm font-normal capitalize">
+                {data.middlename}
+              </CardTitle>
+            </div>
+            <CardTitle className="uppercase text-xl font-semibold">
+              {data.lastname}
+            </CardTitle>
+            <div className="flex flex-col justify-between gap-1">
+              <CardDescription className="capitalize text-xs mt-1">
+                {data.gender}
+              </CardDescription>
+              <CardDescription className="capitalize text-xs mt-1">
+                {data.dob} - {data.dod}
+              </CardDescription>
+            </div>
           </CardHeader>
         </div>
       </Card>

@@ -27,11 +27,17 @@ import {
 import UserPlus from "@geist-ui/icons/userPlus";
 import toast from "react-hot-toast";
 import { AddPersonModalContext } from "../page";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, InfoIcon } from "lucide-react";
 import DatePickerInput from "./DatePickerInput";
 import { useParams } from "next/navigation";
 import { format } from "date-fns";
 import { getPeople, getRelationshipTypes } from "@/app/actions";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 const AddPersonModal = ({ trigger }) => {
   const params = useParams();
@@ -275,8 +281,23 @@ const AddPersonModal = ({ trigger }) => {
                   </Select>
                 </div>
                 <div className="grid w-full items-center gap-1.5">
-                  <Label htmlFor="dob" className="text-sm font-medium">
+                  <Label
+                    htmlFor="dob"
+                    className="text-sm font-medium flex gap-2 justify-start items-center"
+                  >
                     Type
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <InfoIcon size={17} className="opacity-80" />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p className="w-52 text-center">
+                            How is the <strong>selected person</strong> related?
+                          </p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                   </Label>
                   <Select
                     value={relation.relationType}
