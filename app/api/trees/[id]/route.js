@@ -25,7 +25,7 @@ export async function DELETE(req, { params }) {
 
 export async function POST(req, { params }) {
   try {
-    const { id } = params;
+    const { id } = await params;
     const body = await req.json();
 
     const newPerson = {
