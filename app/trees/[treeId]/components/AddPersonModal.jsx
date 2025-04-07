@@ -56,6 +56,7 @@ const AddPersonModal = ({ trigger }) => {
     firstname: "",
     middlename: "",
     lastname: "",
+    gender: "",
     dob: null,
     dod: null,
     img: null,
@@ -96,6 +97,7 @@ const AddPersonModal = ({ trigger }) => {
       ...newPerson,
       relation: relation.relationId,
       relationType: relation.relationType,
+      gender: newPerson.gender,
     };
 
     console.log(personToSubmit);
@@ -193,6 +195,27 @@ const AddPersonModal = ({ trigger }) => {
                     setNewPerson({ ...newPerson, lastname: e.target.value })
                   }
                 />
+              </div>
+              <div className="grid w-full items-center gap-1.5">
+                <Label htmlFor="gender" className="text-sm font-medium">
+                  Gender *
+                </Label>
+                <Select
+                  onValueChange={(value) =>
+                    setNewPerson({ ...newPerson, gender: value })
+                  }
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select gender" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectItem value="male">Male</SelectItem>
+                      <SelectItem value="female">Female</SelectItem>
+                      <SelectItem value="other">Other</SelectItem>
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
               </div>
               <div className="flex gap-4">
                 <div className="grid w-full items-center gap-1.5">

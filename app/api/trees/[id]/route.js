@@ -32,7 +32,7 @@ export async function POST(req, { params }) {
       firstname: body.firstname.trim(),
       middlename: body.middlename?.trim() || null,
       lastname: body.lastname.trim(),
-      gender: null,
+      gender: body.gender || null,
       dob: body.dob,
       dod: body.dod,
       tags: null,

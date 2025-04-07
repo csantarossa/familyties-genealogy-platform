@@ -25,6 +25,7 @@ const TreeNode = ({ data }) => {
       firstname: data.firstname,
       middlename: data.middlename,
       lastname: data.lastname,
+      gender: data.gender,
       trigger: true,
       img: data.mainImg,
       gender: data.gender,
