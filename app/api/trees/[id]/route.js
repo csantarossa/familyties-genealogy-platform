@@ -97,3 +97,45 @@ export async function POST(req, { params }) {
     );
   }
 }
+
+// New editing function
+export async function PUT(req, context) {
+  const { id } = await context.params;
+  const body = await req.json();
+
+  console.log("Received PUT for tree:", id);
+  console.log("Body:", body);
+
+  const {
+    personId,
+    gender,
+    dob,
+    dod,
+    birthTown,
+    birthCity,
+    birthState,
+    birthCountry,
+    additionalInfo,
+    gallery,
+  } = body;
+
+  await sql`
+    UPDATE person
+    SET
+      person_gender = ${gender},
+      person_dob = ${dob?.date},
+      person_dod = ${dod?.date || null},
+      birth_town = ${birthTown || null},
+      birth_city = ${birthCity || null},
+      birth_state = ${birthState || null},
+      birth_country = ${birthCountry || null},
+      additional_information = ${additionalInfo || null},
+      gallery = ${gallery || null}
+    WHERE person_id = ${personId} AND fk_tree_id = ${id};
+  `;
+
+  return NextResponse.json({
+    success: true,
+    message: "Person updated successfully",
+  });
+}
