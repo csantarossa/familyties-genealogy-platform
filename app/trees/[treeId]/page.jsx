@@ -5,11 +5,12 @@ import AddPersonButton from "./components/AddPersonButton";
 import SidePanel from "./components/SidePanel";
 import { createContext, useEffect, useState } from "react";
 import AddPersonModal from "./components/AddPersonModal";
-import { Toaster } from "react-hot-toast";
+import toast, { Toaster } from "react-hot-toast";
 import { Navbar } from "./components/Navbar";
 import { useParams, useRouter } from "next/navigation";
 import { useUser } from "@/app/contexts/UserContext";
 import { getTrees } from "@/app/actions";
+
 
 export const SidePanelContext = createContext();
 export const AddPersonModalContext = createContext();
@@ -31,12 +32,23 @@ function Home() {
     checkUserOwnsTree();
   }, [user]);
 
+  const router = useRouter();
+
+  const { user } = useUser();
+
+  useEffect(() => {
+    checkUserOwnsTree();
+  }, [user]);
+
+  const { treeId } = useParams();
+
   const [addPersonModal, setAddPersonModal] = useState(false);
 
   const checkUserOwnsTree = async () => {
     if (!user) return;
-
+    
     const trees = await getTrees(user.id);
+
     const filteredTrees = trees.filter(
       (tree) => Number(tree.tree_id) === Number(treeId)
     );
