@@ -73,8 +73,8 @@ const PersonTabs = () => {
       },
       dod:
         sidePanelContent.dod?.date &&
-        sidePanelContent.dod.date.toLowerCase() !== "alive"
-          ? { date: formatDate(sidePanelContent.dod.date) }
+        sidePanelContent.dod?.date.toLowerCase() !== "alive"
+          ? { date: formatDate(sidePanelContent.dod?.date) }
           : { date: null },
       birthTown: sidePanelContent.dob?.birthTown,
       birthCity: sidePanelContent.dob?.birthCity,
@@ -129,31 +129,21 @@ const PersonTabs = () => {
   ];
 
   return (
-    <div className="max-h-full overflow-hidden">
-      <Tabs defaultValue="account" className="w-[400px] h-full">
+    <div className="max-h-full overflow-y-auto">
+      <Tabs defaultValue="account" className="w-[400px] h-full flex flex-col">
+        <div className="sticky top-0 z-10 bg-white">
         {/* Tab Navigation */}
         <TabsList className="grid w-full grid-cols-4 ">
           <TabsTrigger className="hover:bg-gray-200" value="info">Info</TabsTrigger>
           <TabsTrigger className="hover:bg-gray-200" value="gallery">Gallery</TabsTrigger>
-          <TabsTrigger
-            className="hover:bg-gray-200"
-            disabled={true}
-            value="audio"
-          >
-            Audio
-          </TabsTrigger>
-          <TabsTrigger
-            className="hover:bg-gray-200"
-            disabled={true}
-            value="other"
-          >
-            Other
-          </TabsTrigger>
+          <TabsTrigger className="hover:bg-gray-200" disabled={true} value="audio">Audio</TabsTrigger>
+          <TabsTrigger className="hover:bg-gray-200" disabled={true} value="other">Other</TabsTrigger>
         </TabsList>
+        </div>
 
         {/* Info tab */}
-        <TabsContent value="info" className="h-full overflow-auto ">
-          <Card className="border-none shadow-none h-full">
+        <TabsContent value="info" className="flex-1 overflow-y-auto">
+          <Card className="border-none shadow-none">
             {/* General Info Section */}
             <CardHeader className="flex flex-row justify-between">
               <CardTitle className="text-lg">General Information</CardTitle>
@@ -275,8 +265,6 @@ const PersonTabs = () => {
               </CardContent>
             ))}
             <hr />
-
-            <hr />
           
             {/* This part is still experimental */}
 
@@ -368,54 +356,80 @@ const PersonTabs = () => {
                 <Edit2 size={16} />
               </div>
             </CardHeader>
-            {sidePanelContent.additionalInfo.education.map((job, index) => (
-              <CardContent className="gap-6 flex flex-col" key={index}>
-                <div className="flex justify-start items-center">
-                  <div className="w-full flex flex-col gap-1">
-                    <div className="flex items-start justify-start gap-3">
-                      {/* IMAGE HERE */}
-                      <Image
-                        src={job.institution_logo}
-                        height={40}
-                        width={40}
-                        className="rounded-sm mt-1"
-                        alt="Institution Logo"
-                      />
-                      <div>
-                        <Label
-                          htmlFor="spouse"
-                          className="font-semibold text-base"
-                        >
-                          {job.title}
-                        </Label>
-                      </div>
-                    </div>
-                    <div className="flex justify-between items-center ">
-                      <p className="text-sm font-medium text-start w-[50%]">
-                        {job.institution}
-                      </p>
 
-                      <p className="text-sm text-end">
-                        {job.institution_location}
-                      </p>
-                    </div>
-                    <CardDescription className="text-sm">
-                      {job.description}
-                    </CardDescription>
-                    <div className="flex items-center gap-3">
-                      <p className="border-none p-0 h-fit rounded-sm py-1 capitalize text-sm">
-                        {job.start_date}
-                      </p>
-                      <p>-</p>
-                      <p className="border-none p-0 h-fit rounded-sm py-1 capitalize text-sm">
-                        {job.end_date || "Present"}
-                      </p>
-                    </div>
+            {editedEducation.map((edu, index) => (
+              <CardContent key={index} className="flex flex-col gap-3">
+                {isEditingEducation ? (
+                  <div className="space-y-2">
+                    <Input
+                      value={edu.title}
+                      placeholder="Degree / Qualification"
+                      onChange={(e) => {
+                        const newEdu = [...editedEducation];
+                        newEdu[index].title = e.target.value;
+                        setEditedEducation(newEdu);
+                      }}
+                    />
+                    <Input
+                      value={edu.institution}
+                      placeholder="Institution"
+                      onChange={(e) => {
+                        const newEdu = [...editedEducation];
+                        newEdu[index].institution = e.target.value;
+                        setEditedEducation(newEdu);
+                      }}
+                    />
+                    <Input
+                      value={edu.institution_location}
+                      placeholder="Location"
+                      onChange={(e) => {
+                        const newEdu = [...editedEducation];
+                        newEdu[index].institution_location = e.target.value;
+                        setEditedEducation(newEdu);
+                      }}
+                    />
+                    <Input
+                      value={edu.start_date}
+                      placeholder="Start Date"
+                      onChange={(e) => {
+                        const newEdu = [...editedEducation];
+                        newEdu[index].start_date = e.target.value;
+                        setEditedEducation(newEdu);
+                      }}
+                    />
+                    <Input
+                      value={edu.end_date}
+                      placeholder="End Date"
+                      onChange={(e) => {
+                        const newEdu = [...editedEducation];
+                        newEdu[index].end_date = e.target.value;
+                        setEditedEducation(newEdu);
+                      }}
+                    />
+                    <Input
+                      value={edu.description}
+                      placeholder="Description"
+                      onChange={(e) => {
+                        const newEdu = [...editedEducation];
+                        newEdu[index].description = e.target.value;
+                        setEditedEducation(newEdu);
+                      }}
+                    />
                   </div>
-                </div>
-                <hr />
+                ) : (
+                  <div>
+                    <Label className="font-semibold text-sm">{edu.title}</Label>
+                    <p className="text-sm font-medium">{edu.institution}</p>
+                    <p className="text-sm">{edu.institution_location}</p>
+                    <CardDescription>{edu.description}</CardDescription>
+                    <p className="text-sm">
+                      {edu.start_date} - {edu.end_date || "Present"}
+                    </p>
+                  </div>
+                )}
               </CardContent>
             ))}
+
           </Card>
         </TabsContent>
 
@@ -436,11 +450,11 @@ const PersonTabs = () => {
                 </label>
                 <input type="file" id="uploadFile" className="hidden" />
                 {Array.isArray(sidePanelContent.gallery) &&
-  sidePanelContent.gallery.map((img, index) => (
-    <div key={index} className="w-28 h-28 relative">
-      <PopUp img={img} index={index} />
-    </div>
-))}
+                sidePanelContent.gallery.map((img, index) => (
+                  <div key={index} className="w-28 h-28 relative">
+                    <PopUp img={img} index={index} />
+                  </div>
+              ))}
 
               </CardContent>
             ) : (
