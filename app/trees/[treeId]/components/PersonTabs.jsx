@@ -133,8 +133,12 @@ const PersonTabs = () => {
       <Tabs defaultValue="account" className="w-[400px] h-full">
         {/* Tab Navigation */}
         <TabsList className="grid w-full grid-cols-4 ">
-          <TabsTrigger className="hover:bg-gray-200" value="info">Info</TabsTrigger>
-          <TabsTrigger className="hover:bg-gray-200" value="gallery">Gallery</TabsTrigger>
+          <TabsTrigger className="hover:bg-gray-200" value="info">
+            Info
+          </TabsTrigger>
+          <TabsTrigger className="hover:bg-gray-200" value="gallery">
+            Gallery
+          </TabsTrigger>
           <TabsTrigger
             className="hover:bg-gray-200"
             disabled={true}
@@ -159,14 +163,20 @@ const PersonTabs = () => {
               <CardTitle className="text-lg">General Information</CardTitle>
               <div className="flex gap-4 h-full justify-between items-center">
                 <Plus size={20} />
-                <Edit2 size={16} className="cursor-pointer" onClick={() => setIsEditingGeneral(!isEditingGeneral)}/>
+                <Edit2
+                  size={16}
+                  className="cursor-pointer"
+                  onClick={() => setIsEditingGeneral(!isEditingGeneral)}
+                />
               </div>
             </CardHeader>
 
             <CardContent className="space-y-2">
               {/* Gender */}
               <div className="space-y-0">
-                <Label htmlFor="gender" className="font-semibold text-sm">Gender</Label>
+                <Label htmlFor="gender" className="font-semibold text-sm">
+                  Gender
+                </Label>
                 {isEditingGeneral ? (
                   <Input
                     value={editedGender}
@@ -178,11 +188,13 @@ const PersonTabs = () => {
                     {sidePanelContent.gender}
                   </p>
                 )}
-              </div><hr />
-
+              </div>
+              <hr />
               {/* Birth */}
               <div className="space-y-0">
-                <Label htmlFor="born" className="font-semibold text-sm">Birth</Label>
+                <Label htmlFor="born" className="font-semibold text-sm">
+                  Birth
+                </Label>
                 {isEditingGeneral ? (
                   <Input
                     value={editedDob}
@@ -196,7 +208,9 @@ const PersonTabs = () => {
                   <a
                     className="flex flex-wrap underline underline-offset-2 text-sm"
                     target="_blank"
-                    href={`https://www.google.com/search?q=${birthLocation.join(" ")}`}
+                    href={`https://www.google.com/search?q=${birthLocation.join(
+                      " "
+                    )}`}
                   >
                     {birthLocation.map(
                       (item, index) =>
@@ -209,14 +223,20 @@ const PersonTabs = () => {
                     )}
                   </a>
                 )}
-              </div> <hr />
-
+              </div>{" "}
+              <hr />
               {/* Death */}
               <div className="space-y-0">
-                <Label htmlFor="death" className="font-semibold text-sm">Death</Label>
+                <Label htmlFor="death" className="font-semibold text-sm">
+                  Death
+                </Label>
                 {isEditingGeneral ? (
                   <Input
-                    value={sidePanelContent.dod?.date?.toLowerCase() === "alive" ? "" : sidePanelContent.dod?.date || ""}
+                    value={
+                      sidePanelContent.dod?.date?.toLowerCase() === "alive"
+                        ? ""
+                        : sidePanelContent.dod?.date || ""
+                    }
                     placeholder="e.g. 1995-03-21 or leave blank if alive"
                     onChange={(e) => {
                       const newDate = e.target.value;
@@ -235,7 +255,6 @@ const PersonTabs = () => {
                   </p>
                 )}
               </div>
-
               {/* Save/Cancel Buttons */}
               {isEditingGeneral && (
                 <div className="flex gap-2 mt-4">
@@ -277,7 +296,7 @@ const PersonTabs = () => {
             <hr />
 
             <hr />
-          
+
             {/* This part is still experimental */}
 
             {/* Career */}
@@ -285,80 +304,86 @@ const PersonTabs = () => {
               <CardTitle className="text-lg">Career</CardTitle>
               <div className="flex gap-4 h-full justify-between items-center">
                 <Plus size={20} />
-                <Edit2 size={16} className="cursor-pointer" onClick={() => setIsEditingCareer(!isEditingCareer)}/>
+                <Edit2
+                  size={16}
+                  className="cursor-pointer"
+                  onClick={() => setIsEditingCareer(!isEditingCareer)}
+                />
               </div>
             </CardHeader>
 
             {editedCareer.map((job, index) => (
-            <CardContent key={index} className="flex flex-col gap-3">
-              {isEditingCareer ? (
-                <div className="space-y-2">
-                  <Input
-                    value={job.title}
-                    placeholder="Job Title"
-                    onChange={(e) => {
-                      const newCareer = [...editedCareer];
-                      newCareer[index].title = e.target.value;
-                      setEditedCareer(newCareer);
-                    }}
-                  />
-                  <Input
-                    value={job.institution}
-                    placeholder="Company"
-                    onChange={(e) => {
-                      const newCareer = [...editedCareer];
-                      newCareer[index].institution = e.target.value;
-                      setEditedCareer(newCareer);
-                    }}
-                  />
-                  <Input
-                    value={job.institution_location}
-                    placeholder="Location"
-                    onChange={(e) => {
-                      const newCareer = [...editedCareer];
-                      newCareer[index].institution_location = e.target.value;
-                      setEditedCareer(newCareer);
-                    }}
-                  />
-                  <Input
-                    value={job.start_date}
-                    placeholder="Start Date"
-                    onChange={(e) => {
-                      const newCareer = [...editedCareer];
-                      newCareer[index].start_date = e.target.value;
-                      setEditedCareer(newCareer);
-                    }}
-                  />
-                  <Input
-                    value={job.end_date}
-                    placeholder="End Date (or leave blank)"
-                    onChange={(e) => {
-                      const newCareer = [...editedCareer];
-                      newCareer[index].end_date = e.target.value;
-                      setEditedCareer(newCareer);
-                    }}
-                  />
-                  <Input
-                    value={job.description}
-                    placeholder="Job Description"
-                    onChange={(e) => {
-                      const newCareer = [...editedCareer];
-                      newCareer[index].description = e.target.value;
-                      setEditedCareer(newCareer);
-                    }}
-                  />
-                </div>
-              ) : (
-                <div>
-                  <Label className="font-semibold text-sm">{job.title}</Label>
-                  <p className="text-sm font-medium">{job.institution}</p>
-                  <p className="text-sm">{job.institution_location}</p>
-                  <CardDescription>{job.description}</CardDescription>
-                  <p className="text-sm">{job.start_date} - {job.end_date || "Present"}</p>
-                </div>
-              )}
-            </CardContent>
-          ))}
+              <CardContent key={index} className="flex flex-col gap-3">
+                {isEditingCareer ? (
+                  <div className="space-y-2">
+                    <Input
+                      value={job.title}
+                      placeholder="Job Title"
+                      onChange={(e) => {
+                        const newCareer = [...editedCareer];
+                        newCareer[index].title = e.target.value;
+                        setEditedCareer(newCareer);
+                      }}
+                    />
+                    <Input
+                      value={job.institution}
+                      placeholder="Company"
+                      onChange={(e) => {
+                        const newCareer = [...editedCareer];
+                        newCareer[index].institution = e.target.value;
+                        setEditedCareer(newCareer);
+                      }}
+                    />
+                    <Input
+                      value={job.institution_location}
+                      placeholder="Location"
+                      onChange={(e) => {
+                        const newCareer = [...editedCareer];
+                        newCareer[index].institution_location = e.target.value;
+                        setEditedCareer(newCareer);
+                      }}
+                    />
+                    <Input
+                      value={job.start_date}
+                      placeholder="Start Date"
+                      onChange={(e) => {
+                        const newCareer = [...editedCareer];
+                        newCareer[index].start_date = e.target.value;
+                        setEditedCareer(newCareer);
+                      }}
+                    />
+                    <Input
+                      value={job.end_date}
+                      placeholder="End Date (or leave blank)"
+                      onChange={(e) => {
+                        const newCareer = [...editedCareer];
+                        newCareer[index].end_date = e.target.value;
+                        setEditedCareer(newCareer);
+                      }}
+                    />
+                    <Input
+                      value={job.description}
+                      placeholder="Job Description"
+                      onChange={(e) => {
+                        const newCareer = [...editedCareer];
+                        newCareer[index].description = e.target.value;
+                        setEditedCareer(newCareer);
+                      }}
+                    />
+                  </div>
+                ) : (
+                  <div>
+                    <Label className="font-semibold text-sm">{job.title}</Label>
+                    <p className="text-sm font-medium">{job.institution}</p>
+                    <p className="text-sm">{job.institution_location}</p>
+                    <CardDescription>{job.description}</CardDescription>
+                    <p className="text-sm">
+                      {job.start_date} - {job.end_date || "Present"}
+                    </p>
+                  </div>
+                )}
+              </CardContent>
+            ))}
 
             {/* Education */}
             <CardHeader className="flex flex-row justify-between">
@@ -436,12 +461,11 @@ const PersonTabs = () => {
                 </label>
                 <input type="file" id="uploadFile" className="hidden" />
                 {Array.isArray(sidePanelContent.gallery) &&
-  sidePanelContent.gallery.map((img, index) => (
-    <div key={index} className="w-28 h-28 relative">
-      <PopUp img={img} index={index} />
-    </div>
-))}
-
+                  sidePanelContent?.gallery.map((img, index) => (
+                    <div key={index} className="w-28 h-28 relative">
+                      <PopUp img={img} index={index} />
+                    </div>
+                  ))}
               </CardContent>
             ) : (
               // Upload file replacing ugly input for image
