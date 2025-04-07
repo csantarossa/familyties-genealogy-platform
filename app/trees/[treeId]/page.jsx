@@ -3,15 +3,19 @@ import "@xyflow/react/dist/style.css";
 import FlowSpace from "./components/FlowSpace";
 import AddPersonButton from "./components/AddPersonButton";
 import SidePanel from "./components/SidePanel";
-import { createContext, useState } from "react";
+import { createContext, useEffect, useState } from "react";
 import AddPersonModal from "./components/AddPersonModal";
 import { Toaster } from "react-hot-toast";
 import { Navbar } from "./components/Navbar";
+import { useParams, useRouter } from "next/navigation";
+import { useUser } from "@/app/contexts/UserContext";
+import { getTrees } from "@/app/actions";
 
 export const SidePanelContext = createContext();
 export const AddPersonModalContext = createContext();
 
 function Home() {
+  const router = useRouter();
   const [sidePanelContent, setSidePanelContent] = useState({
     trigger: false,
     firstname: "",
@@ -20,8 +24,28 @@ function Home() {
     other: "",
     img: "",
   });
+  const { treeId } = useParams();
+  const { user } = useUser();
+
+  useEffect(() => {
+    checkUserOwnsTree();
+  }, [user]);
 
   const [addPersonModal, setAddPersonModal] = useState(false);
+
+  const checkUserOwnsTree = async () => {
+    if (!user) return;
+
+    const trees = await getTrees(user.id);
+    const filteredTrees = trees.filter(
+      (tree) => Number(tree.tree_id) === Number(treeId)
+    );
+    if (filteredTrees.length > 0) {
+      return;
+    } else {
+      router.push("/trees");
+    }
+  };
 
   return (
     <AddPersonModalContext.Provider value={[addPersonModal, setAddPersonModal]}>
