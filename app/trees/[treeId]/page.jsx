@@ -7,14 +7,16 @@ import { createContext, useEffect, useState } from "react";
 import AddPersonModal from "./components/AddPersonModal";
 import toast, { Toaster } from "react-hot-toast";
 import { Navbar } from "./components/Navbar";
+import { useParams, useRouter } from "next/navigation";
 import { useUser } from "@/app/contexts/UserContext";
 import { getTrees } from "@/app/actions";
-import { useParams, useRouter } from "next/navigation";
+
 
 export const SidePanelContext = createContext();
 export const AddPersonModalContext = createContext();
 
 function Home() {
+  const router = useRouter();
   const [sidePanelContent, setSidePanelContent] = useState({
     trigger: false,
     firstname: "",
@@ -23,6 +25,12 @@ function Home() {
     other: "",
     img: "",
   });
+  const { treeId } = useParams();
+  const { user } = useUser();
+
+  useEffect(() => {
+    checkUserOwnsTree();
+  }, [user]);
 
   const router = useRouter();
 
@@ -38,6 +46,7 @@ function Home() {
 
   const checkUserOwnsTree = async () => {
     if (!user) return;
+    
     const trees = await getTrees(user.id);
 
     const filteredTrees = trees.filter(
