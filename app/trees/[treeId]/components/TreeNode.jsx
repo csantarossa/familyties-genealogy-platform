@@ -12,14 +12,16 @@ import { Handle, Position } from "@xyflow/react";
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import { SidePanelContext } from "../page";
+import { useParams } from "next/navigation";
 
 const TreeNode = ({ data }) => {
-  const [sidePanelContent, setSidePanelContent] = useContext(SidePanelContext);
+  const [_, setSidePanelContent] = useContext(SidePanelContext);
+  const { treeId } = useParams(); // Grab treeId from URL
 
-  // Opens the panel when a tree member is clicked
   const openPanel = () => {
     setSidePanelContent({
       id: data.id,
+      tree_id: treeId, // Add tree_id for backend PUT
       firstname: data.firstname,
       middlename: data.middlename,
       lastname: data.lastname,
@@ -27,7 +29,13 @@ const TreeNode = ({ data }) => {
       img: data.mainImg,
       gender: data.gender,
       tags: data.tags,
-      gallery: data.gallery,
+      //Changed this because it messed up the editing function
+      gallery: Array.isArray(data.gallery)
+      ? data.gallery
+      : typeof data.gallery === "string"
+        ? JSON.parse(data.gallery)
+        : [],
+
       confidence: data.confidence,
       dob: {
         date: data.dob,
@@ -46,10 +54,7 @@ const TreeNode = ({ data }) => {
   return (
     <div className="nodrag">
       <Handle type="target" position={Position.Top} id="top" />
-      {/* <Handle type="source" position={Position.Right} id="right" /> */}
       <Handle type="source" position={Position.Bottom} id="bottom" />
-      {/* <Handle type="target" position={Position.Left} id="left" /> */}
-
       <Card
         onClick={openPanel}
         className="w-fit flex flex-row justify-between items-center p-4 gap-4"
