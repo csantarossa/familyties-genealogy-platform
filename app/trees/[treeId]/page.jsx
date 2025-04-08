@@ -11,7 +11,6 @@ import { useParams, useRouter } from "next/navigation";
 import { useUser } from "@/app/contexts/UserContext";
 import { getTrees } from "@/app/actions";
 
-
 export const SidePanelContext = createContext();
 export const AddPersonModalContext = createContext();
 
@@ -25,28 +24,21 @@ function Home() {
     other: "",
     img: "",
   });
-  const { treeId } = useParams();
-  const { user } = useUser();
-
-  useEffect(() => {
-    checkUserOwnsTree();
-  }, [user]);
-
-  const router = useRouter();
 
   const { user } = useUser();
-
-  useEffect(() => {
-    checkUserOwnsTree();
-  }, [user]);
 
   const { treeId } = useParams();
 
   const [addPersonModal, setAddPersonModal] = useState(false);
 
+  useEffect(() => {
+    checkUserOwnsTree();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
+
   const checkUserOwnsTree = async () => {
     if (!user) return;
-    
+
     const trees = await getTrees(user.id);
 
     const filteredTrees = trees.filter(
