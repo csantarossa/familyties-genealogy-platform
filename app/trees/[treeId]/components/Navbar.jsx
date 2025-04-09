@@ -114,21 +114,29 @@ export function Navbar() {
         </MenubarContent>
       </MenubarMenu>
       <MenubarMenu>
-        <MenubarTrigger>Account</MenubarTrigger>
-        <MenubarContent>
-          <MenubarItem>Preferences</MenubarItem>
-          <MenubarItem>Settings</MenubarItem>
-          <MenubarItem
-            className="bg-[#4877c3] text-white font-semibold cursor-pointer"
-            onClick={() => {
-              logout(); // ✅ Clears user from localStorage and context
-              router.push("/login"); // ✅ Redirects to login page
-            }}
-          >
-            Log Out
-          </MenubarItem>
-        </MenubarContent>
-      </MenubarMenu>
+  <MenubarTrigger>Account</MenubarTrigger>
+  <MenubarContent>
+    <Link href="/preferences" passHref>
+      <MenubarItem asChild>
+        <span>Preferences</span>
+      </MenubarItem>
+    </Link>
+    <Link href="/settings" passHref>
+      <MenubarItem asChild>
+        <span>Settings</span>
+      </MenubarItem>
+    </Link>
+    <MenubarItem
+      className="bg-[#4877c3] text-white font-semibold cursor-pointer"
+      onClick={() => {
+        logout(); // ✅ Clears user from localStorage and context
+        router.push("/login"); // ✅ Redirects to login page
+      }}
+    >
+      Log Out
+    </MenubarItem>
+  </MenubarContent>
+</MenubarMenu>
     </Menubar>
   );
 }
