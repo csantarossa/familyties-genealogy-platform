@@ -1,3 +1,4 @@
+"use client";
 import React, { useEffect, useState } from "react";
 import {
   AlertDialog,
@@ -39,7 +40,8 @@ const GetStartedModal = ({ treeId }) => {
     }));
   }, [dobDate, dodDate]);
 
-  const handleSubmitForm = async () => {
+  const handleSubmitForm = async (e) => {
+    e.preventDefault();
     try {
       const response = await fetch(`/api/trees/${treeId}`, {
         method: "POST",
@@ -55,11 +57,11 @@ const GetStartedModal = ({ treeId }) => {
 
       const data = await response.json();
       console.log("Success:", data);
-      handleSubmitForm();
-      setFormOpen(false);
+      window.location.reload();
     } catch (error) {
       console.error("Error submitting form:", error);
     }
+    setFormOpen(false);
   };
 
   return (
@@ -142,13 +144,14 @@ const GetStartedModal = ({ treeId }) => {
               <Label htmlFor="email" className="text-sm font-medium">
                 Profile Image
               </Label>
-              <Input
+              <p>Coming soon</p>
+              {/* <Input
                 id="picture"
                 type="file"
                 onChange={(e) =>
                   setNewPerson({ ...newPerson, img: e.target.value })
                 }
-              />
+              /> */}
             </div>
 
             <AlertDialogAction type="submit" className="flex w-full">

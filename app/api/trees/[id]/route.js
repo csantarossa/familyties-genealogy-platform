@@ -26,7 +26,19 @@ export async function DELETE(req, { params }) {
 export async function POST(req, { params }) {
   try {
     const { id } = await params;
-    const body = await req.json();
+    const raw = await req.text();
+    console.log("🧪 RAW REQUEST BODY:", raw);
+
+    let body;
+    try {
+      body = JSON.parse(raw);
+    } catch (err) {
+      console.error("❌ Failed to parse body:", err);
+      return NextResponse.json(
+        { error: "Invalid or empty JSON body" },
+        { status: 400 }
+      );
+    }
 
     const newPerson = {
       firstname: body.firstname.trim(),
