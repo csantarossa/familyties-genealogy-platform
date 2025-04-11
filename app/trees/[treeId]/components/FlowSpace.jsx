@@ -15,6 +15,7 @@ import { useParams } from "next/navigation";
 import BackButton from "./BackButton";
 import GetStartedModal from "./GetStartedModal";
 import toast from "react-hot-toast";
+import { transformPerson } from "@/app/utils/transformPerson";
 
 const dagreGraph = new dagre.graphlib.Graph().setDefaultEdgeLabel(() => ({}));
 
@@ -80,32 +81,7 @@ function FlowSpace() {
         tree[person.person_id] = {
           id: `${person.person_id}`,
           name: `${person.person_firstname} ${person.person_lastname}`,
-          data: {
-            id: person.person_id,
-            firstname: person.person_firstname || "",
-            middlename: person.person_middlename || "",
-            lastname: person.person_lastname || "",
-            dob: person.person_dob
-              ? new Date(person.person_dob).toLocaleDateString()
-              : "Unknown",
-            dod: person.person_dod
-              ? new Date(person.person_dod).toLocaleDateString()
-              : "Alive",
-            gender: person.person_gender || "",
-            mainImg: person.person_main_img || "/person_placeholder.png",
-            tags: person.person_tags || [],
-            birthTown: person.birth_town || "",
-            birthCity: person.birth_city || "",
-            birthState: person.birth_state || "",
-            birthCountry: person.birth_country || "",
-            gallery: person.gallery || [],
-            confidence: getConfidenceScore(person.confidence),
-            additionalInfo: {
-              career: person.additional_information?.career || [],
-              education: person.additional_information?.education || [],
-              hobbies: person.additional_information?.hobbies || [],
-            },
-          },
+          data: transformPerson(person),
         };
       });
 

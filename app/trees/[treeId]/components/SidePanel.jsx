@@ -20,16 +20,21 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Edit } from "@geist-ui/icons";
+import { useParams } from "next/navigation";
 
 const SidePanel = () => {
   const [sidePanelContent, setSidePanelContent] = useContext(SidePanelContext);
+  const { treeId } = useParams();
 
   return (
     // When sidePanelContent.trigger is true it opens, then as a callback set the trigger back to false. Without this you cannot close it.
     <Sheet
       open={sidePanelContent.trigger}
       onOpenChange={() =>
-        setSidePanelContent({ ...sidePanelContent, trigger: false })
+        setSidePanelContent({
+          ...sidePanelContent,
+          trigger: false,
+        })
       }
     >
       {/* <SheetTrigger></SheetTrigger> */}

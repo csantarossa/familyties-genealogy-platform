@@ -21,33 +21,9 @@ const TreeNode = ({ data }) => {
   const openPanel = () => {
     setSidePanelContent({
       id: data.id,
-      tree_id: treeId, // Add tree_id for backend PUT
-      firstname: data.firstname,
-      middlename: data.middlename,
-      lastname: data.lastname,
       trigger: true,
-      img: data.mainImg,
-      gender: data.gender,
-      tags: data.tags,
-      //Changed this because it messed up the editing function
-      gallery: Array.isArray(data.gallery)
-      ? data.gallery
-      : typeof data.gallery === "string"
-        ? JSON.parse(data.gallery)
-        : [],
-
-      confidence: data.confidence,
-      dob: {
-        date: data.dob,
-        birthTown: data.birthTown,
-        birthCity: data.birthCity,
-        birthState: data.birthState,
-        birthCountry: data.birthCountry,
-      },
-      dod: {
-        date: data.dod,
-      },
-      additionalInfo: data.additionalInfo,
+      treeId: treeId,
+      ...data,
     });
   };
 
@@ -81,7 +57,7 @@ const TreeNode = ({ data }) => {
           )}
           <div className="relative w-24 h-full">
             <Image
-              src={data.mainImg}
+              src={data.img}
               alt="Person's main image"
               layout="fill"
               objectFit="cover"

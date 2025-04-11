@@ -111,12 +111,9 @@ export async function POST(req, { params }) {
 }
 
 // New editing function
-export async function PUT(req, context) {
-  const { id } = await context.params;
+export async function PUT(req, { params }) {
+  const { id } = await params;
   const body = await req.json();
-
-  console.log("Received PUT for tree:", id);
-  console.log("Body:", body);
 
   const {
     personId,
@@ -131,18 +128,21 @@ export async function PUT(req, context) {
     gallery,
   } = body;
 
+  const safeDod = dod?.toLowerCase?.() === "alive" ? null : dod;
+  const safeDob = dob?.toLowerCase?.() === "unknown" ? null : dob;
+
   await sql`
     UPDATE person
     SET
       person_gender = ${gender},
-      person_dob = ${dob?.date},
-      person_dod = ${dod?.date || null},
+      person_dob = ${safeDob},
+      person_dod = ${safeDod},
       birth_town = ${birthTown || null},
       birth_city = ${birthCity || null},
       birth_state = ${birthState || null},
       birth_country = ${birthCountry || null},
-      additional_information = ${additionalInfo || null},
-      gallery = ${gallery || null}
+      additional_information = ${JSON.stringify(additionalInfo) || null},
+      gallery = ${JSON.stringify(gallery) || null}
     WHERE person_id = ${personId} AND fk_tree_id = ${id};
   `;
 

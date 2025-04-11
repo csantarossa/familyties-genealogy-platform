@@ -19,6 +19,8 @@ import Image from "next/image";
 import { Edit, Edit2 } from "lucide-react";
 import { getSpouses } from "@/app/actions";
 import toast from "react-hot-toast";
+import DatePickerInput from "./DatePickerInput";
+import { format } from "date-fns";
 
 const PersonTabs = () => {
   const [sidePanelContent, setSidePanelContent] = useContext(SidePanelContext);
@@ -27,7 +29,8 @@ const PersonTabs = () => {
   const [isEditingCareer, setIsEditingCareer] = useState(false);
   const [isEditingEducation, setIsEditingEducation] = useState(false);
   const [editedGender, setEditedGender] = useState(sidePanelContent.gender);
-  const [editedDob, setEditedDob] = useState(sidePanelContent.dob?.date || "");
+  const [editedDob, setEditedDob] = useState(sidePanelContent.dob);
+  const [editedDod, setEditedDod] = useState(sidePanelContent.dod);
   const [editedCareer, setEditedCareer] = useState(
     sidePanelContent.additionalInfo?.career || []
   );
@@ -35,61 +38,35 @@ const PersonTabs = () => {
     sidePanelContent.additionalInfo?.education || []
   );
 
-  //Fetch relationship on component mount
   useEffect(() => {
     handleGetRelationships();
   }, []);
 
-  console.log(sidePanelContent);
   const handleGetRelationships = async () => {
     const data = await getSpouses(sidePanelContent.id);
     setRelationships(data);
   };
-  //=====================================
-  // Format DOB into YYYY-MM-DD if needed
-  //=====================================
-  const formatDate = (dateStr) => {
-    if (!dateStr) return null;
-    if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return dateStr;
-    const parts = dateStr.split("/");
-    if (parts.length === 3) {
-      const [day, month, year] = parts;
-      return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
-    }
-    return null;
-  };
-  //====================================
-  // Save edited general info to backend
-  //=====================================
+
   const handleSave = async () => {
-    const formattedDob = formatDate(editedDob);
-
-    const updatedData = {
-      personId: sidePanelContent.id,
-      gender: editedGender,
-      dob: {
-        ...sidePanelContent.dob,
-        date: formattedDob,
-      },
-      dod:
-        sidePanelContent.dod?.date &&
-        sidePanelContent.dod.date.toLowerCase() !== "alive"
-          ? { date: formatDate(sidePanelContent.dod.date) }
-          : { date: null },
-      birthTown: sidePanelContent.dob?.birthTown,
-      birthCity: sidePanelContent.dob?.birthCity,
-      birthState: sidePanelContent.dob?.birthState,
-      birthCountry: sidePanelContent.dob?.birthCountry,
-      additionalInfo: {
-        ...sidePanelContent.additionalInfo,
-        career: editedCareer,
-        education: editedEducation,
-      },
-      gallery: sidePanelContent.gallery,
-    };
-
     try {
-      const res = await fetch(`/api/trees/${sidePanelContent.tree_id}`, {
+      const updatedData = {
+        personId: sidePanelContent.id,
+        gender: editedGender,
+        dob: editedDob,
+        dod: editedDod,
+        birthTown: sidePanelContent.birthTown,
+        birthCity: sidePanelContent.birthCity,
+        birthState: sidePanelContent.birthState,
+        birthCountry: sidePanelContent.birthCountry,
+        additionalInfo: {
+          ...sidePanelContent.additionalInfo,
+          career: editedCareer,
+          education: editedEducation,
+        },
+        gallery: sidePanelContent.gallery,
+      };
+
+      const res = await fetch(`/api/trees/${sidePanelContent.treeId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(updatedData),
@@ -105,7 +82,7 @@ const PersonTabs = () => {
       setSidePanelContent((prev) => ({
         ...prev,
         gender: editedGender,
-        dob: { ...prev.dob, date: formattedDob },
+        dob: editedDob,
         additionalInfo: {
           ...prev.additionalInfo,
           career: editedCareer,
@@ -122,16 +99,15 @@ const PersonTabs = () => {
   };
 
   const birthLocation = [
-    sidePanelContent.dob.birthTown,
-    sidePanelContent.dob.birthCity,
-    sidePanelContent.dob.birthState,
-    sidePanelContent.dob.birthCountry,
+    sidePanelContent.birthTown,
+    sidePanelContent.birthCity,
+    sidePanelContent.birthState,
+    sidePanelContent.birthCountry,
   ];
 
   return (
     <div className="max-h-full overflow-hidden">
       <Tabs defaultValue="account" className="w-[400px] h-full">
-        {/* Tab Navigation */}
         <TabsList className="grid w-full grid-cols-4 ">
           <TabsTrigger className="hover:bg-gray-200" value="info">
             Info
@@ -196,13 +172,9 @@ const PersonTabs = () => {
                   Birth
                 </Label>
                 {isEditingGeneral ? (
-                  <Input
-                    value={editedDob}
-                    onChange={(e) => setEditedDob(e.target.value)}
-                    className="text-sm"
-                  />
+                  <DatePickerInput date={editedDob} setDate={setEditedDob} />
                 ) : (
-                  <p className="border-none py-1 h-fit text-sm">{`${sidePanelContent.dob.date}`}</p>
+                  <p className="border-none py-1 h-fit text-sm">{`${sidePanelContent.dob}`}</p>
                 )}
                 {!isEditingGeneral && (
                   <a
@@ -223,7 +195,7 @@ const PersonTabs = () => {
                     )}
                   </a>
                 )}
-              </div>{" "}
+              </div>
               <hr />
               {/* Death */}
               <div className="space-y-0">
@@ -231,28 +203,9 @@ const PersonTabs = () => {
                   Death
                 </Label>
                 {isEditingGeneral ? (
-                  <Input
-                    value={
-                      sidePanelContent.dod?.date?.toLowerCase() === "alive"
-                        ? ""
-                        : sidePanelContent.dod?.date || ""
-                    }
-                    placeholder="e.g. 1995-03-21 or leave blank if alive"
-                    onChange={(e) => {
-                      const newDate = e.target.value;
-                      setSidePanelContent((prev) => ({
-                        ...prev,
-                        dod: {
-                          ...prev.dod,
-                          date: newDate || "Alive",
-                        },
-                      }));
-                    }}
-                  />
+                  <DatePickerInput date={editedDod} setDate={setEditedDod} />
                 ) : (
-                  <p className="text-sm">
-                    {sidePanelContent.dod?.date || "Present"}
-                  </p>
+                  <p className="text-sm">{sidePanelContent.dod}</p>
                 )}
               </div>
               {/* Save/Cancel Buttons */}
@@ -263,7 +216,7 @@ const PersonTabs = () => {
                     variant="ghost"
                     onClick={() => {
                       setEditedGender(sidePanelContent.gender);
-                      setEditedDob(sidePanelContent.dob?.date || "");
+                      setEditedDob(sidePanelContent.dob || "");
                       setIsEditingGeneral(false);
                     }}
                   >
