@@ -60,11 +60,13 @@ const PersonTabs = () => {
   }, []);
 
   const handleGetRelationships = async () => {
+    toast.loading("Loading sidepanel");
     const data = await getImmediateFamily(sidePanelContent.id);
     const siblingData = await getSiblingsBySharedParents(sidePanelContent.id);
     setSiblings(siblingData);
     console.log("siblings: ", siblingData);
     setRelationships(data);
+    toast.dismiss();
   };
 
   const handleSave = async () => {
