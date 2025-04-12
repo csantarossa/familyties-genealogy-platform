@@ -29,6 +29,7 @@ export default function Home() {
 
   const handleSignup = async (e) => {
     e.preventDefault();
+    toast.loading("Creating user");
     try {
       if (newUser.password === newUser.confirmedPassword) {
         const response = await fetch("/api/signup", {
@@ -54,6 +55,7 @@ export default function Home() {
     } catch (error) {
       console.error(error);
     }
+    toast.dismiss();
   };
 
   return (
