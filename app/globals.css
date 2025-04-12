@@ -90,3 +90,22 @@ body {
     transform: rotate(360deg);
   }
 }
+
+input[type="file"]::file-selector-button {
+  border-radius: 5px;
+  height: 100%;
+  padding: 0px 12px;
+  background-color: #ededed;
+  transition: 1s;
+  cursor: pointer;
+}
+
+input[type="file"] {
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0;
+  transition: 1s;
+  cursor: pointer;
+}

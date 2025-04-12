@@ -175,7 +175,7 @@ const GetStartedModal = ({ treeId }) => {
 
             <div className="grid w-full items-center gap-1.5">
               <Label className="text-sm font-medium">Profile Image</Label>
-              <input
+              <Input
                 type="file"
                 accept="image/*"
                 onChange={(e) => setFile(e.target.files[0])}
