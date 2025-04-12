@@ -8,6 +8,7 @@ module.exports = {
       "encrypted-tbn0.gstatic.com",
       "smmornington.catholic.edu.au",
       "www.google.com",
+      "genealogy-app-images.s3.ap-southeast-2.amazonaws.com",
     ],
   },
 };

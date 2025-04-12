@@ -31,6 +31,7 @@ export default function Home() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    toast.loading("Logging in");
 
     const response = await fetch("/api/login", {
       method: "POST",
@@ -50,6 +51,7 @@ export default function Home() {
     } else {
       toast.error(data.message);
     }
+    toast.dismiss();
   };
 
   return (

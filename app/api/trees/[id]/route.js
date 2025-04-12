@@ -26,7 +26,18 @@ export async function DELETE(req, { params }) {
 export async function POST(req, { params }) {
   try {
     const { id } = await params;
-    const body = await req.json();
+    const raw = await req.text();
+
+    let body;
+    try {
+      body = JSON.parse(raw);
+    } catch (err) {
+      console.error("❌ Failed to parse body:", err);
+      return NextResponse.json(
+        { error: "Invalid or empty JSON body" },
+        { status: 400 }
+      );
+    }
 
     const newPerson = {
       firstname: body.firstname.trim(),
@@ -47,7 +58,6 @@ export async function POST(req, { params }) {
       treeId: id,
     };
 
-    // 1. Insert person and get their ID
     const result = await sql`
       INSERT INTO person (
         person_firstname, person_middlename, person_lastname, person_gender,
@@ -65,8 +75,7 @@ export async function POST(req, { params }) {
     `;
 
     const newPersonId = result[0].person_id;
-    console.log(body.relation, body.relationType);
-    // 2. If a relationship was selected, insert into the relationships table
+
     if (body.relation && body.relationType) {
       await sql`
       INSERT INTO relationships (
@@ -96,4 +105,46 @@ export async function POST(req, { params }) {
       { status: 500 }
     );
   }
+}
+
+// New editing function
+export async function PUT(req, { params }) {
+  const { id } = await params;
+  const body = await req.json();
+
+  const {
+    personId,
+    gender,
+    dob,
+    dod,
+    birthTown,
+    birthCity,
+    birthState,
+    birthCountry,
+    additionalInfo,
+    gallery,
+  } = body;
+
+  const safeDod = dod?.toLowerCase?.() === "alive" ? null : dod;
+  const safeDob = dob?.toLowerCase?.() === "unknown" ? null : dob;
+
+  await sql`
+    UPDATE person
+    SET
+      person_gender = ${gender},
+      person_dob = ${safeDob},
+      person_dod = ${safeDod},
+      birth_town = ${birthTown || null},
+      birth_city = ${birthCity || null},
+      birth_state = ${birthState || null},
+      birth_country = ${birthCountry || null},
+      additional_information = ${JSON.stringify(additionalInfo) || null},
+      gallery = ${JSON.stringify(gallery) || null}
+    WHERE person_id = ${personId} AND fk_tree_id = ${id};
+  `;
+
+  return NextResponse.json({
+    success: true,
+    message: "Person updated successfully",
+  });
 }

@@ -1,4 +1,6 @@
+"use client";
 import React, { useEffect, useState } from "react";
+import imageCompression from "browser-image-compression";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -16,11 +18,15 @@ import { Button } from "@/components/ui/button";
 import { ChevronRight, UserPlus } from "lucide-react";
 import { format } from "date-fns";
 import DatePickerInput from "./DatePickerInput";
+import toast from "react-hot-toast";
 
 const GetStartedModal = ({ treeId }) => {
   const [dobDate, setDobDate] = useState(null);
   const [dodDate, setDodDate] = useState(null);
   const [formOpen, setFormOpen] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [file, setFile] = useState(null);
+
   const [newPerson, setNewPerson] = useState({
     firstname: "",
     middlename: "",
@@ -29,8 +35,8 @@ const GetStartedModal = ({ treeId }) => {
     dod: null,
     img: null,
   });
+  //
 
-  // ✅ Sync formatted date when dobDate or dodDate updates
   useEffect(() => {
     setNewPerson((prev) => ({
       ...prev,
@@ -39,26 +45,55 @@ const GetStartedModal = ({ treeId }) => {
     }));
   }, [dobDate, dodDate]);
 
-  const handleSubmitForm = async () => {
+  const handleSubmitForm = async (e) => {
+    e.preventDefault();
+    toast.loading("Creating person");
     try {
+      setLoading(true);
+
+      let uploadedImageUrl = null;
+      if (file) {
+        const compressedFile = await imageCompression(file, {
+          maxSizeMB: 0.5,
+          maxWidthOrHeight: 1024,
+          useWebWorker: true,
+        });
+
+        const formData = new FormData();
+        formData.append("file", compressedFile);
+
+        const uploadRes = await fetch(`/api/trees/${treeId}/s3-upload`, {
+          method: "POST",
+          body: formData,
+        });
+
+        const uploadData = await uploadRes.json();
+        uploadedImageUrl = uploadData.url;
+      }
+
+      // 📨 Send new person data
       const response = await fetch(`/api/trees/${treeId}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(newPerson),
+        body: JSON.stringify({
+          ...newPerson,
+          img: uploadedImageUrl,
+        }),
       });
 
-      if (!response.ok) {
-        throw new Error("Failed to add person");
-      }
+      if (!response.ok) throw new Error("Failed to add person");
 
       const data = await response.json();
       console.log("Success:", data);
-      handleSubmitForm();
-      setFormOpen(false);
     } catch (error) {
       console.error("Error submitting form:", error);
+    } finally {
+      setFormOpen(false);
+      toast.dismiss();
+      setLoading(false);
+      window.location.reload();
     }
   };
 
@@ -139,21 +174,24 @@ const GetStartedModal = ({ treeId }) => {
             </div>
 
             <div className="grid w-full items-center gap-1.5">
-              <Label htmlFor="email" className="text-sm font-medium">
-                Profile Image
-              </Label>
+              <Label className="text-sm font-medium">Profile Image</Label>
               <Input
-                id="picture"
                 type="file"
-                onChange={(e) =>
-                  setNewPerson({ ...newPerson, img: e.target.value })
-                }
+                accept="image/*"
+                onChange={(e) => setFile(e.target.files[0])}
+                className="text-sm"
               />
             </div>
 
             <AlertDialogAction type="submit" className="flex w-full">
-              Add your first person!
-              <UserPlus className="" size={24} />
+              {loading ? (
+                <div className="loader"></div>
+              ) : (
+                <>
+                  Add your first person!
+                  <UserPlus className="" size={24} />
+                </>
+              )}
             </AlertDialogAction>
           </form>
         </AlertDialogContent>

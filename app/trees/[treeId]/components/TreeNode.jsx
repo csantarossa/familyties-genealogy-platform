@@ -13,36 +13,21 @@ import { Handle, Position } from "@xyflow/react";
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import { SidePanelContext } from "../page";
+import { useParams } from "next/navigation";
 
 
 const TreeNode = ({ data }) => {
+
   const { treeId } = useParams();
   const [sidePanelContent, setSidePanelContent] = useContext(SidePanelContext);
 
-  // Opens the panel when a tree member is clicked
+
   const openPanel = () => {
     setSidePanelContent({
       id: data.id,
-      firstname: data.firstname,
-      middlename: data.middlename,
-      lastname: data.lastname,
       trigger: true,
-      img: data.mainImg,
-      gender: data.gender,
-      tags: data.tags,
-      gallery: data.gallery,
-      confidence: data.confidence,
-      dob: {
-        date: data.dob,
-        birthTown: data.birthTown,
-        birthCity: data.birthCity,
-        birthState: data.birthState,
-        birthCountry: data.birthCountry,
-      },
-      dod: {
-        date: data.dod,
-      },
-      additionalInfo: data.additionalInfo,
+      treeId: treeId,
+      ...data,
     });
   };
 
@@ -68,10 +53,7 @@ const handleDeleteNode = async (id) => {
   return (
     <div className="nodrag">
       <Handle type="target" position={Position.Top} id="top" />
-      {/* <Handle type="source" position={Position.Right} id="right" /> */}
       <Handle type="source" position={Position.Bottom} id="bottom" />
-      {/* <Handle type="target" position={Position.Left} id="left" /> */}
-
       <Card
         onClick={openPanel}
         className="w-fit flex flex-row justify-between items-center p-4 gap-4"
@@ -98,7 +80,7 @@ const handleDeleteNode = async (id) => {
           )}
           <div className="relative w-24 h-full">
             <Image
-              src={data.mainImg}
+              src={data.img}
               alt="Person's main image"
               layout="fill"
               objectFit="cover"
