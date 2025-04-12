@@ -7,7 +7,7 @@ const DatePickerInput = ({ date, setDate }) => {
       <input
         className="bg-white text-sm border w-full p-2 rounded-md text-opacity-70"
         type="date"
-        value={date}
+        value={date ?? ""}
         onChange={(e) => {
           const formattedDate = format(e.target.value, "yyyy-MM-dd");
           setDate(formattedDate);

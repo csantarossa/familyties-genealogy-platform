@@ -17,11 +17,16 @@ import { Button } from "@/components/ui/button";
 import { ChevronRight, UserPlus } from "lucide-react";
 import { format } from "date-fns";
 import DatePickerInput from "./DatePickerInput";
+import { Spinner } from "@nextui-org/spinner";
+import S3Uploader from "./S3Uploader";
 
 const GetStartedModal = ({ treeId }) => {
   const [dobDate, setDobDate] = useState(null);
   const [dodDate, setDodDate] = useState(null);
   const [formOpen, setFormOpen] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [file, setFile] = useState(null);
+
   const [newPerson, setNewPerson] = useState({
     firstname: "",
     middlename: "",
@@ -31,7 +36,6 @@ const GetStartedModal = ({ treeId }) => {
     img: null,
   });
 
-  // ✅ Sync formatted date when dobDate or dodDate updates
   useEffect(() => {
     setNewPerson((prev) => ({
       ...prev,
@@ -41,27 +45,45 @@ const GetStartedModal = ({ treeId }) => {
   }, [dobDate, dodDate]);
 
   const handleSubmitForm = async (e) => {
+    setLoading(true);
     e.preventDefault();
     try {
+      let uploadedImageUrl = null;
+      if (file) {
+        const formData = new FormData();
+        formData.append("file", file);
+
+        const uploadRes = await fetch(`/api/trees/${treeId}/s3-upload`, {
+          method: "POST",
+          body: formData,
+        });
+
+        const uploadData = await uploadRes.json();
+        uploadedImageUrl = uploadData.url;
+      }
+
+      // 📨 Send new person data
       const response = await fetch(`/api/trees/${treeId}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(newPerson),
+        body: JSON.stringify({
+          ...newPerson,
+          img: uploadedImageUrl,
+        }),
       });
 
-      if (!response.ok) {
-        throw new Error("Failed to add person");
-      }
+      if (!response.ok) throw new Error("Failed to add person");
 
       const data = await response.json();
       console.log("Success:", data);
-      window.location.reload();
     } catch (error) {
       console.error("Error submitting form:", error);
     }
     setFormOpen(false);
+    setLoading(false);
+    window.location.reload();
   };
 
   return (
@@ -141,22 +163,24 @@ const GetStartedModal = ({ treeId }) => {
             </div>
 
             <div className="grid w-full items-center gap-1.5">
-              <Label htmlFor="email" className="text-sm font-medium">
-                Profile Image
-              </Label>
-              <p>Coming soon</p>
-              {/* <Input
-                id="picture"
+              <Label className="text-sm font-medium">Profile Image</Label>
+              <input
                 type="file"
-                onChange={(e) =>
-                  setNewPerson({ ...newPerson, img: e.target.value })
-                }
-              /> */}
+                accept="image/*"
+                onChange={(e) => setFile(e.target.files[0])}
+                className="text-sm"
+              />
             </div>
 
             <AlertDialogAction type="submit" className="flex w-full">
-              Add your first person!
-              <UserPlus className="" size={24} />
+              {loading ? (
+                <div className="loader"></div>
+              ) : (
+                <>
+                  Add your first person!
+                  <UserPlus className="" size={24} />
+                </>
+              )}
             </AlertDialogAction>
           </form>
         </AlertDialogContent>

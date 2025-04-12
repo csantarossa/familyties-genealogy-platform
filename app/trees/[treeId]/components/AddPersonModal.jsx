@@ -46,6 +46,7 @@ const AddPersonModal = ({ trigger }) => {
   const [progress, setProgress] = useState({ progressBar: 0, page: 1 });
   const [dobDate, setDobDate] = useState(null);
   const [dodDate, setDodDate] = useState(null);
+  const [imageFile, setImageFile] = useState(null);
   const [relation, setRelation] = useState({
     relationId: null,
     relationType: null,
@@ -86,21 +87,35 @@ const AddPersonModal = ({ trigger }) => {
   };
 
   const handleSubmitForm = async (e) => {
-    const newPersonLoading = toast.loading("Creating new person");
-    newPersonLoading;
     e.preventDefault();
+    const newPersonLoading = toast.loading("Creating new person");
     setProgress({ ...progress, progressBar: 100 });
 
-    // Sync relation into newPerson
-    const personToSubmit = {
-      ...newPerson,
-      relation: relation.relationId,
-      relationType: relation.relationType,
-    };
-
-    console.log(personToSubmit);
-
     try {
+      let uploadedImageUrl = null;
+
+      // ✅ Upload the image first if one was selected
+      if (imageFile) {
+        const formData = new FormData();
+        formData.append("file", imageFile);
+
+        const uploadRes = await fetch(`/api/trees/${treeId}/s3-upload`, {
+          method: "POST",
+          body: formData,
+        });
+
+        const uploadData = await uploadRes.json();
+        uploadedImageUrl = uploadData.url;
+      }
+
+      // ✅ Construct full person object
+      const personToSubmit = {
+        ...newPerson,
+        img: uploadedImageUrl,
+        relation: relation.relationId,
+        relationType: relation.relationType,
+      };
+
       const res = await fetch(`/api/trees/${treeId}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -125,12 +140,14 @@ const AddPersonModal = ({ trigger }) => {
         relation: "",
         relationType: "",
       });
+      setImageFile(null);
       window.location.reload();
     } catch (error) {
       console.error(error);
       toast.error("Error: Person was not created");
+    } finally {
+      toast.dismiss(newPersonLoading);
     }
-    toast.dismiss(newPersonLoading);
   };
 
   return (
@@ -242,9 +259,7 @@ const AddPersonModal = ({ trigger }) => {
                   <Input
                     id="picture"
                     type="file"
-                    onChange={(e) =>
-                      setNewPerson({ ...newPerson, img: e.target.value })
-                    }
+                    onChange={(e) => setImageFile(e.target.files[0])}
                   />
                 </div>
               </div>

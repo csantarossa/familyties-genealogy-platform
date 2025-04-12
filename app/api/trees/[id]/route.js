@@ -27,7 +27,6 @@ export async function POST(req, { params }) {
   try {
     const { id } = await params;
     const raw = await req.text();
-    console.log("🧪 RAW REQUEST BODY:", raw);
 
     let body;
     try {
@@ -59,7 +58,6 @@ export async function POST(req, { params }) {
       treeId: id,
     };
 
-    // 1. Insert person and get their ID
     const result = await sql`
       INSERT INTO person (
         person_firstname, person_middlename, person_lastname, person_gender,
@@ -77,8 +75,7 @@ export async function POST(req, { params }) {
     `;
 
     const newPersonId = result[0].person_id;
-    console.log(body.relation, body.relationType);
-    // 2. If a relationship was selected, insert into the relationships table
+
     if (body.relation && body.relationType) {
       await sql`
       INSERT INTO relationships (

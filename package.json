@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.787.0",
     "@dagrejs/dagre": "^1.1.4",
     "@geist-ui/icons": "^1.0.2",
     "@nextui-org/spinner": "^2.2.4",

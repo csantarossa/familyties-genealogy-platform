@@ -64,7 +64,6 @@ const PersonTabs = () => {
     const data = await getImmediateFamily(sidePanelContent.id);
     const siblingData = await getSiblingsBySharedParents(sidePanelContent.id);
     setSiblings(siblingData);
-    console.log("siblings: ", siblingData);
     setRelationships(data);
     toast.dismiss();
   };
