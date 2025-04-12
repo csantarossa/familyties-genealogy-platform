@@ -18,6 +18,8 @@ import { Button } from "@/components/ui/button";
 import { ChevronRight, UserPlus } from "lucide-react";
 import { format } from "date-fns";
 import DatePickerInput from "./DatePickerInput";
+import toast from "react-hot-toast";
+
 
 const GetStartedModal = ({ treeId }) => {
   const [dobDate, setDobDate] = useState(null);
@@ -46,6 +48,7 @@ const GetStartedModal = ({ treeId }) => {
 
   const handleSubmitForm = async (e) => {
     e.preventDefault();
+    toast.loading("Creating person");
     try {
       setLoading(true);
 
@@ -89,6 +92,7 @@ const GetStartedModal = ({ treeId }) => {
       console.error("Error submitting form:", error);
     }
     setFormOpen(false);
+    toast.dismiss();
     setLoading(false);
     // window.location.reload();
   };
