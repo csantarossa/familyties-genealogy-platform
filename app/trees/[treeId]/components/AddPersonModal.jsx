@@ -149,12 +149,12 @@ const AddPersonModal = ({ trigger }) => {
         relationType: "",
       });
       setImageFile(null);
-      window.location.reload();
     } catch (error) {
       console.error(error);
       toast.error("Error: Person was not created");
     } finally {
       toast.dismiss(newPersonLoading);
+      window.location.reload();
     }
   };
 

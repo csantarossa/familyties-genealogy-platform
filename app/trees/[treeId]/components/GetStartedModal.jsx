@@ -89,11 +89,12 @@ const GetStartedModal = ({ treeId }) => {
       console.log("Success:", data);
     } catch (error) {
       console.error("Error submitting form:", error);
+    } finally {
+      setFormOpen(false);
+      toast.dismiss();
+      setLoading(false);
+      window.location.reload();
     }
-    setFormOpen(false);
-    toast.dismiss();
-    setLoading(false);
-    window.location.reload();
   };
 
   return (
