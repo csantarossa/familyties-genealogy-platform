@@ -13,7 +13,6 @@ import { Handle, Position } from "@xyflow/react";
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import { SidePanelContext } from "../page";
-import { useParams } from "next/navigation";
 
 
 const TreeNode = ({ data }) => {
