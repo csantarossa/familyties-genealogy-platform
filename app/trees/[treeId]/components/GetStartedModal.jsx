@@ -20,7 +20,6 @@ import { format } from "date-fns";
 import DatePickerInput from "./DatePickerInput";
 import toast from "react-hot-toast";
 
-
 const GetStartedModal = ({ treeId }) => {
   const [dobDate, setDobDate] = useState(null);
   const [dodDate, setDodDate] = useState(null);
@@ -90,11 +89,12 @@ const GetStartedModal = ({ treeId }) => {
       console.log("Success:", data);
     } catch (error) {
       console.error("Error submitting form:", error);
+    } finally {
+      setFormOpen(false);
+      toast.dismiss();
+      setLoading(false);
+      window.location.reload();
     }
-    setFormOpen(false);
-    toast.dismiss();
-    setLoading(false);
-    // window.location.reload();
   };
 
   return (
