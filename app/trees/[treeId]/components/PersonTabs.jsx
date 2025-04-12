@@ -16,12 +16,28 @@ import PopUp from "./PopUp";
 import { Camera, Plus } from "@geist-ui/icons";
 import UploadImage from "./UploadImage";
 import Image from "next/image";
-import { Edit, Edit2 } from "lucide-react";
-import { getSpouses } from "@/app/actions";
+import {
+  AxeIcon,
+  BabyIcon,
+  Edit,
+  Edit2,
+  EditIcon,
+  Heart,
+  HeartIcon,
+  SunIcon,
+  UserIcon,
+  Users,
+  UsersIcon,
+} from "lucide-react";
+import {
+  getImmediateFamily,
+  getSiblingsBySharedParents,
+  getSpouses,
+} from "@/app/actions";
 import toast from "react-hot-toast";
 import DatePickerInput from "./DatePickerInput";
 import { format } from "date-fns";
-
+//
 const PersonTabs = () => {
   const [sidePanelContent, setSidePanelContent] = useContext(SidePanelContext);
   const [relationships, setRelationships] = useState([]);
@@ -37,14 +53,20 @@ const PersonTabs = () => {
   const [editedEducation, setEditedEducation] = useState(
     sidePanelContent.additionalInfo?.education || []
   );
+  const [siblings, setSiblings] = useState([]);
 
   useEffect(() => {
     handleGetRelationships();
   }, []);
 
   const handleGetRelationships = async () => {
-    const data = await getSpouses(sidePanelContent.id);
+    toast.loading("Loading sidepanel");
+    const data = await getImmediateFamily(sidePanelContent.id);
+    const siblingData = await getSiblingsBySharedParents(sidePanelContent.id);
+    setSiblings(siblingData);
+    console.log("siblings: ", siblingData);
     setRelationships(data);
+    toast.dismiss();
   };
 
   const handleSave = async () => {
@@ -138,7 +160,6 @@ const PersonTabs = () => {
             <CardHeader className="flex flex-row justify-between">
               <CardTitle className="text-lg">General Information</CardTitle>
               <div className="flex gap-4 h-full justify-between items-center">
-                <Plus size={20} />
                 <Edit2
                   size={16}
                   className="cursor-pointer"
@@ -228,24 +249,73 @@ const PersonTabs = () => {
             <hr />
 
             {/* Relationships */}
-            <CardHeader>
+            <CardHeader className="flex flex-row justify-between">
               <CardTitle className="text-lg">Relationships</CardTitle>
+              <div className="flex gap-4 h-full justify-between items-center">
+                <Edit2 size={16} className="cursor-pointer" />
+              </div>
             </CardHeader>
-            {relationships.map((item) => (
-              <CardContent key={item.relationship_id}>
-                <div className="space-y-0 flex justify-start items-center gap-3">
-                  {/* IMAGE HERE */}
-                  <div>
+            <CardContent className="flex flex-col gap-2 justify-start">
+              <div>
+                <h1 className="text-xs font-medium pb-1">Parents</h1>
+                {relationships.map((item) =>
+                  item.direction === "parent" ? (
                     <Label
-                      htmlFor="spouse"
-                      className="font-semibold text-sm flex"
+                      key={item.relationship_id}
+                      className="font-semibold text-sm flex items-center justify-start gap-2 pl-2"
                     >
                       {item.other_person_firstname} {item.other_person_lastname}
                     </Label>
+                  ) : null
+                )}
+              </div>
+              <hr />
+
+              <div>
+                <h1 className="text-xs font-medium pb-1">Children</h1>
+                {relationships.map((item) =>
+                  item.direction === "child" ? (
+                    <Label
+                      key={item.relationship_id}
+                      className="font-semibold text-sm flex items-center justify-start gap-2 pl-2"
+                    >
+                      {item.other_person_firstname} {item.other_person_lastname}
+                    </Label>
+                  ) : null
+                )}
+              </div>
+              <hr />
+              <div>
+                <h1 className="text-xs font-medium pb-1">Spouse</h1>
+                {relationships.map((item) => (
+                  <div
+                    key={item.relationship_id}
+                    className="flex justify-start items-center"
+                  >
+                    {item.type_name === "spouse" && (
+                      <Label className="font-semibold text-sm flex items-center justify-start gap-2 pl-2">
+                        {item.other_person_firstname}{" "}
+                        {item.other_person_lastname}
+                      </Label>
+                    )}
                   </div>
-                </div>
-              </CardContent>
-            ))}
+                ))}
+              </div>
+              <hr />
+
+              <div>
+                <h1 className="text-xs font-medium pb-1">Siblings</h1>
+                {siblings.length > 0 &&
+                  siblings.map((sibling) => (
+                    <Label
+                      key={sibling.person_id}
+                      className="font-semibold text-sm flex items-center justify-start gap-2 pl-2"
+                    >
+                      {sibling.person_firstname} {sibling.person_lastname}
+                    </Label>
+                  ))}
+              </div>
+            </CardContent>
             <hr />
 
             <hr />
