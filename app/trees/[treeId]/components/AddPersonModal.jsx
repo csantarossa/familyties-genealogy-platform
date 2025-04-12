@@ -1,4 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
+import imageCompression from "browser-image-compression";
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -96,8 +98,14 @@ const AddPersonModal = ({ trigger }) => {
 
       // ✅ Upload the image first if one was selected
       if (imageFile) {
+        const compressedFile = await imageCompression(imageFile, {
+          maxSizeMB: 0.5,
+          maxWidthOrHeight: 1024,
+          useWebWorker: true,
+        });
+
         const formData = new FormData();
-        formData.append("file", imageFile);
+        formData.append("file", compressedFile);
 
         const uploadRes = await fetch(`/api/trees/${treeId}/s3-upload`, {
           method: "POST",
