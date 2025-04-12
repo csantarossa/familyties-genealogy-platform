@@ -27,7 +27,6 @@ const SidePanel = () => {
   const { treeId } = useParams();
 
   return (
-    // When sidePanelContent.trigger is true it opens, then as a callback set the trigger back to false. Without this you cannot close it.
     <Sheet
       open={sidePanelContent.trigger}
       onOpenChange={() =>
@@ -37,7 +36,6 @@ const SidePanel = () => {
         })
       }
     >
-      {/* <SheetTrigger></SheetTrigger> */}
       <SheetContent
         side="left"
         className="w-[520px] max-h-screen md:max-w-full py-16 flex justify-center items-start "

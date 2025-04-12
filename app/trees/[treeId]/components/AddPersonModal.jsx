@@ -259,7 +259,9 @@ const AddPersonModal = ({ trigger }) => {
                   <Input
                     id="picture"
                     type="file"
-                    onChange={(e) => setImageFile(e.target.files[0])}
+                    onChange={(e) => {
+                      setImageFile(e.target.files[0]);
+                    }}
                   />
                 </div>
               </div>

@@ -17,8 +17,6 @@ import { Button } from "@/components/ui/button";
 import { ChevronRight, UserPlus } from "lucide-react";
 import { format } from "date-fns";
 import DatePickerInput from "./DatePickerInput";
-import { Spinner } from "@nextui-org/spinner";
-import S3Uploader from "./S3Uploader";
 
 const GetStartedModal = ({ treeId }) => {
   const [dobDate, setDobDate] = useState(null);
@@ -45,9 +43,10 @@ const GetStartedModal = ({ treeId }) => {
   }, [dobDate, dodDate]);
 
   const handleSubmitForm = async (e) => {
-    setLoading(true);
     e.preventDefault();
     try {
+      setLoading(true);
+
       let uploadedImageUrl = null;
       if (file) {
         const formData = new FormData();
@@ -83,7 +82,7 @@ const GetStartedModal = ({ treeId }) => {
     }
     setFormOpen(false);
     setLoading(false);
-    window.location.reload();
+    // window.location.reload();
   };
 
   return (

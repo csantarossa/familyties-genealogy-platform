@@ -71,7 +71,7 @@ function FlowSpace() {
 
   const fetchAndLayoutTree = async (treeId) => {
     setLoading(true);
-    const setUpToast = toast.loading("Setting up the tree");
+    toast.loading("Setting up the tree");
     try {
       const people = await getPeople(treeId); // Fetch people data from the API
       const relationships = await getRelationships(treeId); // Fetch relationships from the API
@@ -104,7 +104,7 @@ function FlowSpace() {
     } catch (error) {
       console.error("Error fetching and laying out the tree:", error);
     }
-    toast.dismiss(setUpToast);
+    toast.dismiss();
   };
 
   const generateEdges = (relationships, tree) => {
