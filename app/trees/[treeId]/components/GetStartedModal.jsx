@@ -1,5 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
+import imageCompression from "browser-image-compression";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -49,8 +50,14 @@ const GetStartedModal = ({ treeId }) => {
 
       let uploadedImageUrl = null;
       if (file) {
+        const compressedFile = await imageCompression(file, {
+          maxSizeMB: 0.5,
+          maxWidthOrHeight: 1024,
+          useWebWorker: true,
+        });
+
         const formData = new FormData();
-        formData.append("file", file);
+        formData.append("file", compressedFile);
 
         const uploadRes = await fetch(`/api/trees/${treeId}/s3-upload`, {
           method: "POST",
@@ -82,7 +89,7 @@ const GetStartedModal = ({ treeId }) => {
     }
     setFormOpen(false);
     setLoading(false);
-    // window.location.reload();
+    window.location.reload();
   };
 
   return (
