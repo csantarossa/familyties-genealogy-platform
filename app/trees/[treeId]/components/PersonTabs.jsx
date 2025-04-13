@@ -72,6 +72,7 @@ const PersonTabs = () => {
   };
 
   const handleSave = async () => {
+    toast.loading("Saving changes");
     try {
       const personId = sidePanelContent.id;
 
@@ -133,6 +134,7 @@ const PersonTabs = () => {
       console.error(err);
       toast.error("Error updating person");
     }
+    toast.dismiss();
   };
 
   const birthLocation = [
@@ -244,7 +246,7 @@ const PersonTabs = () => {
                   ) : (
                     <p className="text-sm">{sidePanelContent.dod}</p>
                   )}
-                </div>{" "}
+                </div>
                 {isEditingGeneral && (
                   <div className="flex gap-2 mt-4">
                     <Button onClick={handleSave}>Save</Button>
