@@ -5,9 +5,12 @@ const sql = neon(process.env.DATABASE_URL);
 
 // DELETE a person node from the tree
 export async function DELETE(req, context) {
-    const params = await context.params;
-    const personId = parseInt(params.nodeId);
-    try {
+  const params = await context.params;
+  const personId = parseInt(params.nodeId);
+  try {
+    await sql`DELETE FROM career WHERE fk_person_id = ${personId}`;
+    await sql`DELETE FROM education WHERE fk_person_id = ${personId}`;
+
     await sql`
         DELETE FROM relationships 
         WHERE person_1 = ${personId} OR person_2 = ${personId}
@@ -18,43 +21,42 @@ export async function DELETE(req, context) {
         WHERE person_id = ${personId}
     `;
     return NextResponse.json({
-        success: true,
-        message: "Person deleted successfully",
+      success: true,
+      message: "Person deleted successfully",
     });
-    } catch (error) {
+  } catch (error) {
     console.error("Error deleting person:", error);
     return NextResponse.json(
-        { success: false, message: "Failed to delete person" },
-        { status: 500 }
+      { success: false, message: "Failed to delete person" },
+      { status: 500 }
     );
-    }
+  }
 }
-
 
 // POST a new person node to the tree
 export async function POST(req, context) {
-const { id: treeId } = context.params;
+  const { id: treeId } = context.params;
 
-try {
+  try {
     const body = await req.json();
 
     const newPerson = {
-    firstname: body.firstname.trim(),
-    middlename: body.middlename?.trim() || null,
-    lastname: body.lastname.trim(),
-    gender: body.gender || null,
-    dob: body.dob,
-    dod: body.dod,
-    tags: null,
-    img: body.img || null,
-    confidence: null,
-    birthTown: null,
-    birthCity: null,
-    birthState: null,
-    birthCountry: null,
-    gallery: null,
-    additionalInfo: null,
-    treeId: treeId,
+      firstname: body.firstname.trim(),
+      middlename: body.middlename?.trim() || null,
+      lastname: body.lastname.trim(),
+      gender: body.gender || null,
+      dob: body.dob,
+      dod: body.dod,
+      tags: null,
+      img: body.img || null,
+      confidence: null,
+      birthTown: null,
+      birthCity: null,
+      birthState: null,
+      birthCountry: null,
+      gallery: null,
+      additionalInfo: null,
+      treeId: treeId,
     };
 
     const result = await sql`
@@ -76,7 +78,7 @@ try {
     const newPersonId = result[0].person_id;
 
     if (body.relation && body.relationType) {
-    await sql`
+      await sql`
         INSERT INTO relationships (
         person_1,
         person_2,
@@ -90,18 +92,18 @@ try {
     }
 
     return NextResponse.json(
-    {
+      {
         success: true,
         message: "Person added successfully",
         personId: newPersonId,
-    },
-    { status: 201 }
+      },
+      { status: 201 }
     );
-} catch (error) {
+  } catch (error) {
     console.error("Error adding person:", error);
     return NextResponse.json(
-    { success: false, message: "Failed to create person" },
-{ status: 500 }
+      { success: false, message: "Failed to create person" },
+      { status: 500 }
     );
-}
+  }
 }
