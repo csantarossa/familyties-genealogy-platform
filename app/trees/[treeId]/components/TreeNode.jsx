@@ -1,5 +1,5 @@
 "use client";
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import { useParams } from "next/navigation";
 import {
   Card,
@@ -13,13 +13,13 @@ import { Handle, Position } from "@xyflow/react";
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import { SidePanelContext } from "../page";
-
+import ConfirmModal from "./ConfirmModal";
+import { Trash } from "lucide-react";
 
 const TreeNode = ({ data }) => {
-
   const { treeId } = useParams();
+  const [confirm, setConfirm] = useState(false);
   const [sidePanelContent, setSidePanelContent] = useContext(SidePanelContext);
-
 
   const openPanel = () => {
     setSidePanelContent({
@@ -30,32 +30,13 @@ const TreeNode = ({ data }) => {
     });
   };
 
-const handleDeleteNode = async (id) => {
-  try {
-    const res = await fetch(`/api/trees/${treeId}/nodes/${id}`, {
-      method: "DELETE",
-    });
-    if (!res.ok) throw new Error("Failed to delete node");
-    console.log("Node deleted successfully");
-    // Optionally: trigger a refresh or UI state update
-    // ✅ Remove from UI instantly
-    if (data.onDelete) {
-      data.onDelete(id);console.log("Calling onDelete from TreeNode for ID:", id);
-    }
-  } catch (err) {
-    console.error("Error deleting node:", err);
-  }
-};
-
-  
-
   return (
     <div className="nodrag">
       <Handle type="target" position={Position.Top} id="top" />
       <Handle type="source" position={Position.Bottom} id="bottom" />
       <Card
         onClick={openPanel}
-        className="w-fit flex flex-row justify-between items-center p-4 gap-4"
+        className="w-fit flex flex-row justify-between items-center p-3 gap-4"
       >
         {data.confidence === "Unverified" ? (
           <Badge
@@ -87,7 +68,7 @@ const handleDeleteNode = async (id) => {
             />
           </div>
 
-          <CardHeader className="h-fit flex-col flex justify-between">
+          <CardHeader className="h-fit flex-col flex justify-start relative">
             <div className="flex gap-1">
               <CardTitle className="text-sm font-medium capitalize">
                 {data.firstname}
@@ -109,16 +90,6 @@ const handleDeleteNode = async (id) => {
             </div>
           </CardHeader>
         </div>
-        {/* Delete Button */}
-        <button
-          onClick={(e) => {
-            e.stopPropagation(); // Prevent panel from opening
-            handleDeleteNode(data.id);
-          }}
-          className="ml-2 text-red-500 text-xs border border-red-500 px-2 py-1 rounded hover:bg-red-100"
-        >
-          Delete
-        </button>
       </Card>
     </div>
   );

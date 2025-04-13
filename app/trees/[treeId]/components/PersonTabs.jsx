@@ -128,7 +128,7 @@ const PersonTabs = () => {
 
   return (
     <div className="max-h-full overflow-hidden">
-      <Tabs defaultValue="account" className="w-[400px] h-full">
+      <Tabs defaultValue="info" className="w-[450px] h-full">
         <TabsList className="grid w-full grid-cols-4 ">
           <TabsTrigger className="hover:bg-gray-200" value="info">
             Info

@@ -35,7 +35,6 @@ const GetStartedModal = ({ treeId }) => {
     dod: null,
     img: null,
   });
-  //
 
   useEffect(() => {
     setNewPerson((prev) => ({
