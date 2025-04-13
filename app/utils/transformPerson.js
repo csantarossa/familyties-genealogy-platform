@@ -33,6 +33,7 @@ export const transformPerson = async (person) => {
       education: education || [], // override with real education from DB
       hobbies: person.additional_information?.hobbies || [],
     },
+    notes: person.notes || "",
   };
 };
 
