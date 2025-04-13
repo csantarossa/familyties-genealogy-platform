@@ -85,3 +85,17 @@ export async function getSiblingsBySharedParents(id) {
   `;
   return data;
 }
+
+export async function getEducation(id) {
+  const sql = neon(process.env.DATABASE_URL);
+  const data = await sql`
+  SELECT * FROM education where fk_person_id = ${id};`;
+  return data;
+}
+
+export async function getCareer(id) {
+  const sql = neon(process.env.DATABASE_URL);
+  const data = await sql`
+  SELECT * FROM career where fk_person_id = ${id};`;
+  return data;
+}

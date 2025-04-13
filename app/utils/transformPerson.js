@@ -1,4 +1,9 @@
-export const transformPerson = (person) => {
+import { getCareer, getEducation } from "../actions";
+
+export const transformPerson = async (person) => {
+  const education = await getEducation(person.person_id);
+  const career = await getCareer(person.person_id);
+
   return {
     id: person.person_id,
     firstname: person.person_firstname || "",
@@ -24,8 +29,8 @@ export const transformPerson = (person) => {
       : [],
     confidence: getConfidenceScore(person.confidence),
     additionalInfo: {
-      career: person.additional_information?.career || [],
-      education: person.additional_information?.education || [],
+      career: career || [], // leave this as-is for now
+      education: education || [], // override with real education from DB
       hobbies: person.additional_information?.hobbies || [],
     },
   };
