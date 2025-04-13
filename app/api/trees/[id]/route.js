@@ -140,25 +140,36 @@ export async function PUT(req, { params }) {
     birthCountry,
     additionalInfo,
     gallery,
+    person_tags,
+    confidence,
   } = body;
 
-  const safeDod = dod?.toLowerCase?.() === "alive" ? null : dod;
-  const safeDob = dob?.toLowerCase?.() === "unknown" ? null : dob;
+  // Handle special cases for dob, dod, and tags
+  const safeDod =
+    typeof dod === "string" && dod.toLowerCase() === "alive" ? null : dod;
+  const safeDob =
+    typeof dob === "string" && dob.toLowerCase() === "unknown" ? null : dob;
+  const safeTags = person_tags ? JSON.stringify(person_tags) : null;
+  const safeGallery = gallery ? JSON.stringify(gallery) : null;
+  const safeInfo = additionalInfo ? JSON.stringify(additionalInfo) : null;
 
-  await sql`
-    UPDATE person
-    SET
-      person_gender = ${gender},
-      person_dob = ${safeDob},
-      person_dod = ${safeDod},
-      birth_town = ${birthTown || null},
-      birth_city = ${birthCity || null},
-      birth_state = ${birthState || null},
-      birth_country = ${birthCountry || null},
-      additional_information = ${JSON.stringify(additionalInfo) || null},
-      gallery = ${JSON.stringify(gallery) || null}
-    WHERE person_id = ${personId} AND fk_tree_id = ${id};
-  `;
+  try {
+    await sql`
+      UPDATE person
+      SET
+        person_gender = ${gender},
+        person_dob = ${safeDob},
+        person_dod = ${safeDod},
+        birth_town = ${birthTown || null},
+        birth_city = ${birthCity || null},
+        birth_state = ${birthState || null},
+        birth_country = ${birthCountry || null},
+        person_tags = ${safeTags},
+        confidence = ${confidence || null},
+        additional_information = ${safeInfo},
+        gallery = ${safeGallery}
+      WHERE person_id = ${personId} AND fk_tree_id = ${id};
+    `;
 
     return NextResponse.json({
       success: true,
