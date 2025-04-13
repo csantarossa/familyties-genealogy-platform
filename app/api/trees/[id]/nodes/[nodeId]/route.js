@@ -108,3 +108,32 @@ export async function POST(req, context) {
     );
   }
 }
+
+export async function GET(req, { params }) {
+  console.log("GET /nodes/[nodeId] called with:", params);
+  const { nodeId } = params;
+
+  try {
+    const result = await sql`
+      SELECT * FROM person WHERE person_id = ${nodeId}
+    `;
+
+    if (result.length === 0) {
+      return NextResponse.json({ error: "Person not found" }, { status: 404 });
+    }
+
+    const person = result[0];
+
+    return NextResponse.json({
+      person: {
+        ...person,
+        person_tags: person.person_tags ?? [],
+        additionalInfo: JSON.parse(person.additional_information || "{}"),
+        gallery: JSON.parse(person.gallery || "[]"),
+      },
+    });
+  } catch (err) {
+    console.error("❌ Failed to fetch person:", err);
+    return NextResponse.json({ error: "Internal error" }, { status: 500 });
+  }
+}
