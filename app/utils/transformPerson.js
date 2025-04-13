@@ -1,8 +1,9 @@
-import { getCareer, getEducation } from "../actions";
+import { getCareer, getEducation, getGallery } from "../actions";
 
 export const transformPerson = async (person) => {
   const education = await getEducation(person.person_id);
   const career = await getCareer(person.person_id);
+  const gallery = await getGallery(person.person_id);
 
   return {
     id: person.person_id,
@@ -22,11 +23,7 @@ export const transformPerson = async (person) => {
     birthCity: person.birth_city || "",
     birthState: person.birth_state || "",
     birthCountry: person.birth_country || "",
-    gallery: Array.isArray(person.gallery)
-      ? person.gallery
-      : typeof person.gallery === "string"
-      ? JSON.parse(person.gallery)
-      : [],
+    gallery: gallery || [],
     confidence: getConfidenceScore(person.confidence),
     additionalInfo: {
       career: career || [], // leave this as-is for now

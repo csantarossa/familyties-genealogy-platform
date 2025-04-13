@@ -99,3 +99,10 @@ export async function getCareer(id) {
   SELECT * FROM career where fk_person_id = ${id};`;
   return data;
 }
+
+export async function getGallery(id) {
+  const sql = neon(process.env.DATABASE_URL);
+  const data = await sql`
+  SELECT * FROM images where fk_person_id = ${id};`;
+  return data;
+}
