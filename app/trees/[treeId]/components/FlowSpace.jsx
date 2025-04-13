@@ -60,7 +60,9 @@ const getLayoutedElements = (nodes, edges) => {
 function FlowSpace() {
   const [nodes, setNodes] = useNodesState([]);
   const handleDeleteNodeFromUI = (id) => {
-    setNodes((prevNodes) => prevNodes.filter((node) => node.id !== id.toString()));
+    setNodes((prevNodes) =>
+      prevNodes.filter((node) => node.id !== id.toString())
+    );
   };
   const [edges, setEdges] = useEdgesState([]);
   const [loading, setLoading] = useState(true); // ✅ Added loading state
@@ -79,22 +81,26 @@ function FlowSpace() {
       const people = await getPeople(treeId); // Fetch people data from the API
       const relationships = await getRelationships(treeId); // Fetch relationships from the API
 
-      const tree = {};
-      people.forEach((person) => {
-        tree[person.person_id] = {
+      const treeEntries = await Promise.all(
+        people.map(async (person) => ({
           id: `${person.person_id}`,
           name: `${person.person_firstname} ${person.person_lastname}`,
-          data: transformPerson(person),
-        };
+          data: await transformPerson(person),
+        }))
+      );
+
+      const tree = {};
+      treeEntries.forEach((entry) => {
+        tree[entry.id] = entry;
       });
 
       const reactFlowNodes = Object.values(tree).map((node) => ({
         id: node.id,
         type: "treeCard",
         data: {
-                ...node.data,
-                onDelete: handleDeleteNodeFromUI,
-              },
+          ...node.data,
+          onDelete: handleDeleteNodeFromUI,
+        },
         position: { x: 0, y: 0 },
       }));
 

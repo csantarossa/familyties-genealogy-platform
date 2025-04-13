@@ -23,12 +23,14 @@ import { Edit } from "@geist-ui/icons";
 import { useParams } from "next/navigation";
 import ConfirmModal from "./ConfirmModal";
 import { Trash } from "lucide-react";
+import toast from "react-hot-toast";
 
 const SidePanel = () => {
   const [sidePanelContent, setSidePanelContent] = useContext(SidePanelContext);
   const { treeId } = useParams();
 
   const handleDeleteNode = async (id) => {
+    toast.loading(`Deleting ${sidePanelContent.firstname}`);
     try {
       const res = await fetch(`/api/trees/${treeId}/nodes/${id}`, {
         method: "DELETE",
@@ -49,6 +51,7 @@ const SidePanel = () => {
     } catch (err) {
       console.error("Error deleting node:", err);
     }
+    toast.dismiss();
   };
 
   return (
@@ -63,7 +66,7 @@ const SidePanel = () => {
     >
       <SheetContent
         side="left"
-        className="min-w-[520px] max-h-screen py-16 flex justify-center items-start "
+        className="min-w-[520px] py-16 flex justify-center items-start "
       >
         <div className="flex flex-col gap-6 h-full">
           <SheetHeader className="flex-row justify-start items-start gap-10 relative">
