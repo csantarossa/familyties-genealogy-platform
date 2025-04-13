@@ -38,16 +38,19 @@ const TreeNode = ({ data }) => {
         onClick={openPanel}
         className="w-fit flex flex-row justify-between items-center p-3 gap-4"
       >
-        {data.confidence === "Unverified" ? (
+        {data.confidence && (
           <Badge
             className={`fixed text-xs top-[-10px] left-[-13px] ${
-              data.confidence === "Verified" ? "bg-green-400" : "bg-red-400"
+              data.confidence === "Verified"
+                ? "bg-green-400"
+                : data.confidence === "Unverified"
+                ? "bg-red-400"
+                : "bg-blue-400"
             }`}
           >
             {data.confidence}
           </Badge>
-        ) : null}
-
+        )}
         <div className="h-24 flex justify-center items-center">
           {data.tags.length > 0 && (
             <div className="flex items-center justify-end gap-2 h-4 absolute -top-3 -right-3 bg-white border py-3 px-2 rounded-lg">

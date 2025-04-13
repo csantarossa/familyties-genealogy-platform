@@ -126,7 +126,7 @@ const PersonTabs = () => {
   };
 
   const handleSave = async () => {
-    toast.loading("Saving changes");
+    toast.loading("Saving changes...");
     try {
       // Update general person info
       const res = await fetch(`/api/trees/${sidePanelContent.treeId}`, {
@@ -137,6 +137,7 @@ const PersonTabs = () => {
           gender: editedGender,
           dob: editedDob,
           dod: editedDod,
+          person_tags: editedTags,
           birthTown: sidePanelContent.birthTown,
           birthCity: sidePanelContent.birthCity,
           birthState: sidePanelContent.birthState,
@@ -144,12 +145,6 @@ const PersonTabs = () => {
           notes: notes,
         }),
       });
-
-      const generalResult = await res.json();
-      if (!res.ok || !generalResult.success) {
-        toast.error("Failed to update general info");
-        return;
-      }
 
       const resCareer = await fetch(
         `/api/trees/${sidePanelContent.id}/career`,
@@ -163,7 +158,6 @@ const PersonTabs = () => {
         }
       );
 
-      // Update education
       const resEducation = await fetch(`/api/trees/${personId}/education`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -173,8 +167,8 @@ const PersonTabs = () => {
         }), // <-- FIXED
       });
 
-      if (!resCareer.ok || !resEducation.ok) {
-        toast.error("Failed to update career/education");
+      if (!res.ok || !resCareer.ok || !resEducation.ok) {
+        toast.error("Failed to update data.");
         return;
       }
 
@@ -183,8 +177,9 @@ const PersonTabs = () => {
         ...prev,
         gender: editedGender,
         dob: editedDob,
+        dod: editedDod,
+        tags: editedTags,
         additionalInfo: {
-          ...prev.additionalInfo,
           career: editedCareer,
           education: editedEducation,
         },
@@ -194,7 +189,7 @@ const PersonTabs = () => {
       setIsEditingEducation(false);
     } catch (err) {
       console.error(err);
-      toast.error("Error updating person");
+      toast.error("Unexpected error");
     }
     toast.dismiss();
   };
@@ -206,98 +201,156 @@ const PersonTabs = () => {
     sidePanelContent.birthCountry,
   ];
 
+
   return (
     <div className="max-h-full overflow-hidden">
       <Tabs defaultValue="info" className="w-[450px] h-full">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger className="hover:bg-gray-200" value="info">
             Info
           </TabsTrigger>
           <TabsTrigger className="hover:bg-gray-200" value="gallery">
             Gallery
           </TabsTrigger>
-          <TabsTrigger className="hover:bg-gray-200" value="notes">
-            Notes
+          <TabsTrigger
+            className="hover:bg-gray-200"
+            disabled={true}
+            value="audio"
+          >
+            Audio
+          </TabsTrigger>
+          <TabsTrigger
+            className="hover:bg-gray-200"
+            disabled={true}
+            value="other"
+          >
+            Other
           </TabsTrigger>
         </TabsList>
 
-        {/* Info tab */}
         <TabsContent value="info" className="h-full">
           <Card className="border-none shadow-none h-full">
             <div className="h-full pb-10 overflow-y-auto px-4">
-              {/* General Info Section */}
+              {/* General Info */}
               <CardHeader className="flex flex-row justify-between">
                 <CardTitle className="text-lg">General Information</CardTitle>
-                <div className="flex gap-4 h-full justify-between items-center">
-                  <Edit2
-                    size={16}
-                    className="cursor-pointer"
-                    onClick={() => setIsEditingGeneral(!isEditingGeneral)}
-                  />
-                </div>
+                <Edit2
+                  size={16}
+                  className="cursor-pointer"
+                  onClick={() => setIsEditingGeneral(!isEditingGeneral)}
+                />
               </CardHeader>
 
               <CardContent className="space-y-2">
                 {/* Gender */}
                 <div className="space-y-0">
-                  <Label htmlFor="gender" className="font-semibold text-sm">
-                    Gender
-                  </Label>
+                  <Label className="font-semibold text-sm">Gender</Label>
                   {isEditingGeneral ? (
                     <Input
                       value={editedGender}
                       onChange={(e) => setEditedGender(e.target.value)}
-                      className="text-sm"
                     />
                   ) : (
-                    <p className="border-none p-0 h-fit rounded-sm py-1 capitalize text-sm">
-                      {sidePanelContent.gender}
+                    <p className="text-sm">{sidePanelContent.gender}</p>
+                  )}
+                </div>
+
+                {/* DOB */}
+                <div className="space-y-0">
+                  <Label className="font-semibold text-sm">Birth</Label>
+                  {isEditingGeneral ? (
+                    <DatePickerInput
+                      date={editedDob}
+                      setDate={setEditedDob}
+                    />
+                  ) : (
+                    <p className="text-sm">
+                      {editedDob instanceof Date && !isNaN(editedDob)
+                        ? format(editedDob, "dd MMM yyyy")
+                        : "Unknown"}
                     </p>
                   )}
                 </div>
-                <hr />
-                {/* Birth */}
+
+                {/* DOD */}
                 <div className="space-y-0">
-                  <Label htmlFor="born" className="font-semibold text-sm">
-                    Birth
-                  </Label>
+                  <Label className="font-semibold text-sm">Death</Label>
                   {isEditingGeneral ? (
-                    <DatePickerInput date={editedDob} setDate={setEditedDob} />
+                    <DatePickerInput
+                      date={editedDod}
+                      setDate={setEditedDod}
+                    />
                   ) : (
-                    <p className="border-none py-1 h-fit text-sm">{`${sidePanelContent.dob}`}</p>
-                  )}
-                  {!isEditingGeneral && (
-                    <a
-                      className="flex flex-wrap underline underline-offset-2 text-sm"
-                      target="_blank"
-                      href={`https://www.google.com/search?q=${birthLocation.join(
-                        " "
-                      )}`}
-                    >
-                      {birthLocation.map(
-                        (item, index) =>
-                          item && (
-                            <p key={index}>
-                              {item}
-                              {index < birthLocation.length - 1 ? ", " : ""}
-                            </p>
-                          )
-                      )}
-                    </a>
+                    <p className="text-sm">
+                      {editedDod instanceof Date && !isNaN(editedDod)
+                        ? format(editedDod, "dd MMM yyyy")
+                        : "Alive"}
+                    </p>
                   )}
                 </div>
-                <hr />
-                {/* Death */}
+
+                {/* Tags */}
                 <div className="space-y-0">
-                  <Label htmlFor="death" className="font-semibold text-sm">
-                    Death
-                  </Label>
+                  <Label className="font-semibold text-sm">Tags</Label>
+
                   {isEditingGeneral ? (
-                    <DatePickerInput date={editedDod} setDate={setEditedDod} />
+                    <>
+                      <div className="flex gap-2">
+                        <Input
+                          value={newTagInput}
+                          onChange={(e) => setNewTagInput(e.target.value)}
+                          placeholder="e.g. 🌟 ❤️ 💻"
+                          className="text-sm w-full"
+                        />
+                        <Button
+                          onClick={() => {
+                            if (newTagInput.trim()) {
+                              setEditedTags([...editedTags, newTagInput.trim()]);
+                              setNewTagInput("");
+                            }
+                          }}
+                          variant="outline"
+                        >
+                          Add
+                        </Button>
+                      </div>
+
+                      <div className="flex flex-wrap gap-2 mt-2">
+                        {editedTags.map((tag, idx) => (
+                          <span
+                            key={idx}
+                            className="text-sm bg-zinc-100 px-2 py-1 rounded-lg flex items-center gap-1"
+                          >
+                            {tag}
+                            <button
+                              onClick={() => {
+                                const updated = [...editedTags];
+                                updated.splice(idx, 1);
+                                setEditedTags(updated);
+                              }}
+                              className="text-red-500 hover:text-red-700"
+                            >
+                              ❌
+                            </button>
+                          </span>
+                        ))}
+                      </div>
+                    </>
                   ) : (
-                    <p className="text-sm">{sidePanelContent.dod}</p>
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {editedTags.map((tag, idx) => (
+                        <span
+                          key={idx}
+                          className="text-sm bg-zinc-100 px-2 py-1 rounded-lg"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
                   )}
                 </div>
+
+                {/* Save and Cancel Button */}
                 {isEditingGeneral && (
                   <div className="flex gap-2 mt-4">
                     <Button onClick={handleSave}>Save</Button>
@@ -305,7 +358,8 @@ const PersonTabs = () => {
                       variant="ghost"
                       onClick={() => {
                         setEditedGender(sidePanelContent.gender);
-                        setEditedDob(sidePanelContent.dob || "");
+                        setEditedDob(sidePanelContent.dob);
+                        setEditedDod(sidePanelContent.dod);
                         setIsEditingGeneral(false);
                       }}
                     >
@@ -314,83 +368,62 @@ const PersonTabs = () => {
                   </div>
                 )}
               </CardContent>
+
               <hr />
 
               {/* Relationships */}
-              <CardHeader className="flex flex-row justify-between">
+              <CardHeader>
                 <CardTitle className="text-lg">Relationships</CardTitle>
-                <div className="flex gap-4 h-full justify-between items-center">
-                  <Edit2 size={16} className="cursor-pointer" />
-                </div>
               </CardHeader>
-              <CardContent className="flex flex-col gap-2 justify-start">
+              <CardContent className="space-y-3">
                 <div>
-                  <h1 className="text-xs font-medium pb-1">Parents</h1>
-                  {relationships.map((item) =>
-                    item.direction === "parent" ? (
-                      <Label
-                        key={item.relationship_id}
-                        className="font-semibold text-sm flex items-center justify-start gap-2 pl-2"
-                      >
-                        {item.other_person_firstname}{" "}
-                        {item.other_person_lastname}
-                      </Label>
-                    ) : null
-                  )}
-                </div>
-                <hr />
-
-                <div>
-                  <h1 className="text-xs font-medium pb-1">Children</h1>
-                  {relationships.map((item) =>
-                    item.direction === "child" ? (
-                      <Label
-                        key={item.relationship_id}
-                        className="font-semibold text-sm flex items-center justify-start gap-2 pl-2"
-                      >
-                        {item.other_person_firstname}{" "}
-                        {item.other_person_lastname}
-                      </Label>
-                    ) : null
-                  )}
-                </div>
-                <hr />
-                <div>
-                  <h1 className="text-xs font-medium pb-1">Spouse</h1>
-                  {relationships.map((item) => (
-                    <div
-                      key={item.relationship_id}
-                      className="flex justify-start items-center"
-                    >
-                      {item.type_name === "spouse" && (
-                        <Label className="font-semibold text-sm flex items-center justify-start gap-2 pl-2">
-                          {item.other_person_firstname}{" "}
-                          {item.other_person_lastname}
-                        </Label>
-                      )}
-                    </div>
-                  ))}
-                </div>
-                <hr />
-
-                <div>
-                  <h1 className="text-xs font-medium pb-1">Siblings</h1>
-                  {siblings.length > 0 &&
-                    siblings.map((sibling) => (
-                      <Label
-                        key={sibling.person_id}
-                        className="font-semibold text-sm flex items-center justify-start gap-2 pl-2"
-                      >
-                        {sibling.person_firstname} {sibling.person_lastname}
-                      </Label>
+                  <Label className="text-xs font-semibold">Parents</Label>
+                  {relationships
+                    .filter((r) => r.direction === "parent")
+                    .map((r) => (
+                      <p key={r.relationship_id} className="text-sm pl-2">
+                        {r.other_person_firstname} {r.other_person_lastname}
+                      </p>
                     ))}
+                </div>
+
+                <div>
+                  <Label className="text-xs font-semibold">Children</Label>
+                  {relationships
+                    .filter((r) => r.direction === "child")
+                    .map((r) => (
+                      <p key={r.relationship_id} className="text-sm pl-2">
+                        {r.other_person_firstname} {r.other_person_lastname}
+                      </p>
+                    ))}
+                </div>
+
+                <div>
+                  <Label className="text-xs font-semibold">Spouse</Label>
+                  {relationships
+                    .filter((r) => r.type_name === "spouse")
+                    .map((r) => (
+                      <p key={r.relationship_id} className="text-sm pl-2">
+                        {r.other_person_firstname} {r.other_person_lastname}
+                      </p>
+                    ))}
+                </div>
+
+                <div>
+                  <Label className="text-xs font-semibold">Siblings</Label>
+                  {siblings.map((sibling) => (
+                    <p key={sibling.person_id} className="text-sm pl-2">
+                      {sibling.person_firstname} {sibling.person_lastname}
+                    </p>
+                  ))}
                 </div>
               </CardContent>
               <hr />
 
+              {/* Career */}
               <CardHeader className="flex flex-row justify-between">
                 <CardTitle className="text-lg">Career</CardTitle>
-                <div className="flex gap-4 h-full justify-between items-center">
+                <div className="flex items-center gap-3">
                   {isEditingCareer && (
                     <Plus
                       size={20}
@@ -402,8 +435,8 @@ const PersonTabs = () => {
                             job_title: "",
                             institution: "",
                             location: "",
-                            start_date: "",
-                            end_date: "",
+                            start_date: null,
+                            end_date: null,
                             description: "",
                           },
                         ])
@@ -418,101 +451,81 @@ const PersonTabs = () => {
                 </div>
               </CardHeader>
 
-              <CardContent className="gap-6 flex flex-col">
+              <CardContent className="space-y-6">
                 {editedCareer.map((job, index) => (
-                  <div key={index}>
+                  <div key={index} className="relative border p-3 rounded-lg">
                     {isEditingCareer ? (
                       <>
                         <div className="space-y-2">
-                          <div className="space-y-0">
-                            <Label className="font-semibold text-xs">
-                              Job Title
-                            </Label>
-                            <Input
-                              value={job.job_title || ""}
-                              onChange={(e) => {
-                                const newCareer = [...editedCareer];
-                                newCareer[index].job_title = e.target.value;
-                                setEditedCareer(newCareer);
-                              }}
-                              className="text-sm"
-                            />
-                          </div>
-                          <div className="space-y-0">
-                            <Label className="font-semibold text-xs">
-                              Company
-                            </Label>
-                            <Input
-                              value={job.institution || ""}
-                              onChange={(e) => {
-                                const newCareer = [...editedCareer];
-                                newCareer[index].institution = e.target.value;
-                                setEditedCareer(newCareer);
-                              }}
-                              className="text-sm"
-                            />
-                          </div>
-                          <div className="space-y-0">
-                            <Label className="font-semibold text-xs">
-                              Location
-                            </Label>
-                            <Input
-                              value={job.location || ""}
-                              onChange={(e) => {
-                                const newCareer = [...editedCareer];
-                                newCareer[index].location = e.target.value;
-                                setEditedCareer(newCareer);
-                              }}
-                              className="text-sm"
-                            />
-                          </div>
-                          <div className="space-y-0">
-                            <Label className="font-semibold text-xs">
-                              Start Date
-                            </Label>
-                            <Input
-                              value={job.start_date || ""}
-                              onChange={(e) => {
-                                const newCareer = [...editedCareer];
-                                newCareer[index].start_date = e.target.value;
-                                setEditedCareer(newCareer);
-                              }}
-                              className="text-sm"
-                            />
-                          </div>
-                          <div className="space-y-0">
-                            <Label className="font-semibold text-xs">
-                              End Date
-                            </Label>
-                            <Input
-                              value={job.end_date || ""}
-                              onChange={(e) => {
-                                const newCareer = [...editedCareer];
-                                newCareer[index].end_date = e.target.value;
-                                setEditedCareer(newCareer);
-                              }}
-                              className="text-sm"
-                            />
-                          </div>
-                          <div className="space-y-0">
-                            <Label className="font-semibold text-xs">
-                              Description
-                            </Label>
-                            <Input
-                              value={job.description || ""}
-                              onChange={(e) => {
-                                const newCareer = [...editedCareer];
-                                newCareer[index].description = e.target.value;
-                                setEditedCareer(newCareer);
-                              }}
-                              className="text-sm"
-                            />
-                          </div>
+                          <Label className="text-xs">Job Title</Label>
+                          <Input
+                            value={job.job_title || ""}
+                            onChange={(e) => {
+                              const updated = [...editedCareer];
+                              updated[index].job_title = e.target.value;
+                              setEditedCareer(updated);
+                            }}
+                          />
+                          <Label className="text-xs">Company</Label>
+                          <Input
+                            value={job.institution || ""}
+                            onChange={(e) => {
+                              const updated = [...editedCareer];
+                              updated[index].institution = e.target.value;
+                              setEditedCareer(updated);
+                            }}
+                          />
+                          <Label className="text-xs">Location</Label>
+                          <Input
+                            value={job.location || ""}
+                            onChange={(e) => {
+                              const updated = [...editedCareer];
+                              updated[index].location = e.target.value;
+                              setEditedCareer(updated);
+                            }}
+                          />
+                          <Label className="text-xs">Start Date</Label>
+                          <DatePickerInput
+                            date={job.start_date}
+                            setDate={(val) => {
+                              const updated = [...editedCareer];
+                              updated[index].start_date = val;
+                              setEditedCareer(updated);
+                            }}
+                          />
+                          <Label className="text-xs">End Date</Label>
+                          <DatePickerInput
+                            date={job.end_date}
+                            setDate={(val) => {
+                              const updated = [...editedCareer];
+                              updated[index].end_date = val;
+                              setEditedCareer(updated);
+                            }}
+                          />
+                          <Label className="text-xs">Description</Label>
+                          <Input
+                            value={job.description || ""}
+                            onChange={(e) => {
+                              const updated = [...editedCareer];
+                              updated[index].description = e.target.value;
+                              setEditedCareer(updated);
+                            }}
+                          />
                         </div>
-                        <hr />
+
+                        {/* Delete Button */}
+                        <Trash
+                          size={18}
+                          className="absolute top-2 right-2 text-red-500 hover:text-red-700 cursor-pointer transition"
+                          onClick={() => {
+                            const updated = [...editedCareer];
+                            updated.splice(index, 1);
+                            setEditedCareer(updated);
+                          }}
+                        />
                       </>
                     ) : (
-                      <div className="flex flex-col gap-2">
+                      <div className="space-y-1">
                         <Label className="font-semibold text-base">
                           {job.job_title}
                         </Label>
@@ -520,8 +533,9 @@ const PersonTabs = () => {
                         <p className="text-sm">{job.location}</p>
                         <CardDescription>{job.description}</CardDescription>
                         <p className="text-sm">
-                          {job.start_date} {job.start_date && <>-</>}{" "}
-                          {job.end_date || "Present"}
+                          {job.start_date ? format(new Date(job.start_date), "dd MMM yyyy") : "Start Unknown"}
+                          {" - "}
+                          {job.end_date ? format(new Date(job.end_date), "dd MMM yyyy") : "Present"}
                         </p>
                       </div>
                     )}
@@ -535,7 +549,7 @@ const PersonTabs = () => {
                       variant="ghost"
                       onClick={() => {
                         setEditedCareer(
-                          sidePanelContent.additionalInfo.career || []
+                          sidePanelContent.additionalInfo?.career || []
                         );
                         setIsEditingCareer(false);
                       }}
@@ -545,11 +559,13 @@ const PersonTabs = () => {
                   </div>
                 )}
               </CardContent>
+
               <hr />
 
+              {/* Education */}
               <CardHeader className="flex flex-row justify-between">
                 <CardTitle className="text-lg">Education</CardTitle>
-                <div className="flex gap-4 h-full justify-between items-center">
+                <div className="flex items-center gap-3">
                   {isEditingEducation && (
                     <Plus
                       size={20}
@@ -560,10 +576,9 @@ const PersonTabs = () => {
                           {
                             title: "",
                             institution: "",
-                            institution_location: "",
-                            institution_logo: "",
-                            start_date: "",
-                            end_date: "",
+                            location: "",
+                            start_date: null,
+                            end_date: null,
                             description: "",
                           },
                         ])
@@ -577,131 +592,98 @@ const PersonTabs = () => {
                   />
                 </div>
               </CardHeader>
-              <CardContent className="gap-6 flex flex-col">
-                {editedEducation.map((job, index) => (
-                  <div key={index}>
+
+              <CardContent className="space-y-6">
+                {editedEducation.map((edu, index) => (
+                  <div key={index} className="relative border p-3 rounded-lg">
                     {isEditingEducation ? (
                       <>
                         <div className="space-y-2">
-                          <div className="space-y-0">
-                            <Label className="font-semibold text-xs">
-                              Title
-                            </Label>
-                            <Input
-                              value={job.title || ""}
-                              onChange={(e) => {
-                                const newEdu = [...editedEducation];
-                                newEdu[index].title = e.target.value;
-                                setEditedEducation(newEdu);
-                              }}
-                              className="text-sm"
-                            />
-                          </div>
-                          <div className="space-y-0">
-                            <Label className="font-semibold text-xs">
-                              Institution
-                            </Label>
-                            <Input
-                              value={job.institution || ""}
-                              onChange={(e) => {
-                                const newEdu = [...editedEducation];
-                                newEdu[index].institution = e.target.value;
-                                setEditedEducation(newEdu);
-                              }}
-                              className="text-sm"
-                            />
-                          </div>
-                          <div className="space-y-0">
-                            <Label className="font-semibold text-xs">
-                              Location
-                            </Label>
-                            <Input
-                              value={job.location || ""}
-                              onChange={(e) => {
-                                const newEdu = [...editedEducation];
-                                newEdu[index].location = e.target.value;
-                                setEditedEducation(newEdu);
-                              }}
-                              className="text-sm"
-                            />
-                          </div>
-                          <div className="space-y-0">
-                            <Label className="font-semibold text-xs">
-                              Logo URL
-                            </Label>
-                          </div>
-                          <div className="space-y-0">
-                            <Label className="font-semibold text-xs">
-                              Start Date
-                            </Label>
-                            <Input
-                              value={job.start_date || ""}
-                              onChange={(e) => {
-                                const newEdu = [...editedEducation];
-                                newEdu[index].start_date = e.target.value;
-                                setEditedEducation(newEdu);
-                              }}
-                              className="text-sm"
-                            />
-                          </div>
-                          <div className="space-y-0">
-                            <Label className="font-semibold text-xs">
-                              End Date
-                            </Label>
-                            <Input
-                              value={job.end_date || ""}
-                              onChange={(e) => {
-                                const newEdu = [...editedEducation];
-                                newEdu[index].end_date = e.target.value;
-                                setEditedEducation(newEdu);
-                              }}
-                              className="text-sm"
-                            />
-                          </div>
-                          <div className="space-y-0">
-                            <Label className="font-semibold text-xs">
-                              Description
-                            </Label>
-                            <Input
-                              value={job.description || ""}
-                              onChange={(e) => {
-                                const newEdu = [...editedEducation];
-                                newEdu[index].description = e.target.value;
-                                setEditedEducation(newEdu);
-                              }}
-                              className="text-sm"
-                            />
-                          </div>
+                          <Label className="text-xs">Title</Label>
+                          <Input
+                            value={edu.title || ""}
+                            onChange={(e) => {
+                              const updated = [...editedEducation];
+                              updated[index].title = e.target.value;
+                              setEditedEducation(updated);
+                            }}
+                          />
+                          <Label className="text-xs">Institution</Label>
+                          <Input
+                            value={edu.institution || ""}
+                            onChange={(e) => {
+                              const updated = [...editedEducation];
+                              updated[index].institution = e.target.value;
+                              setEditedEducation(updated);
+                            }}
+                          />
+                          <Label className="text-xs">Location</Label>
+                          <Input
+                            value={edu.location || ""}
+                            onChange={(e) => {
+                              const updated = [...editedEducation];
+                              updated[index].location = e.target.value;
+                              setEditedEducation(updated);
+                            }}
+                          />
+                          <Label className="text-xs">Start Date</Label>
+                          <DatePickerInput
+                            date={edu.start_date}
+                            setDate={(val) => {
+                              const updated = [...editedEducation];
+                              updated[index].start_date = val;
+                              setEditedEducation(updated);
+                            }}
+                          />
+                          <Label className="text-xs">End Date</Label>
+                          <DatePickerInput
+                            date={edu.end_date}
+                            setDate={(val) => {
+                              const updated = [...editedEducation];
+                              updated[index].end_date = val;
+                              setEditedEducation(updated);
+                            }}
+                          />
+                          <Label className="text-xs">Description</Label>
+                          <Input
+                            value={edu.description || ""}
+                            onChange={(e) => {
+                              const updated = [...editedEducation];
+                              updated[index].description = e.target.value;
+                              setEditedEducation(updated);
+                            }}
+                          />
                         </div>
-                        <hr />
+
+                        {/* Delete Button */}
+                        <Trash
+                          size={18}
+                          className="absolute top-2 right-2 text-red-500 hover:text-red-700 cursor-pointer transition"
+                          onClick={() => {
+                            const updated = [...editedEducation];
+                            updated.splice(index, 1);
+                            setEditedCareer(updated);
+                          }}
+                        />
                       </>
                     ) : (
-                      <div className="flex flex-col gap-2">
-                        <div className="flex items-start justify-start gap-3">
-                          <div>
-                            <Label className="font-semibold text-base">
-                              {job.title}
-                            </Label>
-                          </div>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <p className="text-sm font-medium text-start w-[50%]">
-                            {job.institution}
-                          </p>
-                          <p className="text-sm text-end">{job.location}</p>
-                        </div>
-                        <CardDescription className="text-sm">
-                          {job.description}
-                        </CardDescription>
-                        <div className="flex items-center gap-3">
-                          <p className="text-sm">{job.start_date}</p>
-                          {job.start_date && <p>-</p>}
-                          <p className="text-sm">{job.end_date || "Present"}</p>
-                        </div>
+                      <div className="space-y-1">
+                        <Label className="font-semibold text-base">
+                          {edu.title}
+                        </Label>
+                        <p className="text-sm font-medium">{edu.institution}</p>
+                        <p className="text-sm">{edu.location}</p>
+                        <CardDescription>{edu.description}</CardDescription>
+                        <p className="text-sm">
+                          {edu.start_date ? format(new Date(edu.start_date), "dd MMM yyyy") : "Start Unknown"}
+                          {" - "}
+                          {edu.end_date ? format(new Date(edu.end_date), "dd MMM yyyy") : "Present"}
+                        </p>
                       </div>
                     )}
                   </div>
                 ))}
+
                 {isEditingEducation && (
                   <div className="flex justify-end gap-2">
                     <Button onClick={handleSave}>Save</Button>
@@ -709,7 +691,7 @@ const PersonTabs = () => {
                       variant="ghost"
                       onClick={() => {
                         setEditedEducation(
-                          sidePanelContent.additionalInfo.education || []
+                          sidePanelContent.additionalInfo?.education || []
                         );
                         setIsEditingEducation(false);
                       }}

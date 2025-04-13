@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import {
   Sheet,
   SheetContent,
@@ -24,10 +24,38 @@ import { useParams } from "next/navigation";
 import ConfirmModal from "./ConfirmModal";
 import { Trash } from "lucide-react";
 import toast from "react-hot-toast";
+import { useEffect } from "react";
+
 
 const SidePanel = () => {
   const [sidePanelContent, setSidePanelContent] = useContext(SidePanelContext);
   const { treeId } = useParams();
+
+  // State for confidence verification
+  const [editedConfidence, setEditedConfidence] = useState(sidePanelContent.confidence || "");
+
+  useEffect(() => {
+    if (sidePanelContent.trigger && sidePanelContent.id) {
+      fetch(`/api/trees/${sidePanelContent.treeId}/nodes/${sidePanelContent.id}`)
+        .then(async (res) => {
+          if (!res.ok) throw new Error("Failed to fetch person data");
+          const text = await res.text();
+          const data = text ? JSON.parse(text) : null;
+  
+          if (!data || !data.person) throw new Error("No person found");
+  
+          setSidePanelContent((prev) => ({
+            ...prev,
+            ...data.person,
+          }));
+        })
+        .catch((err) => {
+          console.error("❌ Failed to fetch person:", err);
+        });
+    }
+  }, [sidePanelContent.trigger]);
+  
+  
 
   const handleDeleteNode = async (id) => {
     toast.loading(`Deleting ${sidePanelContent.firstname}`);
@@ -68,7 +96,7 @@ const SidePanel = () => {
         side="left"
         className="min-w-[520px] py-16 flex justify-center items-start "
       >
-        <div className="flex flex-col gap-6 h-full">
+        <div className="flex flex-col gap-6 h-full">   
           <SheetHeader className="flex-row justify-start items-start gap-10 relative">
             <div>
               <div className="relative w-32 h-32">
@@ -94,31 +122,71 @@ const SidePanel = () => {
 
               {/* CONFIDENCE SCORE DROPDOWN */}
               <div className="flex justify-between items-center w-full">
-                <Select>
-                  <SelectTrigger className="w-36 h-fit py-1" tabIndex={-1}>
-                    <SelectValue placeholder={sidePanelContent.confidence} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem
-                      value="verified"
-                      className="text-green-600 font-medium hover:text-green-600"
-                    >
-                      Verified
-                    </SelectItem>
-                    <SelectItem
-                      value="unverified"
-                      className="text-red-600 font-medium hover:text-red-600"
-                    >
-                      Unverified
-                    </SelectItem>
-                    <SelectItem
-                      value="focus"
-                      className="text-blue-600 font-medium hover:text-blue-600"
-                    >
-                      Focus
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
+              <Select
+                value={editedConfidence}
+
+                onValueChange={async (value) => {
+                  setEditedConfidence(value);
+                
+                  try {
+                    toast.loading("Updating confidence...");
+                
+                    const res = await fetch(`/api/trees/${sidePanelContent.treeId}`, {
+                      method: "PUT",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({
+                        personId: sidePanelContent.id,
+                        confidence: value,
+                        person_tags: sidePanelContent.person_tags || [], // ✅ preserve tags
+                        gender: sidePanelContent.gender,
+                        dob: sidePanelContent.dob,
+                        dod: sidePanelContent.dod,
+                        birthTown: sidePanelContent.birthTown,
+                        birthCity: sidePanelContent.birthCity,
+                        birthState: sidePanelContent.birthState,
+                        birthCountry: sidePanelContent.birthCountry,
+                        gallery: sidePanelContent.gallery,
+                        additionalInfo: sidePanelContent.additionalInfo,
+                      }),
+                    });
+                
+                    const text = await res.text();
+                    const result = text ? JSON.parse(text) : {};
+                
+                    toast.dismiss();
+                
+                    if (!res.ok || !result.success) {
+                      toast.error("Failed to update confidence");
+                      return;
+                    }
+                
+                    toast.success("Confidence updated!");
+                
+                    // ✅ Update state to re-render component properly
+                    setSidePanelContent((prev) => ({
+                      ...prev,
+                      confidence: value,
+                      tags: prev.person_tags || [],
+                    }));
+                  } catch (err) {
+                    toast.dismiss();
+                    console.error("Error updating confidence:", err);
+                    toast.error("Something went wrong");
+                  }
+                }}
+                
+
+              >
+                <SelectTrigger className="w-36 h-fit py-1" tabIndex={-1}>
+                  <SelectValue placeholder={editedConfidence || "Confidence"} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Verified">Verified</SelectItem>
+                  <SelectItem value="Unverified">Unverified</SelectItem>
+                  <SelectItem value="Focus">Focus</SelectItem>
+                </SelectContent>
+              </Select>
+
                 <ConfirmModal
                   title="Are you sure you want to delete?"
                   trigger={

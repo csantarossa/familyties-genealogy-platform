@@ -3,6 +3,7 @@ import { neon } from "@neondatabase/serverless";
 
 const sql = neon(process.env.DATABASE_URL);
 
+<<<<<<< HEAD
 export async function DELETE(req, params) {
   const { id } = await params.params;
   try {
@@ -122,6 +123,8 @@ export async function POST(req, { params }) {
 }
 
 // New editing function
+=======
+>>>>>>> bfe1d64 (tags works but confidence broken)
 export async function PUT(req, { params }) {
   const { id } = await params;
   const body = await req.json();
@@ -137,7 +140,6 @@ export async function PUT(req, { params }) {
     birthCountry,
     additionalInfo,
     gallery,
-    notes,
   } = body;
 
   const safeDod = dod?.toLowerCase?.() === "alive" ? null : dod;
@@ -154,13 +156,19 @@ export async function PUT(req, { params }) {
       birth_state = ${birthState || null},
       birth_country = ${birthCountry || null},
       additional_information = ${JSON.stringify(additionalInfo) || null},
-      gallery = ${JSON.stringify(gallery) || null},
-      notes = ${notes || null} 
+      gallery = ${JSON.stringify(gallery) || null}
     WHERE person_id = ${personId} AND fk_tree_id = ${id};
   `;
 
-  return NextResponse.json({
-    success: true,
-    message: "Person updated successfully",
-  });
+    return NextResponse.json({
+      success: true,
+      message: "Person updated successfully",
+    });
+  } catch (error) {
+    console.error("❌ Error updating person:", error);
+    return NextResponse.json(
+      { success: false, message: "Failed to update person" },
+      { status: 500 }
+    );
+  }
 }
