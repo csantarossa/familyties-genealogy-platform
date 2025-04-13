@@ -4,7 +4,6 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -13,33 +12,14 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SidePanelContext } from "../page";
 import PopUp from "./PopUp";
-import { Camera, Plus } from "@geist-ui/icons";
+import { Plus } from "@geist-ui/icons";
 import UploadImage from "./UploadImage";
-import Image from "next/image";
-import {
-  AxeIcon,
-  BabyIcon,
-  Edit,
-  Edit2,
-  EditIcon,
-  Heart,
-  HeartIcon,
-  SunIcon,
-  UserIcon,
-  Users,
-  UsersIcon,
-} from "lucide-react";
-import {
-  getEducation,
-  getImmediateFamily,
-  getSiblingsBySharedParents,
-  getSpouses,
-} from "@/app/actions";
+import { Edit2, RotateCcw } from "lucide-react";
+import { getImmediateFamily, getSiblingsBySharedParents } from "@/app/actions";
 import toast from "react-hot-toast";
 import DatePickerInput from "./DatePickerInput";
-import { format } from "date-fns";
 import { Textarea } from "@/components/ui/textarea";
-//
+
 const PersonTabs = () => {
   const [sidePanelContent, setSidePanelContent] = useContext(SidePanelContext);
   const [relationships, setRelationships] = useState([]);
@@ -718,15 +698,15 @@ const PersonTabs = () => {
                 className="w-full h-80"
               />
               <div className="flex justify-end gap-2 w-full">
-                <Button onClick={handleSave}>Save</Button>
                 <Button
                   variant="ghost"
                   onClick={() => {
                     setNotes(sidePanelContent.notes);
                   }}
                 >
-                  Cancel
+                  <RotateCcw />
                 </Button>
+                <Button onClick={handleSave}>Update</Button>
               </div>
             </CardContent>
           </Card>
