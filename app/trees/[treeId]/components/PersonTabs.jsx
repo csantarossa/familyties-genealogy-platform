@@ -4,7 +4,6 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -13,32 +12,14 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SidePanelContext } from "../page";
 import PopUp from "./PopUp";
-import { Camera, Plus } from "@geist-ui/icons";
+import { Plus } from "@geist-ui/icons";
 import UploadImage from "./UploadImage";
-import Image from "next/image";
-import {
-  AxeIcon,
-  BabyIcon,
-  Edit,
-  Edit2,
-  EditIcon,
-  Heart,
-  HeartIcon,
-  SunIcon,
-  UserIcon,
-  Users,
-  UsersIcon,
-} from "lucide-react";
-import {
-  getEducation,
-  getImmediateFamily,
-  getSiblingsBySharedParents,
-  getSpouses,
-} from "@/app/actions";
+import { Edit2, RotateCcw } from "lucide-react";
+import { getImmediateFamily, getSiblingsBySharedParents } from "@/app/actions";
 import toast from "react-hot-toast";
 import DatePickerInput from "./DatePickerInput";
-import { format } from "date-fns";
-//
+import { Textarea } from "@/components/ui/textarea";
+
 const PersonTabs = () => {
   const [sidePanelContent, setSidePanelContent] = useContext(SidePanelContext);
   const [relationships, setRelationships] = useState([]);
@@ -46,6 +27,7 @@ const PersonTabs = () => {
   const [isEditingCareer, setIsEditingCareer] = useState(false);
   const [isEditingEducation, setIsEditingEducation] = useState(false);
   const [editedGender, setEditedGender] = useState(sidePanelContent.gender);
+  const [notes, setNotes] = useState(sidePanelContent.notes);
   const [editedDob, setEditedDob] = useState(sidePanelContent.dob);
   const [editedDod, setEditedDod] = useState(sidePanelContent.dod);
 
@@ -89,6 +71,7 @@ const PersonTabs = () => {
           birthCity: sidePanelContent.birthCity,
           birthState: sidePanelContent.birthState,
           birthCountry: sidePanelContent.birthCountry,
+          notes: notes,
         }),
       });
 
@@ -147,26 +130,15 @@ const PersonTabs = () => {
   return (
     <div className="max-h-full overflow-hidden">
       <Tabs defaultValue="info" className="w-[450px] h-full">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger className="hover:bg-gray-200" value="info">
             Info
           </TabsTrigger>
           <TabsTrigger className="hover:bg-gray-200" value="gallery">
             Gallery
           </TabsTrigger>
-          <TabsTrigger
-            className="hover:bg-gray-200"
-            disabled={true}
-            value="audio"
-          >
-            Audio
-          </TabsTrigger>
-          <TabsTrigger
-            className="hover:bg-gray-200"
-            disabled={true}
-            value="other"
-          >
-            Other
+          <TabsTrigger className="hover:bg-gray-200" value="notes">
+            Notes
           </TabsTrigger>
         </TabsList>
 
@@ -704,6 +676,39 @@ const PersonTabs = () => {
                 <input type="file" id="uploadFile" className="hidden" />
               </CardContent>
             )}
+          </Card>
+        </TabsContent>
+
+        {/* Notes */}
+        <TabsContent value="notes">
+          <Card className="border-none shadow-none">
+            <CardHeader>
+              <CardTitle>Notes</CardTitle>
+
+              <CardDescription>
+                A flexible space to suit your needs
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="flex flex-col justify-center w-full items-center p-0 m-0 gap-3 ">
+              <Textarea
+                onChange={(e) => {
+                  setNotes(e.target.value);
+                }}
+                value={notes}
+                className="w-full h-80"
+              />
+              <div className="flex justify-end gap-2 w-full">
+                <Button
+                  variant="ghost"
+                  onClick={() => {
+                    setNotes(sidePanelContent.notes);
+                  }}
+                >
+                  <RotateCcw />
+                </Button>
+                <Button onClick={handleSave}>Update</Button>
+              </div>
+            </CardContent>
           </Card>
         </TabsContent>
       </Tabs>

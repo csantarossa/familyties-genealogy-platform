@@ -136,6 +136,7 @@ export async function PUT(req, { params }) {
     birthCountry,
     additionalInfo,
     gallery,
+    notes,
   } = body;
 
   const safeDod = dod?.toLowerCase?.() === "alive" ? null : dod;
@@ -152,7 +153,8 @@ export async function PUT(req, { params }) {
       birth_state = ${birthState || null},
       birth_country = ${birthCountry || null},
       additional_information = ${JSON.stringify(additionalInfo) || null},
-      gallery = ${JSON.stringify(gallery) || null}
+      gallery = ${JSON.stringify(gallery) || null},
+      notes = ${notes || null} 
     WHERE person_id = ${personId} AND fk_tree_id = ${id};
   `;
 
