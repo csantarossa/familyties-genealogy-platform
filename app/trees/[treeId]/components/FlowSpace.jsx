@@ -59,6 +59,9 @@ const getLayoutedElements = (nodes, edges) => {
 
 function FlowSpace() {
   const [nodes, setNodes] = useNodesState([]);
+  const handleDeleteNodeFromUI = (id) => {
+    setNodes((prevNodes) => prevNodes.filter((node) => node.id !== id.toString()));
+  };
   const [edges, setEdges] = useEdgesState([]);
   const [loading, setLoading] = useState(true); // ✅ Added loading state
 
@@ -88,7 +91,10 @@ function FlowSpace() {
       const reactFlowNodes = Object.values(tree).map((node) => ({
         id: node.id,
         type: "treeCard",
-        data: node.data,
+        data: {
+                ...node.data,
+                onDelete: handleDeleteNodeFromUI,
+              },
         position: { x: 0, y: 0 },
       }));
 

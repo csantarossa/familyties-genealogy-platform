@@ -1,5 +1,6 @@
 "use client";
 import React, { useContext } from "react";
+import { useParams } from "next/navigation";
 import {
   Card,
   CardContent,
@@ -12,11 +13,13 @@ import { Handle, Position } from "@xyflow/react";
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import { SidePanelContext } from "../page";
-import { useParams } from "next/navigation";
+
 
 const TreeNode = ({ data }) => {
-  const [_, setSidePanelContent] = useContext(SidePanelContext);
-  const { treeId } = useParams(); // Grab treeId from URL
+
+  const { treeId } = useParams();
+  const [sidePanelContent, setSidePanelContent] = useContext(SidePanelContext);
+
 
   const openPanel = () => {
     setSidePanelContent({
@@ -26,6 +29,25 @@ const TreeNode = ({ data }) => {
       ...data,
     });
   };
+
+const handleDeleteNode = async (id) => {
+  try {
+    const res = await fetch(`/api/trees/${treeId}/nodes/${id}`, {
+      method: "DELETE",
+    });
+    if (!res.ok) throw new Error("Failed to delete node");
+    console.log("Node deleted successfully");
+    // Optionally: trigger a refresh or UI state update
+    // ✅ Remove from UI instantly
+    if (data.onDelete) {
+      data.onDelete(id);console.log("Calling onDelete from TreeNode for ID:", id);
+    }
+  } catch (err) {
+    console.error("Error deleting node:", err);
+  }
+};
+
+  
 
   return (
     <div className="nodrag">
@@ -87,6 +109,16 @@ const TreeNode = ({ data }) => {
             </div>
           </CardHeader>
         </div>
+        {/* Delete Button */}
+        <button
+          onClick={(e) => {
+            e.stopPropagation(); // Prevent panel from opening
+            handleDeleteNode(data.id);
+          }}
+          className="ml-2 text-red-500 text-xs border border-red-500 px-2 py-1 rounded hover:bg-red-100"
+        >
+          Delete
+        </button>
       </Card>
     </div>
   );
