@@ -3,16 +3,29 @@ import { neon } from "@neondatabase/serverless";
 
 const sql = neon(process.env.DATABASE_URL);
 
-export async function DELETE(req, { params }) {
+export async function DELETE(req, params) {
+  const { id } = await params.params;
   try {
-    const { id } = await params;
+    const personIdsResult = await sql`
+      SELECT person_id FROM person WHERE fk_tree_id = ${id}
+    `;
+    const personIds = personIdsResult.map((row) => row.person_id);
 
-    await sql`DELETE FROM person WHERE fk_tree_id = ${id}`;
+    if (personIds.length > 0) {
+      await sql`DELETE FROM career WHERE fk_person_id = ANY(${personIds})`;
+      await sql`DELETE FROM education WHERE fk_person_id = ANY(${personIds})`;
+      await sql`
+        DELETE FROM relationships 
+        WHERE person_1 = ANY(${personIds}) OR person_2 = ANY(${personIds})
+      `;
+      await sql`DELETE FROM person WHERE person_id = ANY(${personIds})`;
+    }
+
     await sql`DELETE FROM trees WHERE tree_id = ${id}`;
 
     return NextResponse.json({
       success: true,
-      message: "Tree deleted successfully",
+      message: "Tree and related data deleted successfully",
     });
   } catch (error) {
     console.error("Error deleting tree:", error);
