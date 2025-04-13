@@ -763,7 +763,6 @@ const PersonTabs = () => {
                     setNotes(sidePanelContent.notes);
                   }}
                 >
-                  <RotateCcw />
                 </Button>
                 <Button onClick={handleSave}>Update</Button>
               </div>
