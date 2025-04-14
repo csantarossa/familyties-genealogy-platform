@@ -47,12 +47,23 @@ const PersonTabs = () => {
 
   const personId = sidePanelContent.id;
 
+  const [editedTags, setEditedTags] = useState(sidePanelContent.person_tags || []);
+  const [editedConfidence, setEditedConfidence] = useState(sidePanelContent.confidence || "");
+  const [newTagInput, setNewTagInput] = useState("");
+
+
   useEffect(() => {
     toast.loading("Loading sidepanel");
 
     handleGetRelationships();
     toast.dismiss();
   }, []);
+
+  useEffect(() => {
+    setEditedTags(sidePanelContent.person_tags || []);
+    setEditedConfidence(sidePanelContent.confidence || "");
+  }, [sidePanelContent.person_tags, sidePanelContent.confidence]);
+  
 
   const handleGetRelationships = async () => {
     const data = await getImmediateFamily(sidePanelContent.id);
@@ -136,6 +147,7 @@ const PersonTabs = () => {
           gender: editedGender,
           dob: editedDob,
           dod: editedDod,
+          confidence: editedConfidence,
           person_tags: editedTags,
           birthTown: sidePanelContent.birthTown,
           birthCity: sidePanelContent.birthCity,
@@ -177,7 +189,8 @@ const PersonTabs = () => {
         gender: editedGender,
         dob: editedDob,
         dod: editedDod,
-        tags: editedTags,
+        person_tags: editedTags,
+        confidence: editedConfidence,
         additionalInfo: {
           career: editedCareer,
           education: editedEducation,

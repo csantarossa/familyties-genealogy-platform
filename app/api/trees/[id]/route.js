@@ -3,7 +3,14 @@ import { neon } from "@neondatabase/serverless";
 
 const sql = neon(process.env.DATABASE_URL);
 
-<<<<<<< HEAD
+const parseDate = (d) => {
+  if (!d || typeof d !== "string") return null;
+  const [day, month, year] = d.split("/");
+  if (!day || !month || !year) return null;
+  return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`; // -> YYYY-MM-DD
+};
+
+
 export async function DELETE(req, params) {
   const { id } = await params.params;
   try {
@@ -123,8 +130,6 @@ export async function POST(req, { params }) {
 }
 
 // New editing function
-=======
->>>>>>> bfe1d64 (tags works but confidence broken)
 export async function PUT(req, { params }) {
   const { id } = await params;
   const body = await req.json();
@@ -140,46 +145,31 @@ export async function PUT(req, { params }) {
     birthCountry,
     additionalInfo,
     gallery,
-    person_tags,
-    confidence,
+    notes,
   } = body;
 
-  // Handle special cases for dob, dod, and tags
-  const safeDod =
-    typeof dod === "string" && dod.toLowerCase() === "alive" ? null : dod;
-  const safeDob =
-    typeof dob === "string" && dob.toLowerCase() === "unknown" ? null : dob;
-  const safeTags = person_tags ? JSON.stringify(person_tags) : null;
-  const safeGallery = gallery ? JSON.stringify(gallery) : null;
-  const safeInfo = additionalInfo ? JSON.stringify(additionalInfo) : null;
+  const safeDob = typeof dob === "string" && dob.toLowerCase() === "unknown" ? null : parseDate(dob);
+  const safeDod = typeof dod === "string" && dod.toLowerCase() === "alive" ? null : parseDate(dod);
 
-  try {
-    await sql`
-      UPDATE person
-      SET
-        person_gender = ${gender},
-        person_dob = ${safeDob},
-        person_dod = ${safeDod},
-        birth_town = ${birthTown || null},
-        birth_city = ${birthCity || null},
-        birth_state = ${birthState || null},
-        birth_country = ${birthCountry || null},
-        person_tags = ${safeTags},
-        confidence = ${confidence || null},
-        additional_information = ${safeInfo},
-        gallery = ${safeGallery}
-      WHERE person_id = ${personId} AND fk_tree_id = ${id};
-    `;
 
-    return NextResponse.json({
-      success: true,
-      message: "Person updated successfully",
-    });
-  } catch (error) {
-    console.error("❌ Error updating person:", error);
-    return NextResponse.json(
-      { success: false, message: "Failed to update person" },
-      { status: 500 }
-    );
-  }
+  await sql`
+    UPDATE person
+    SET
+      person_gender = ${gender},
+      person_dob = ${safeDob},
+      person_dod = ${safeDod},
+      birth_town = ${birthTown || null},
+      birth_city = ${birthCity || null},
+      birth_state = ${birthState || null},
+      birth_country = ${birthCountry || null},
+      additional_information = ${JSON.stringify(additionalInfo) || null},
+      gallery = ${JSON.stringify(gallery) || null},
+      notes = ${notes || null} 
+    WHERE person_id = ${personId} AND fk_tree_id = ${id};
+  `;
+
+  return NextResponse.json({
+    success: true,
+    message: "Person updated successfully",
+  });
 }

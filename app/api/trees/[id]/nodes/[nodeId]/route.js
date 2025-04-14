@@ -109,9 +109,9 @@ export async function POST(req, context) {
   }
 }
 
-export async function GET(req, { params }) {
-  console.log("GET /nodes/[nodeId] called with:", params);
-  const { nodeId } = params;
+export async function GET(req, context) {
+  const { nodeId } = await context.params;
+  console.log("✅ nodeId received:", nodeId);
 
   try {
     const result = await sql`
@@ -128,8 +128,14 @@ export async function GET(req, { params }) {
       person: {
         ...person,
         person_tags: person.person_tags ?? [],
-        additionalInfo: JSON.parse(person.additional_information || "{}"),
-        gallery: JSON.parse(person.gallery || "[]"),
+        additionalInfo:
+          typeof person.additional_information === "string"
+            ? JSON.parse(person.additional_information || "{}")
+            : person.additional_information || {},
+        gallery:
+          typeof person.gallery === "string"
+            ? JSON.parse(person.gallery || "[]")
+            : person.gallery || [],
       },
     });
   } catch (err) {
