@@ -12,6 +12,7 @@ export async function DELETE(req, params) {
     const personIds = personIdsResult.map((row) => row.person_id);
 
     if (personIds.length > 0) {
+      await sql`DELETE FROM images WHERE fk_person_id = ANY(${personIds})`;
       await sql`DELETE FROM career WHERE fk_person_id = ANY(${personIds})`;
       await sql`DELETE FROM education WHERE fk_person_id = ANY(${personIds})`;
       await sql`
