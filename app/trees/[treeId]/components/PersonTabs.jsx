@@ -45,6 +45,8 @@ const PersonTabs = () => {
 
   const { treeId } = useParams();
 
+  const personId = sidePanelContent.id;
+
   useEffect(() => {
     toast.loading("Loading sidepanel");
 
@@ -130,7 +132,7 @@ const PersonTabs = () => {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          personId,
+          personId: sidePanelContent.id,
           gender: editedGender,
           dob: editedDob,
           dod: editedDod,
@@ -148,17 +150,26 @@ const PersonTabs = () => {
         return;
       }
 
-      const resCareer = await fetch(`/api/trees/${personId}/career`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ personId, career: editedCareer }), // <-- FIXED
-      });
+      const resCareer = await fetch(
+        `/api/trees/${sidePanelContent.id}/career`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            personId: sidePanelContent.id,
+            career: editedCareer,
+          }), // <-- FIXED
+        }
+      );
 
       // Update education
       const resEducation = await fetch(`/api/trees/${personId}/education`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ personId, education: editedEducation }), // <-- FIXED
+        body: JSON.stringify({
+          personId: sidePanelContent.id,
+          education: editedEducation,
+        }), // <-- FIXED
       });
 
       if (!resCareer.ok || !resEducation.ok) {
