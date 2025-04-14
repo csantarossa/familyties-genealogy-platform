@@ -78,6 +78,7 @@ const PersonTabs = () => {
         const formData = new FormData();
         formData.append("file", compressedFile);
 
+
         const uploadRes = await fetch(`/api/trees/${treeId}/s3-upload`, {
           method: "POST",
           body: formData,
@@ -782,6 +783,7 @@ const PersonTabs = () => {
                 <Button onClick={handleSave}>Update</Button>
               </div>
             </CardContent>
+
           </Card>
         </TabsContent>
       </Tabs>
