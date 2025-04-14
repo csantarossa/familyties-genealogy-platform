@@ -16,7 +16,7 @@ import { SidePanelContext } from "../page";
 import PopUp from "./PopUp";
 import { Plus } from "@geist-ui/icons";
 import UploadImage from "./UploadImage";
-import { Edit2, RotateCcw, Save, Upload } from "lucide-react";
+import { Edit2, RotateCcw, Save, Upload, Trash } from "lucide-react";
 import { getImmediateFamily, getSiblingsBySharedParents } from "@/app/actions";
 import toast from "react-hot-toast";
 import DatePickerInput from "./DatePickerInput";
@@ -69,7 +69,7 @@ const PersonTabs = () => {
   useEffect(() => {
     setEditedTags(sidePanelContent.person_tags || []);
     setEditedConfidence(sidePanelContent.confidence || "");
-  }, [sidePanelContent.person_tags, sidePanelContent.confidence]);
+  }, [sidePanelContent]);
   
 
   const handleGetRelationships = async () => {
@@ -202,6 +202,9 @@ const PersonTabs = () => {
         additionalInfo: {
           career: editedCareer,
           education: editedEducation,
+        trigger: prev.trigger,
+        id: prev.id,
+        treeId: prev.treeId,
         },
       }));
       setIsEditingGeneral(false);
@@ -220,7 +223,6 @@ const PersonTabs = () => {
     sidePanelContent.birthState,
     sidePanelContent.birthCountry,
   ];
-
 
   return (
     <div className="max-h-full overflow-hidden">
