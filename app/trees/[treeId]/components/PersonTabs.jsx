@@ -81,6 +81,7 @@ const PersonTabs = () => {
           body: formData,
         });
 
+
         const uploadData = await uploadRes.json();
         uploadedImageUrl = uploadData.url;
 
@@ -740,7 +741,6 @@ const PersonTabs = () => {
             </CardContent>
           </Card>
         </TabsContent>
-
         {/* Notes */}
         <TabsContent value="notes" className="">
           <Card className="border-none shadow-none">
@@ -771,6 +771,7 @@ const PersonTabs = () => {
                 <Button onClick={handleSave}>Update</Button>
               </div>
             </CardContent>
+
           </Card>
         </TabsContent>
       </Tabs>
