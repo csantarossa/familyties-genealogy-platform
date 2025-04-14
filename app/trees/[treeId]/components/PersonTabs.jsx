@@ -22,6 +22,13 @@ import toast from "react-hot-toast";
 import DatePickerInput from "./DatePickerInput";
 import { Textarea } from "@/components/ui/textarea";
 import { useParams } from "next/navigation";
+import { format } from "date-fns";
+
+const formatDate = (date) => {
+  if (!date) return "Unknown";
+  const parsed = new Date(date);
+  return !isNaN(parsed) ? format(parsed, "dd MMM yyyy") : "Unknown";
+};
 
 const PersonTabs = () => {
   const [sidePanelContent, setSidePanelContent] = useContext(SidePanelContext);
@@ -272,11 +279,7 @@ const PersonTabs = () => {
                   {isEditingGeneral ? (
                     <DatePickerInput date={editedDob} setDate={setEditedDob} />
                   ) : (
-                    <p className="text-sm">
-                      {editedDob instanceof Date && !isNaN(editedDob)
-                        ? format(editedDob, "dd MMM yyyy")
-                        : "Unknown"}
-                    </p>
+                    <p className="text-sm">{formatDate(editedDob)}</p>
                   )}
                 </div>
 
@@ -286,11 +289,8 @@ const PersonTabs = () => {
                   {isEditingGeneral ? (
                     <DatePickerInput date={editedDod} setDate={setEditedDod} />
                   ) : (
-                    <p className="text-sm">
-                      {editedDod instanceof Date && !isNaN(editedDod)
-                        ? format(editedDod, "dd MMM yyyy")
-                        : "Alive"}
-                    </p>
+                    <p className="text-sm">{formatDate(editedDod)}</p>
+
                   )}
                 </div>
 
