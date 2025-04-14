@@ -166,7 +166,7 @@ const SidePanel = () => {
                     setSidePanelContent((prev) => ({
                       ...prev,
                       confidence: value,
-                      tags: prev.person_tags || [],
+                      person_tags: prev.person_tags || [],
                     }));
                   } catch (err) {
                     toast.dismiss();
