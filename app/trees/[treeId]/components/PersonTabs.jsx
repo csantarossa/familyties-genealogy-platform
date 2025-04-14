@@ -16,7 +16,7 @@ import { SidePanelContext } from "../page";
 import PopUp from "./PopUp";
 import { Plus } from "@geist-ui/icons";
 import UploadImage from "./UploadImage";
-import { Edit2, RotateCcw, Save, Trash, Upload } from "lucide-react";
+import { Edit2, RotateCcw, Save, Upload, Trash } from "lucide-react";
 import { getImmediateFamily, getSiblingsBySharedParents } from "@/app/actions";
 import toast from "react-hot-toast";
 import DatePickerInput from "./DatePickerInput";
@@ -54,10 +54,13 @@ const PersonTabs = () => {
 
   const personId = sidePanelContent.id;
 
-  const [editedTags, setEditedTags] = useState(sidePanelContent.person_tags || []);
-  const [editedConfidence, setEditedConfidence] = useState(sidePanelContent.confidence || "");
+  const [editedTags, setEditedTags] = useState(
+    sidePanelContent.person_tags || []
+  );
+  const [editedConfidence, setEditedConfidence] = useState(
+    sidePanelContent.confidence || ""
+  );
   const [newTagInput, setNewTagInput] = useState("");
-
 
   useEffect(() => {
     toast.loading("Loading sidepanel");
@@ -69,8 +72,7 @@ const PersonTabs = () => {
   useEffect(() => {
     setEditedTags(sidePanelContent.person_tags || []);
     setEditedConfidence(sidePanelContent.confidence || "");
-  }, [sidePanelContent.person_tags, sidePanelContent.confidence]);
-  
+  }, [sidePanelContent]);
 
   const handleGetRelationships = async () => {
     const data = await getImmediateFamily(sidePanelContent.id);
@@ -201,6 +203,9 @@ const PersonTabs = () => {
         additionalInfo: {
           career: editedCareer,
           education: editedEducation,
+          trigger: prev.trigger,
+          id: prev.id,
+          treeId: prev.treeId,
         },
       }));
       setIsEditingGeneral(false);
@@ -290,7 +295,6 @@ const PersonTabs = () => {
                     <DatePickerInput date={editedDod} setDate={setEditedDod} />
                   ) : (
                     <p className="text-sm">{formatDate(editedDod)}</p>
-
                   )}
                 </div>
 
@@ -775,8 +779,7 @@ const PersonTabs = () => {
                   onClick={() => {
                     setNotes(sidePanelContent.notes);
                   }}
-                >
-                </Button>
+                ></Button>
                 <Button onClick={handleSave}>Update</Button>
               </div>
             </CardContent>

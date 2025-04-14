@@ -139,6 +139,8 @@ export async function PUT(req, { params }) {
     additionalInfo,
     gallery,
     notes,
+    confidence,
+    person_tags,
   } = body;
 
   const safeDob = typeof dob === "string" && dob.toLowerCase() === "unknown" ? null : parseDate(dob);
