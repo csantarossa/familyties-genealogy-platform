@@ -1,4 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
+import imageCompression from "browser-image-compression";
+
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -14,11 +16,13 @@ import { SidePanelContext } from "../page";
 import PopUp from "./PopUp";
 import { Plus } from "@geist-ui/icons";
 import UploadImage from "./UploadImage";
-import { Edit2, RotateCcw } from "lucide-react";
+import { Edit2, RotateCcw, Save, Upload } from "lucide-react";
 import { getImmediateFamily, getSiblingsBySharedParents } from "@/app/actions";
 import toast from "react-hot-toast";
 import DatePickerInput from "./DatePickerInput";
 import { Textarea } from "@/components/ui/textarea";
+import { useParams } from "next/navigation";
+
 
 const PersonTabs = () => {
   const [sidePanelContent, setSidePanelContent] = useContext(SidePanelContext);
@@ -26,6 +30,7 @@ const PersonTabs = () => {
   const [isEditingGeneral, setIsEditingGeneral] = useState(false);
   const [isEditingCareer, setIsEditingCareer] = useState(false);
   const [isEditingEducation, setIsEditingEducation] = useState(false);
+  const [imageFile, setImageFile] = useState(null);
   const [editedGender, setEditedGender] = useState(sidePanelContent.gender);
   const [notes, setNotes] = useState(sidePanelContent.notes);
   const [editedDob, setEditedDob] = useState(sidePanelContent.dob);
@@ -38,6 +43,8 @@ const PersonTabs = () => {
     sidePanelContent.additionalInfo?.education || []
   );
   const [siblings, setSiblings] = useState([]);
+
+  const { treeId } = useParams();
 
   useEffect(() => {
     toast.loading("Loading sidepanel");
@@ -53,11 +60,72 @@ const PersonTabs = () => {
     setRelationships(data);
   };
 
+  const handleSaveGallery = async (img) => {
+    try {
+      toast.loading("Saving image");
+      const personId = sidePanelContent.id;
+      let uploadedImageUrl = null;
+
+      // ✅ Upload the image first if one was selected
+      if (img) {
+        const compressedFile = await imageCompression(img, {
+          maxSizeMB: 0.3,
+          maxWidthOrHeight: 1024,
+          useWebWorker: true,
+        });
+
+        const formData = new FormData();
+        formData.append("file", compressedFile);
+
+        const uploadRes = await fetch(`/api/trees/${treeId}/s3-upload`, {
+          method: "POST",
+          body: formData,
+        });
+
+        const uploadData = await uploadRes.json();
+        uploadedImageUrl = uploadData.url;
+
+        if (uploadedImageUrl) {
+          setSidePanelContent((prev) => ({
+            ...prev,
+            gallery: [
+              ...(prev.gallery || []),
+              { image_url: uploadedImageUrl }, // match your backend schema
+            ],
+          }));
+          const imageRes = await fetch(
+            `/api/trees/${treeId}/s3-upload/gallery`,
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                person_id: personId,
+                url: uploadedImageUrl,
+              }),
+            }
+          );
+
+          const imageData = await imageRes.json();
+          if (!imageRes.ok || !imageData.success) {
+            toast.error("Image saved to S3 but failed to save in database");
+            toast.dismiss();
+            return;
+          }
+          toast.dismiss();
+          toast.success("Image saved");
+        }
+      }
+    } catch (error) {
+      console.error(error);
+      toast.dismiss();
+    } finally {
+      setImageFile(null);
+    }
+  };
+
   const handleSave = async () => {
     toast.loading("Saving changes");
     try {
-      const personId = sidePanelContent.id;
-
       // Update general person info
       const res = await fetch(`/api/trees/${sidePanelContent.treeId}`, {
         method: "PUT",
@@ -649,33 +717,61 @@ const PersonTabs = () => {
           <Card className="border-none shadow-none">
             <CardHeader>
               <CardTitle>Gallery</CardTitle>
-
-              {/* <CardDescription>
-                Change your password here. After sl be logged out.
-              </CardDescription> */}
             </CardHeader>
-            {sidePanelContent.gallery ? (
-              <CardContent className="grid grid-cols-3 justify-center w-full items-center p-0 m-0 gap-3">
-                <label htmlFor="uploadFile">
-                  <UploadImage />
-                </label>
-                <input type="file" id="uploadFile" className="hidden" />
-                {Array.isArray(sidePanelContent.gallery) &&
-                  sidePanelContent?.gallery.map((img, index) => (
-                    <div key={index} className="w-28 h-28 relative">
-                      <PopUp img={img} index={index} />
-                    </div>
-                  ))}
-              </CardContent>
-            ) : (
-              // Upload file replacing ugly input for image
-              <CardContent className="grid grid-cols-3 justify-center w-full items-center p-0 m-0 gap-3 ">
-                <label htmlFor="uploadFile">
-                  <UploadImage />
-                </label>
-                <input type="file" id="uploadFile" className="hidden" />
-              </CardContent>
-            )}
+            <CardContent className="grid grid-cols-4 justify-center w-full items-start p-0 m-0 gap-3">
+              <label htmlFor="uploadFile">
+                <UploadImage />
+              </label>
+              <input
+                id="uploadFile"
+                className="!hidden"
+                type="file"
+                onChange={(e) => {
+                  setImageFile(e.target.files[0]);
+                  handleSaveGallery(e.target.files[0]);
+                }}
+              />
+
+              {Array.isArray(sidePanelContent.gallery) &&
+                sidePanelContent?.gallery.map((img, index) => (
+                  <div key={index} className="w-28 h-28 relative">
+                    <PopUp img={img.image_url} index={index} />
+                  </div>
+                ))}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Notes */}
+        <TabsContent value="notes" className="">
+          <Card className="border-none shadow-none">
+            <CardHeader>
+              <CardTitle>Notes</CardTitle>
+
+              <CardDescription>
+                A flexible space to suit your needs
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="flex flex-col justify-center w-full items-center p-0 m-0 gap-3 overflow-auto">
+              <Textarea
+                onChange={(e) => {
+                  setNotes(e.target.value);
+                }}
+                value={notes}
+                className="w-full min-h-60"
+              />
+              <div className="flex justify-end gap-2 w-full">
+                <Button
+                  variant="ghost"
+                  onClick={() => {
+                    setNotes(sidePanelContent.notes);
+                  }}
+                >
+                  <RotateCcw />
+                </Button>
+                <Button onClick={handleSave}>Update</Button>
+              </div>
+            </CardContent>
           </Card>
         </TabsContent>
 

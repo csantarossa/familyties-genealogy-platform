@@ -5,7 +5,7 @@ const PopUp = ({ img, index }) => {
   return (
     <div>
       <label htmlFor={`my_modal_${index}`} className="cursor-pointer">
-        <div className="w-28 h-28 relative">
+        <div className="w-24 h-24 relative">
           <Image
             htmlFor={`my_modal_${index}`}
             alt="Person's main image"
