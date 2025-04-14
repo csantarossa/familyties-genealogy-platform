@@ -23,7 +23,6 @@ import DatePickerInput from "./DatePickerInput";
 import { Textarea } from "@/components/ui/textarea";
 import { useParams } from "next/navigation";
 
-
 const PersonTabs = () => {
   const [sidePanelContent, setSidePanelContent] = useContext(SidePanelContext);
   const [relationships, setRelationships] = useState([]);
@@ -81,6 +80,7 @@ const PersonTabs = () => {
           method: "POST",
           body: formData,
         });
+
 
         const uploadData = await uploadRes.json();
         uploadedImageUrl = uploadData.url;
@@ -741,7 +741,6 @@ const PersonTabs = () => {
             </CardContent>
           </Card>
         </TabsContent>
-
         {/* Notes */}
         <TabsContent value="notes" className="">
           <Card className="border-none shadow-none">
@@ -772,39 +771,7 @@ const PersonTabs = () => {
                 <Button onClick={handleSave}>Update</Button>
               </div>
             </CardContent>
-          </Card>
-        </TabsContent>
 
-        {/* Notes */}
-        <TabsContent value="notes">
-          <Card className="border-none shadow-none">
-            <CardHeader>
-              <CardTitle>Notes</CardTitle>
-
-              <CardDescription>
-                A flexible space to suit your needs
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="flex flex-col justify-center w-full items-center p-0 m-0 gap-3 ">
-              <Textarea
-                onChange={(e) => {
-                  setNotes(e.target.value);
-                }}
-                value={notes}
-                className="w-full h-80"
-              />
-              <div className="flex justify-end gap-2 w-full">
-                <Button
-                  variant="ghost"
-                  onClick={() => {
-                    setNotes(sidePanelContent.notes);
-                  }}
-                >
-                  <RotateCcw />
-                </Button>
-                <Button onClick={handleSave}>Update</Button>
-              </div>
-            </CardContent>
           </Card>
         </TabsContent>
       </Tabs>

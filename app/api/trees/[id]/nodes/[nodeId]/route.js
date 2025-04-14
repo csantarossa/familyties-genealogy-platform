@@ -8,6 +8,7 @@ export async function DELETE(req, context) {
   const params = await context.params;
   const personId = parseInt(params.nodeId);
   try {
+    await sql`DELETE FROM images WHERE fk_person_id = ${personId}`;
     await sql`DELETE FROM career WHERE fk_person_id = ${personId}`;
     await sql`DELETE FROM education WHERE fk_person_id = ${personId}`;
 
