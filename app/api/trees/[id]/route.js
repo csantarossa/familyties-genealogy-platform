@@ -153,20 +153,23 @@ export async function PUT(req, { params }) {
 
 
   await sql`
-    UPDATE person
-    SET
-      person_gender = ${gender},
-      person_dob = ${safeDob},
-      person_dod = ${safeDod},
-      birth_town = ${birthTown || null},
-      birth_city = ${birthCity || null},
-      birth_state = ${birthState || null},
-      birth_country = ${birthCountry || null},
-      additional_information = ${JSON.stringify(additionalInfo) || null},
-      gallery = ${JSON.stringify(gallery) || null},
-      notes = ${notes || null} 
-    WHERE person_id = ${personId} AND fk_tree_id = ${id};
-  `;
+  UPDATE person
+  SET
+    person_gender = ${gender},
+    person_dob = ${safeDob},
+    person_dod = ${safeDod},
+    birth_town = ${birthTown || null},
+    birth_city = ${birthCity || null},
+    birth_state = ${birthState || null},
+    birth_country = ${birthCountry || null},
+    additional_information = ${JSON.stringify(additionalInfo) || null},
+    gallery = ${JSON.stringify(gallery) || null},
+    notes = ${notes || null},
+    confidence = ${confidence || null},
+    person_tags = ${JSON.stringify(person_tags) || '[]'}
+  WHERE person_id = ${personId} AND fk_tree_id = ${id};
+`;
+
 
   return NextResponse.json({
     success: true,
