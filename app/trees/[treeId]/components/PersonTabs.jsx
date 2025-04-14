@@ -674,7 +674,7 @@ const PersonTabs = () => {
                           onClick={() => {
                             const updated = [...editedEducation];
                             updated.splice(index, 1);
-                            setEditedCareer(updated);
+                            setEditedEducation(updated);
                           }}
                         />
                       </>
