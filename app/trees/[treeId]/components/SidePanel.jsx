@@ -53,7 +53,7 @@ const SidePanel = () => {
           console.error("❌ Failed to fetch person:", err);
         });
     }
-  }, [sidePanelContent.trigger]);
+  }, [sidePanelContent.trigger]);  
   
   
 
