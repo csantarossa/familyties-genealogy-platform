@@ -1,24 +1,32 @@
-// app/components/DatePickerInput.jsx
+import { formatForBackend } from "@/app/utils/parseDate";
+
 const formatDateForInput = (date) => {
   if (!date || isNaN(date)) return "";
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
+  return formatForBackend(date);
 };
 
 const DatePickerInput = ({ date, setDate }) => {
   return (
-    <input
-      type="date"
-      className="bg-white text-sm border w-full p-2 rounded-md text-opacity-70"
-      value={formatDateForInput(date)}
-      onChange={(e) => {
-        const [year, month, day] = e.target.value.split("-").map(Number);
-        const newDate = new Date(year, month - 1, day); // local time
-        setDate(newDate);
-      }}
-    />
+    <>
+      <style jsx>{`
+        input::-webkit-calendar-picker-indicator {
+          filter: invert(1);
+          cursor: pointer;
+        }
+      `}</style>
+
+      <input
+        type="date"
+        className="bg-white text-black text-sm border border-gray-300 w-full p-2 rounded-md opacity-90"
+        value={formatDateForInput(date)}
+        onChange={(e) => {
+          const [year, month, day] = e.target.value.split("-").map(Number);
+          const newDate = new Date(year, month - 1, day);
+          setDate(newDate);
+        }}
+        onKeyDown={(e) => e.preventDefault()} // prevent typing manually
+      />
+    </>
   );
 };
 
