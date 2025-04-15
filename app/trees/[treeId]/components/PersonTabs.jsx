@@ -248,29 +248,19 @@ const PersonTabs = () => {
   return (
     <div className="max-h-full overflow-hidden">
       <Tabs defaultValue="info" className="w-[450px] h-full">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger className="hover:bg-gray-200" value="info">
             Info
           </TabsTrigger>
           <TabsTrigger className="hover:bg-gray-200" value="gallery">
             Gallery
           </TabsTrigger>
-          <TabsTrigger
-            className="hover:bg-gray-200"
-            disabled={true}
-            value="audio"
-          >
-            Audio
-          </TabsTrigger>
-          <TabsTrigger
-            className="hover:bg-gray-200"
-            disabled={true}
-            value="other"
-          >
-            Other
+          <TabsTrigger className="hover:bg-gray-200" value="notes">
+            Notes
           </TabsTrigger>
         </TabsList>
 
+        {/* Info tab */}
         <TabsContent value="info" className="h-full">
           <Card className="border-none shadow-none h-full">
             <div className="h-full pb-10 overflow-y-auto px-4">
@@ -824,6 +814,7 @@ const PersonTabs = () => {
                     setNotes(sidePanelContent.notes);
                   }}
                 >
+                  <RotateCcw/>
                 </Button>
                 <Button onClick={handleSave}>Update</Button>
               </div>
