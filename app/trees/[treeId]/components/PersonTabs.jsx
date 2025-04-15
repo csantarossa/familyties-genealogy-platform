@@ -54,10 +54,13 @@ const PersonTabs = () => {
 
   const personId = sidePanelContent.id;
 
-  const [editedTags, setEditedTags] = useState(sidePanelContent.person_tags || []);
-  const [editedConfidence, setEditedConfidence] = useState(sidePanelContent.confidence || "");
+  const [editedTags, setEditedTags] = useState(
+    sidePanelContent.person_tags || []
+  );
+  const [editedConfidence, setEditedConfidence] = useState(
+    sidePanelContent.confidence || ""
+  );
   const [newTagInput, setNewTagInput] = useState("");
-
 
   useEffect(() => {
     toast.loading("Loading sidepanel");
@@ -70,13 +73,20 @@ const PersonTabs = () => {
     setEditedTags(sidePanelContent.person_tags || []);
     setEditedConfidence(sidePanelContent.confidence || "");
   }, [sidePanelContent]);
-  
 
   const handleGetRelationships = async () => {
     const data = await getImmediateFamily(sidePanelContent.id);
     const siblingData = await getSiblingsBySharedParents(sidePanelContent.id);
     setSiblings(siblingData);
     setRelationships(data);
+  };
+
+  const safeFormat = (date) => {
+    try {
+      return date ? format(new Date(date), "dd MMM yyyy") : "Unknown";
+    } catch {
+      return "Unknown";
+    }
   };
 
   const handleSaveGallery = async (img) => {
@@ -95,7 +105,6 @@ const PersonTabs = () => {
 
         const formData = new FormData();
         formData.append("file", compressedFile);
-
 
         const uploadRes = await fetch(`/api/trees/${treeId}/s3-upload`, {
           method: "POST",
@@ -202,9 +211,9 @@ const PersonTabs = () => {
         additionalInfo: {
           career: editedCareer,
           education: editedEducation,
-        trigger: prev.trigger,
-        id: prev.id,
-        treeId: prev.treeId,
+          trigger: prev.trigger,
+          id: prev.id,
+          treeId: prev.treeId,
         },
       }));
       setIsEditingGeneral(false);
@@ -281,10 +290,7 @@ const PersonTabs = () => {
                 <div className="space-y-0">
                   <Label className="font-semibold text-sm">Birth</Label>
                   {isEditingGeneral ? (
-                    <DatePickerInput
-                      date={editedDob}
-                      setDate={setEditedDob}
-                    />
+                    <DatePickerInput date={editedDob} setDate={setEditedDob} />
                   ) : (
                     <p className="text-sm">{formatDate(editedDob)}</p>
                   )}
@@ -294,13 +300,9 @@ const PersonTabs = () => {
                 <div className="space-y-0">
                   <Label className="font-semibold text-sm">Death</Label>
                   {isEditingGeneral ? (
-                    <DatePickerInput
-                      date={editedDod}
-                      setDate={setEditedDod}
-                    />
+                    <DatePickerInput date={editedDod} setDate={setEditedDod} />
                   ) : (
                     <p className="text-sm">{formatDate(editedDod)}</p>
-
                   )}
                 </div>
 
@@ -320,7 +322,10 @@ const PersonTabs = () => {
                         <Button
                           onClick={() => {
                             if (newTagInput.trim()) {
-                              setEditedTags([...editedTags, newTagInput.trim()]);
+                              setEditedTags([
+                                ...editedTags,
+                                newTagInput.trim(),
+                              ]);
                               setNewTagInput("");
                             }
                           }}
@@ -548,9 +553,8 @@ const PersonTabs = () => {
                         <p className="text-sm">{job.location}</p>
                         <CardDescription>{job.description}</CardDescription>
                         <p className="text-sm">
-                          {job.start_date ? format(new Date(job.start_date), "dd MMM yyyy") : "Start Unknown"}
-                          {" - "}
-                          {job.end_date ? format(new Date(job.end_date), "dd MMM yyyy") : "Present"}
+                          {safeFormat(job.start_date)} -{" "}
+                          {safeFormat(job.end_date) || "Present"}
                         </p>
                       </div>
                     )}
@@ -690,9 +694,8 @@ const PersonTabs = () => {
                         <p className="text-sm">{edu.location}</p>
                         <CardDescription>{edu.description}</CardDescription>
                         <p className="text-sm">
-                          {edu.start_date ? format(new Date(edu.start_date), "dd MMM yyyy") : "Start Unknown"}
-                          {" - "}
-                          {edu.end_date ? format(new Date(edu.end_date), "dd MMM yyyy") : "Present"}
+                          {safeFormat(edu.start_date)} -{" "}
+                          {safeFormat(edu.end_date) || "Present"}
                         </p>
                       </div>
                     )}
@@ -774,12 +777,10 @@ const PersonTabs = () => {
                   onClick={() => {
                     setNotes(sidePanelContent.notes);
                   }}
-                >
-                </Button>
+                ></Button>
                 <Button onClick={handleSave}>Update</Button>
               </div>
             </CardContent>
-
           </Card>
         </TabsContent>
       </Tabs>
