@@ -25,26 +25,16 @@ import { useParams } from "next/navigation";
 import { format } from "date-fns";
 import { parseDate } from "@/app/utils/parseDate";
 
-const formatForBackend = (d) => {
-  if (!d) return null;
-  if (typeof d === "string" && /^\d{4}-\d{2}-\d{2}$/.test(d)) return d;
-  try {
-    const parsed = new Date(d);
-    return isNaN(parsed) ? null : format(parsed, "yyyy-MM-dd");
-  } catch {
-    return null;
-  }
-};
+const formatForBackend = (date) => {
+  if (!date || isNaN(date)) return null;
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`; // "yyyy-MM-dd"
+}; // <- FIXED the display date
 
-const formatDisplayDate = (d) => {
-  if (!d) return "Unknown";
-  try {
-    const parsed = new Date(d);
-    return isNaN(parsed) ? "Unknown" : format(parsed, "dd MMM yyyy");
-  } catch {
-    return "Unknown";
-  }
-};
+const formatDisplayDate = (date) =>
+  date && !isNaN(date) ? format(date, "dd MMM yyyy") : "Unknown"; // <- FIXED the display date
 
 const PersonTabs = () => {
   const [sidePanelContent, setSidePanelContent] = useContext(SidePanelContext);
@@ -55,8 +45,8 @@ const PersonTabs = () => {
   const [imageFile, setImageFile] = useState(null);
   const [editedGender, setEditedGender] = useState(sidePanelContent.gender);
   const [notes, setNotes] = useState(sidePanelContent.notes);
-  const [editedDob, setEditedDob] = useState(sidePanelContent.dob);
-  const [editedDod, setEditedDod] = useState(sidePanelContent.dod);
+  const [editedDob, setEditedDob] = useState(parseDate(sidePanelContent.dob));
+  const [editedDod, setEditedDod] = useState(parseDate(sidePanelContent.dod));
 
   const [editedCareer, setEditedCareer] = useState(
     sidePanelContent.additionalInfo?.career || []
@@ -286,7 +276,23 @@ const PersonTabs = () => {
                 <Edit2
                   size={16}
                   className="cursor-pointer"
-                  onClick={() => setIsEditingGeneral(!isEditingGeneral)}
+                  onClick={() => {
+                    if (!isEditingGeneral) {
+                      const dobParsed = parseDate(sidePanelContent.dob);
+                      const dodParsed = parseDate(sidePanelContent.dod);
+
+                      console.log("🧠 RAW DOB:", sidePanelContent.dob);
+                      console.log("🧠 PARSED DOB:", dobParsed);
+
+                      setEditedDob(dobParsed);
+                      setEditedDod(dodParsed);
+                      setEditedGender(sidePanelContent.gender || "");
+                      setNotes(sidePanelContent.notes || "");
+                      setEditedTags(sidePanelContent.person_tags || []);
+                      setEditedConfidence(sidePanelContent.confidence || "");
+                    }
+                    setIsEditingGeneral((prev) => !prev);
+                  }}
                 />
               </CardHeader>
 
@@ -310,7 +316,13 @@ const PersonTabs = () => {
                   {!isEditingGeneral ? (
                     <p className="text-sm">{formatDisplayDate(editedDob)}</p>
                   ) : (
-                    <DatePickerInput date={editedDob} setDate={setEditedDob} />
+                    <>
+                      {console.log("📆 DOB in Edit Mode:", editedDob)}
+                      <DatePickerInput
+                        date={editedDob}
+                        setDate={setEditedDob}
+                      />
+                    </>
                   )}
                 </div>
 
