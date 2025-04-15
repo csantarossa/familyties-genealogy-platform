@@ -19,6 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { format } from "date-fns";
 
 const SidePanel = () => {
   const [sidePanelContent, setSidePanelContent] = useContext(SidePanelContext);
@@ -37,9 +38,9 @@ const SidePanel = () => {
           setSidePanelContent((prev) => ({
             ...prev,
             ...data.person,
-            // trigger: prev.trigger,
-            // id: prev.id,
-            // treeId: prev.treeId,
+            trigger: prev.trigger,
+            id: prev.id,
+            treeId: prev.treeId,
           }));
         })
         .catch((err) => {
@@ -112,6 +113,17 @@ const SidePanel = () => {
                 value={sidePanelContent.confidence || ""}
                 onValueChange={async (value) => {
                   toast.loading("Saving confidence...");
+                  const formatDateSafe = (d) => {
+                    if (!d) return null;
+                    if (typeof d === "string" && /^\d{4}-\d{2}-\d{2}$/.test(d)) return d;
+                    try {
+                      const parsed = new Date(d);
+                      return isNaN(parsed) ? null : format(parsed, "yyyy-MM-dd");
+                    } catch {
+                      return null;
+                    }
+                  };
+                  
                   try {
                     const res = await fetch(`/api/trees/${treeId}`, {
                       method: "PUT",
@@ -121,8 +133,8 @@ const SidePanel = () => {
                         confidence: value,
                         person_tags: sidePanelContent.person_tags || [],
                         gender: sidePanelContent.gender,
-                        dob: sidePanelContent.dob,
-                        dod: sidePanelContent.dod,
+                        dob: formatDateSafe(sidePanelContent.dob), // ✅ always string
+                        dod: formatDateSafe(sidePanelContent.dod),
                         birthTown: sidePanelContent.birthTown,
                         birthCity: sidePanelContent.birthCity,
                         birthState: sidePanelContent.birthState,
