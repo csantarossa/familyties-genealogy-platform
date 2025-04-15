@@ -53,6 +53,8 @@ export async function GET(req, context) {
     return NextResponse.json({
       person: {
         ...person,
+        dob: person.person_dob,
+        dod: person.person_dod,
         person_tags: person.person_tags ?? [],
         additionalInfo:
           typeof person.additional_information === "string"

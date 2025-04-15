@@ -156,12 +156,6 @@ function FlowSpace() {
     return edges;
   };
 
-  const getConfidenceScore = (confidence) => {
-    if (confidence === 1) return "Verified";
-    if (confidence === 2) return "Unverified";
-    return null;
-  };
-
   const nodeTypes = useMemo(() => ({ treeCard: TreeNode }), []);
 
   return (

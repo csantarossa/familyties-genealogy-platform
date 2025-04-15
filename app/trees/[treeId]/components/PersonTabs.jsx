@@ -23,12 +23,14 @@ import DatePickerInput from "./DatePickerInput";
 import { Textarea } from "@/components/ui/textarea";
 import { useParams } from "next/navigation";
 import { format } from "date-fns";
+import { parseDate } from "@/app/utils/parseDate";
 
-const formatDate = (date) => {
+const formatDisplayDate = (date) => {
   if (!date) return "Unknown";
   const parsed = new Date(date);
-  return !isNaN(parsed) ? format(parsed, "dd MMM yyyy") : "Unknown";
+  return isNaN(parsed) ? "Unknown" : format(parsed, "dd MMM yyyy");
 };
+
 
 const PersonTabs = () => {
   const [sidePanelContent, setSidePanelContent] = useContext(SidePanelContext);
@@ -67,9 +69,17 @@ const PersonTabs = () => {
   }, []);
 
   useEffect(() => {
-    setEditedTags(sidePanelContent.person_tags || []);
-    setEditedConfidence(sidePanelContent.confidence || "");
-  }, [sidePanelContent]);
+    if (!isEditingGeneral) {
+      setEditedDob(parseDate(sidePanelContent.dob));
+      setEditedDod(parseDate(sidePanelContent.dod));
+      setEditedGender(sidePanelContent.gender || "");
+      setNotes(sidePanelContent.notes || "");
+      setEditedTags(sidePanelContent.person_tags || []);
+      setEditedConfidence(sidePanelContent.confidence || "");
+    }
+  }, [sidePanelContent, isEditingGeneral]);
+  
+  
   
 
   const handleGetRelationships = async () => {
@@ -280,14 +290,12 @@ const PersonTabs = () => {
                 {/* DOB */}
                 <div className="space-y-0">
                   <Label className="font-semibold text-sm">Birth</Label>
-                  {isEditingGeneral ? (
-                    <DatePickerInput
-                      date={editedDob}
-                      setDate={setEditedDob}
-                    />
-                  ) : (
-                    <p className="text-sm">{formatDate(editedDob)}</p>
-                  )}
+                  {!isEditingGeneral ? (
+  <p className="text-sm">{formatDisplayDate(editedDob)}</p>
+) : (
+  <DatePickerInput date={editedDob} setDate={setEditedDob} />
+)}
+
                 </div>
 
                 {/* DOD */}
@@ -299,7 +307,7 @@ const PersonTabs = () => {
                       setDate={setEditedDod}
                     />
                   ) : (
-                    <p className="text-sm">{formatDate(editedDod)}</p>
+                    <p className="text-sm">{formatDisplayDate(editedDod)}</p>
 
                   )}
                 </div>

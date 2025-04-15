@@ -37,9 +37,9 @@ const SidePanel = () => {
           setSidePanelContent((prev) => ({
             ...prev,
             ...data.person,
-            trigger: prev.trigger,
-            id: prev.id,
-            treeId: prev.treeId,
+            // trigger: prev.trigger,
+            // id: prev.id,
+            // treeId: prev.treeId,
           }));
         })
         .catch((err) => {
@@ -106,75 +106,75 @@ const SidePanel = () => {
               </div>
 
               <div className="flex justify-between items-center w-full gap-4">
-  {/* Confidence Dropdown */}
-  <Select
-    value={sidePanelContent.confidence || ""}
-    onValueChange={async (value) => {
-      toast.loading("Saving confidence...");
-      try {
-        const res = await fetch(`/api/trees/${treeId}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            personId: sidePanelContent.id,
-            confidence: value,
-            person_tags: sidePanelContent.person_tags || [],
-            gender: sidePanelContent.gender,
-            dob: sidePanelContent.dob,
-            dod: sidePanelContent.dod,
-            birthTown: sidePanelContent.birthTown,
-            birthCity: sidePanelContent.birthCity,
-            birthState: sidePanelContent.birthState,
-            birthCountry: sidePanelContent.birthCountry,
-            notes: sidePanelContent.notes || "",
-          }),
-        });
+              
+              {/* Confidence Dropdown */}
+              <Select
+                value={sidePanelContent.confidence || ""}
+                onValueChange={async (value) => {
+                  toast.loading("Saving confidence...");
+                  try {
+                    const res = await fetch(`/api/trees/${treeId}`, {
+                      method: "PUT",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({
+                        personId: sidePanelContent.id,
+                        confidence: value,
+                        person_tags: sidePanelContent.person_tags || [],
+                        gender: sidePanelContent.gender,
+                        dob: sidePanelContent.dob,
+                        dod: sidePanelContent.dod,
+                        birthTown: sidePanelContent.birthTown,
+                        birthCity: sidePanelContent.birthCity,
+                        birthState: sidePanelContent.birthState,
+                        birthCountry: sidePanelContent.birthCountry,
+                        notes: sidePanelContent.notes || "",
+                      }),
+                    });
 
-        const result = await res.json();
-        toast.dismiss();
+                    const result = await res.json();
+                    toast.dismiss();
 
-        if (!res.ok || !result.success) {
-          toast.error("Failed to update confidence");
-          return;
-        }
+                    if (!res.ok || !result.success) {
+                      toast.error("Failed to update confidence");
+                      return;
+                    }
 
-        toast.success("Confidence updated!");
+                    toast.success("Confidence updated!");
 
-        setSidePanelContent((prev) => ({
-          ...prev,
-          confidence: value,
-        }));
-      } catch (err) {
-        toast.dismiss();
-        console.error("Error updating confidence:", err);
-        toast.error("Something went wrong");
-      }
-    }}
-  >
-    <SelectTrigger className="w-36 h-fit py-1" tabIndex={-1}>
-      <SelectValue>{sidePanelContent.confidence || "Confidence"}</SelectValue>
-    </SelectTrigger>
-    <SelectContent>
-      <SelectItem value="Verified">Verified</SelectItem>
-      <SelectItem value="Unverified">Unverified</SelectItem>
-      <SelectItem value="Focus">Focus</SelectItem>
-    </SelectContent>
-  </Select>
+                    setSidePanelContent((prev) => ({
+                      ...prev,
+                      confidence: value,
+                    }));
+                  } catch (err) {
+                    toast.dismiss();
+                    console.error("Error updating confidence:", err);
+                    toast.error("Something went wrong");
+                  }
+                }}
+              >
+              <SelectTrigger className="w-36 h-fit py-1" tabIndex={-1}>
+                <SelectValue>{sidePanelContent.confidence || "Confidence"}</SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Verified">Verified</SelectItem>
+                <SelectItem value="Unverified">Unverified</SelectItem>
+                <SelectItem value="Focus">Focus</SelectItem>
+              </SelectContent>
+            </Select>
 
-  {/* Delete Button */}
-  <ConfirmModal
-    title="Are you sure you want to delete?"
-    trigger={
-      <Trash
-        size={18}
-        className="opacity-40 hover:opacity-100 duration-150"
-      />
-    }
-    description="You cannot reverse this action. Deleting a person means they are removed forever."
-    onConfirm={() => handleDeleteNode(sidePanelContent.id)}
-  />
-</div>
-
+            {/* Delete Button */}
+            <ConfirmModal
+              title="Are you sure you want to delete?"
+              trigger={
+                <Trash
+                  size={18}
+                  className="opacity-40 hover:opacity-100 duration-150"
+                />
+              }
+              description="You cannot reverse this action. Deleting a person means they are removed forever."
+              onConfirm={() => handleDeleteNode(sidePanelContent.id)}
+            />
+          </div>
             </div>
           </SheetHeader>
 
