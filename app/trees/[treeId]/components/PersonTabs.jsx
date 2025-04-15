@@ -25,10 +25,25 @@ import { useParams } from "next/navigation";
 import { format } from "date-fns";
 import { parseDate } from "@/app/utils/parseDate";
 
-const formatDisplayDate = (date) => {
-  if (!date) return "Unknown";
-  const parsed = new Date(date);
-  return isNaN(parsed) ? "Unknown" : format(parsed, "dd MMM yyyy");
+const formatForBackend = (d) => {
+  if (!d) return null;
+  if (typeof d === "string" && /^\d{4}-\d{2}-\d{2}$/.test(d)) return d;
+  try {
+    const parsed = new Date(d);
+    return isNaN(parsed) ? null : format(parsed, "yyyy-MM-dd");
+  } catch {
+    return null;
+  }
+};
+
+const formatDisplayDate = (d) => {
+  if (!d) return "Unknown";
+  try {
+    const parsed = new Date(d);
+    return isNaN(parsed) ? "Unknown" : format(parsed, "dd MMM yyyy");
+  } catch {
+    return "Unknown";
+  }
 };
 
 const PersonTabs = () => {
@@ -72,8 +87,12 @@ const PersonTabs = () => {
 
   useEffect(() => {
     if (!isEditingGeneral) {
-      setEditedDob(parseDate(sidePanelContent.dob));
-      setEditedDod(parseDate(sidePanelContent.dod));
+      if (sidePanelContent.dob) {
+        setEditedDob(parseDate(sidePanelContent.dob));
+      }
+      if (sidePanelContent.dod) {
+        setEditedDod(parseDate(sidePanelContent.dod));
+      }
       setEditedGender(sidePanelContent.gender || "");
       setNotes(sidePanelContent.notes || "");
       setEditedTags(sidePanelContent.person_tags || []);
@@ -161,8 +180,8 @@ const PersonTabs = () => {
         body: JSON.stringify({
           personId: sidePanelContent.id,
           gender: editedGender,
-          dob: editedDob,
-          dod: editedDod,
+          dob: formatForBackend(editedDob),
+          dod: formatForBackend(editedDod),
           confidence: editedConfidence,
           person_tags: editedTags,
           birthTown: sidePanelContent.birthTown,
@@ -377,8 +396,8 @@ const PersonTabs = () => {
                       variant="ghost"
                       onClick={() => {
                         setEditedGender(sidePanelContent.gender);
-                        setEditedDob(sidePanelContent.dob);
-                        setEditedDod(sidePanelContent.dod);
+                        setEditedDob(parseDate(sidePanelContent.dob));
+                        setEditedDod(parseDate(sidePanelContent.dod));
                         setIsEditingGeneral(false);
                       }}
                     >
