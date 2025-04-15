@@ -25,7 +25,7 @@ export async function PUT(req) {
           ${personId},
           ${edu.title},
           ${edu.institution},
-          ${edu.institution_location},
+          ${edu.location},
           ${edu.start_date || null},
           ${edu.end_date || null},
           ${edu.description}

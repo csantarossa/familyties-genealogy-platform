@@ -23,19 +23,7 @@ import DatePickerInput from "./DatePickerInput";
 import { Textarea } from "@/components/ui/textarea";
 import { useParams } from "next/navigation";
 import { format } from "date-fns";
-import { parseDate } from "@/app/utils/parseDate";
-
-
-const formatForBackend = (date) => {
-  if (!date || isNaN(date)) return null;
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`; // "yyyy-MM-dd"
-}; // <- FIXED the display date
-
-const formatDisplayDate = (date) =>
-  date && !isNaN(date) ? format(date, "dd MMM yyyy") : "Unknown"; // <- FIXED the display date
+import { parseDate, formatForBackend, formatDisplayDate } from "@/app/utils/parseDate";
 
 const PersonTabs = () => {
   const [sidePanelContent, setSidePanelContent] = useContext(SidePanelContext);
@@ -44,11 +32,11 @@ const PersonTabs = () => {
   const [isEditingCareer, setIsEditingCareer] = useState(false);
   const [isEditingEducation, setIsEditingEducation] = useState(false);
   const [imageFile, setImageFile] = useState(null);
+
   const [editedGender, setEditedGender] = useState(sidePanelContent.gender);
   const [notes, setNotes] = useState(sidePanelContent.notes);
   const [editedDob, setEditedDob] = useState(parseDate(sidePanelContent.dob));
   const [editedDod, setEditedDod] = useState(parseDate(sidePanelContent.dod));
-
   const [editedCareer, setEditedCareer] = useState(
     sidePanelContent.additionalInfo?.career || []
   );
@@ -64,6 +52,22 @@ const PersonTabs = () => {
   const [editedTags, setEditedTags] = useState(sidePanelContent.person_tags || []);
   const [editedConfidence, setEditedConfidence] = useState(sidePanelContent.confidence || "");
   const [newTagInput, setNewTagInput] = useState("");
+
+  // Format dates before sending
+  const updatedCareer = editedCareer.map((job) => ({
+    ...job,
+    start_date: formatForBackend(job.start_date),
+    end_date: formatForBackend(job.end_date),
+  }));
+
+  const updatedEducation = editedEducation.map((edu) => ({
+    ...edu,
+    start_date: formatForBackend(edu.start_date),
+    end_date: formatForBackend(edu.end_date),
+  }));
+
+  const [careerBackup, setCareerBackup] = useState([]);
+  const [educationBackup, setEducationBackup] = useState([]);
 
 
   useEffect(() => {
@@ -189,7 +193,7 @@ const PersonTabs = () => {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             personId: sidePanelContent.id,
-            career: editedCareer,
+            career: updatedCareer,
           }), // <-- FIXED
         }
       );
@@ -199,7 +203,7 @@ const PersonTabs = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           personId: sidePanelContent.id,
-          education: editedEducation,
+          education: updatedEducation,
         }), // <-- FIXED
       });
 
@@ -274,28 +278,26 @@ const PersonTabs = () => {
               <CardHeader className="flex flex-row justify-between">
                 <CardTitle className="text-lg">General Information</CardTitle>
                 <Edit2
-  size={16}
-  className="cursor-pointer"
-  onClick={() => {
-    if (!isEditingGeneral) {
-      const dobParsed = parseDate(sidePanelContent.dob);
-      const dodParsed = parseDate(sidePanelContent.dod);
+                  size={16}
+                  className="cursor-pointer"
+                  onClick={() => {
+                    if (!isEditingGeneral) {
+                      const dobParsed = parseDate(sidePanelContent.dob);
+                      const dodParsed = parseDate(sidePanelContent.dod);
 
-      console.log("🧠 RAW DOB:", sidePanelContent.dob);
-      console.log("🧠 PARSED DOB:", dobParsed);
+                      console.log("🧠 RAW DOB:", sidePanelContent.dob);
+                      console.log("🧠 PARSED DOB:", dobParsed);
 
-      setEditedDob(dobParsed);
-      setEditedDod(dodParsed);
-      setEditedGender(sidePanelContent.gender || "");
-      setNotes(sidePanelContent.notes || "");
-      setEditedTags(sidePanelContent.person_tags || []);
-      setEditedConfidence(sidePanelContent.confidence || "");
-    }
-    setIsEditingGeneral((prev) => !prev);
-  }}
-/>
-
-
+                      setEditedDob(dobParsed);
+                      setEditedDod(dodParsed);
+                      setEditedGender(sidePanelContent.gender || "");
+                      setNotes(sidePanelContent.notes || "");
+                      setEditedTags(sidePanelContent.person_tags || []);
+                      setEditedConfidence(sidePanelContent.confidence || "");
+                    }
+                    setIsEditingGeneral((prev) => !prev);
+                  }}
+                />
               </CardHeader>
 
               <CardContent className="space-y-2">
@@ -313,18 +315,17 @@ const PersonTabs = () => {
                 </div>
 
                 {/* DOB */}
-<div className="space-y-0">
-  <Label className="font-semibold text-sm">Birth</Label>
-  {!isEditingGeneral ? (
-    <p className="text-sm">{formatDisplayDate(editedDob)}</p>
-  ) : (
-    <>
-      {console.log("📆 DOB in Edit Mode:", editedDob)}
-      <DatePickerInput date={editedDob} setDate={setEditedDob} />
-    </>
-  )}
-</div>
-
+                <div className="space-y-0">
+                  <Label className="font-semibold text-sm">Birth</Label>
+                  {!isEditingGeneral ? (
+                    <p className="text-sm">{formatDisplayDate(editedDob)}</p>
+                  ) : (
+                    <>
+                      {console.log("📆 DOB in Edit Mode:", editedDob)}
+                      <DatePickerInput date={editedDob} setDate={setEditedDob} />
+                    </>
+                  )}
+                </div>
 
                 {/* DOD */}
                 <div className="space-y-0">
@@ -422,6 +423,7 @@ const PersonTabs = () => {
               <CardHeader>
                 <CardTitle className="text-lg">Relationships</CardTitle>
               </CardHeader>
+              
               <CardContent className="space-y-3">
                 <div>
                   <Label className="text-xs font-semibold">Parents</Label>
@@ -493,7 +495,12 @@ const PersonTabs = () => {
                   <Edit2
                     size={16}
                     className="cursor-pointer"
-                    onClick={() => setIsEditingCareer(!isEditingCareer)}
+                    onClick={() => {
+                      if (!isEditingCareer) {
+                        setCareerBackup(JSON.parse(JSON.stringify(editedCareer))); // deep copy
+                      }
+                      setIsEditingCareer(!isEditingCareer);
+                    }}
                   />
                 </div>
               </CardHeader>
@@ -560,7 +567,6 @@ const PersonTabs = () => {
                           />
                         </div>
 
-                        {/* Delete Button */}
                         <Trash
                           size={18}
                           className="absolute top-2 right-2 text-red-500 hover:text-red-700 cursor-pointer transition"
@@ -595,9 +601,12 @@ const PersonTabs = () => {
                     <Button
                       variant="ghost"
                       onClick={() => {
-                        setEditedCareer(
-                          sidePanelContent.additionalInfo?.career || []
-                        );
+                        const restored = careerBackup.map((job) => ({
+                          ...job,
+                          start_date: job.start_date ? new Date(job.start_date) : null,
+                          end_date: job.end_date ? new Date(job.end_date) : null,
+                        }));
+                        setEditedCareer(restored);
                         setIsEditingCareer(false);
                       }}
                     >
@@ -635,7 +644,12 @@ const PersonTabs = () => {
                   <Edit2
                     size={16}
                     className="cursor-pointer"
-                    onClick={() => setIsEditingEducation(!isEditingEducation)}
+                    onClick={() => {
+                      if (!isEditingEducation) {
+                        setEducationBackup(JSON.parse(JSON.stringify(editedEducation))); // deep copy
+                      }
+                      setIsEditingEducation(!isEditingEducation);
+                    }}
                   />
                 </div>
               </CardHeader>
@@ -702,7 +716,6 @@ const PersonTabs = () => {
                           />
                         </div>
 
-                        {/* Delete Button */}
                         <Trash
                           size={18}
                           className="absolute top-2 right-2 text-red-500 hover:text-red-700 cursor-pointer transition"
@@ -735,19 +748,23 @@ const PersonTabs = () => {
                   <div className="flex justify-end gap-2">
                     <Button onClick={handleSave}>Save</Button>
                     <Button
-                      variant="ghost"
-                      onClick={() => {
-                        setEditedEducation(
-                          sidePanelContent.additionalInfo?.education || []
-                        );
-                        setIsEditingEducation(false);
-                      }}
-                    >
-                      Cancel
-                    </Button>
+                    variant="ghost"
+                    onClick={() => {
+                      const restored = educationBackup.map((edu) => ({
+                        ...edu,
+                        start_date: edu.start_date ? new Date(edu.start_date) : null,
+                        end_date: edu.end_date ? new Date(edu.end_date) : null,
+                      }));
+                      setEditedEducation(restored);
+                      setIsEditingEducation(false);
+                    }}
+                  >
+                    Cancel
+                  </Button>
                   </div>
                 )}
               </CardContent>
+
             </div>
           </Card>
         </TabsContent>
