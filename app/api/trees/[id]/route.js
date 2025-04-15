@@ -143,8 +143,11 @@ export async function PUT(req, { params }) {
     person_tags,
   } = body;
 
-  const safeDob = typeof dob === "string" && dob.toLowerCase() === "unknown" ? null : parseDate(dob);
-  const safeDod = typeof dod === "string" && dod.toLowerCase() === "alive" ? null : parseDate(dod);
+  const safeDob = typeof dob === "string" ? dob : null;
+  const safeDod = typeof dod === "string" ? dod : null;
+
+  console.log("📥 Received DOB:", dob);
+  console.log("🛠 Final safeDob:", safeDob);
 
 
   await sql`

@@ -13,6 +13,7 @@ import { Handle, Position } from "@xyflow/react";
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import { SidePanelContext } from "../page";
+import { format } from "date-fns";
 import ConfirmModal from "./ConfirmModal";
 import { Trash } from "lucide-react";
 
@@ -29,6 +30,13 @@ const TreeNode = ({ data }) => {
       ...data,
     });
   };
+
+  const formatDisplay = (value) => {
+    if (!value) return "Unknown";
+    const date = new Date(value);
+    return isNaN(date) ? "Unknown" : format(date, "dd MMM yyyy");
+  };
+  
 
   return (
     <div className="nodrag">
@@ -88,7 +96,7 @@ const TreeNode = ({ data }) => {
                 {data.gender}
               </CardDescription>
               <CardDescription className="capitalize text-xs mt-1">
-                {data.dob} - {data.dod}
+                {formatDisplay(data.dob)} - {formatDisplay(data.dod)}
               </CardDescription>
             </div>
           </CardHeader>
