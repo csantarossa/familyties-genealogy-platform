@@ -1,5 +1,34 @@
 import { NextResponse } from "next/server";
 import { neon } from "@neondatabase/serverless";
+import { parse, format } from "date-fns";
+
+function normalizeDate(input) {
+  if (!input) return null;
+
+  try {
+    // dd/MM/yyyy format
+    if (/^\d{2}\/\d{2}\/\d{4}$/.test(input)) {
+      const parsed = parse(input, "dd/MM/yyyy", new Date());
+      return format(parsed, "yyyy-MM-dd");
+    }
+
+    // yyyy-MM-dd (already correct)
+    if (/^\d{4}-\d{2}-\d{2}$/.test(input)) {
+      return input;
+    }
+
+    // try JS Date parsing fallback
+    const parsed = new Date(input);
+    if (!isNaN(parsed)) {
+      return format(parsed, "yyyy-MM-dd");
+    }
+  } catch (e) {
+    console.warn("Invalid date received:", input);
+  }
+
+  return null;
+}
+
 
 const sql = neon(process.env.DATABASE_URL);
 
@@ -140,8 +169,8 @@ export async function PUT(req, { params }) {
     notes,
   } = body;
 
-  const safeDod = dod?.toLowerCase?.() === "alive" ? null : dod;
-  const safeDob = dob?.toLowerCase?.() === "unknown" ? null : dob;
+  const safeDod = dod?.toLowerCase?.() === "alive" ? null : normalizeDate(dod);
+  const safeDob = dob?.toLowerCase?.() === "unknown" ? null : normalizeDate(dob);  
 
   await sql`
     UPDATE person
