@@ -224,7 +224,7 @@ const AddPersonModal = ({ trigger }) => {
                   <Label htmlFor="dob" className="text-sm font-medium">
                     Date of Birth *
                   </Label>
-                  <DatePickerInput setDate={setDobDate} />
+                  <DatePickerInput date={dobDate} setDate={setDobDate} />
                 </div>
                 <div className="grid w-full items-center gap-1.5">
                   <div>
@@ -232,7 +232,7 @@ const AddPersonModal = ({ trigger }) => {
                       Date of Death
                     </Label>
                   </div>
-                  <DatePickerInput setDate={setDodDate} />
+                  <DatePickerInput date={dodDate} setDate={setDodDate} />
                 </div>
               </div>
 
