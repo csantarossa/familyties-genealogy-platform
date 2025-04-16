@@ -63,7 +63,6 @@ export async function POST(req, { params }) {
       dod: body.dod,
       tags: null,
       img: body.img || null,
-      confidence: null,
       birthTown: null,
       birthCity: null,
       birthState: null,
@@ -76,13 +75,11 @@ export async function POST(req, { params }) {
     const result = await sql`
       INSERT INTO person (
         person_firstname, person_middlename, person_lastname, person_gender,
-        person_dob, person_dod, person_tags, person_main_img,
-        confidence, birth_town, birth_city, birth_state, birth_country,
+        person_dob, person_dod, person_tags, person_main_img, birth_town, birth_city, birth_state, birth_country,
         gallery, additional_information, fk_tree_id
       ) VALUES (
         ${newPerson.firstname}, ${newPerson.middlename}, ${newPerson.lastname}, ${newPerson.gender},
-        ${newPerson.dob}, ${newPerson.dod}, ${newPerson.tags}, ${newPerson.img},
-        ${newPerson.confidence}, ${newPerson.birthTown}, ${newPerson.birthCity},
+        ${newPerson.dob}, ${newPerson.dod}, ${newPerson.tags}, ${newPerson.img}, ${newPerson.birthTown}, ${newPerson.birthCity},
         ${newPerson.birthState}, ${newPerson.birthCountry}, ${newPerson.gallery},
         ${newPerson.additionalInfo}, ${newPerson.treeId}
       )
@@ -149,7 +146,6 @@ export async function PUT(req, { params }) {
   console.log("📥 Received DOB:", dob);
   console.log("🛠 Final safeDob:", safeDob);
 
-
   await sql`
   UPDATE person
   SET
@@ -164,10 +160,9 @@ export async function PUT(req, { params }) {
     gallery = ${JSON.stringify(gallery) || null},
     notes = ${notes || null},
     confidence = ${confidence || null},
-    person_tags = ${JSON.stringify(person_tags) || '[]'}
+    person_tags = ${JSON.stringify(person_tags) || "[]"}
   WHERE person_id = ${personId} AND fk_tree_id = ${id};
 `;
-
 
   return NextResponse.json({
     success: true,
