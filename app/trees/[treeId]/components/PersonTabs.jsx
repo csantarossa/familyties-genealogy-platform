@@ -22,6 +22,23 @@ import toast from "react-hot-toast";
 import DatePickerInput from "./DatePickerInput";
 import { Textarea } from "@/components/ui/textarea";
 import { useParams } from "next/navigation";
+import { parseISO, isValid, format } from "date-fns";
+
+const formatDisplayDate = (dateString) => {
+  if (!dateString) return null;
+
+  let parsed = null;
+
+  try {
+    parsed = parseISO(dateString); // works for "YYYY-MM-DD"
+    if (!isValid(parsed)) throw new Error();
+  } catch {
+    parsed = new Date(dateString); // fallback to generic parsing
+    if (!isValid(parsed)) return null;
+  }
+
+  return format(parsed, "dd/MM/yyyy");
+};
 
 const PersonTabs = () => {
   const [sidePanelContent, setSidePanelContent] = useContext(SidePanelContext);
@@ -182,13 +199,14 @@ const PersonTabs = () => {
       setSidePanelContent((prev) => ({
         ...prev,
         gender: editedGender,
-        dob: editedDob,
+        dob: editedDob || null,
+        dod: editedDod || null,
         additionalInfo: {
           ...prev.additionalInfo,
           career: editedCareer,
           education: editedEducation,
         },
-      }));
+      }));      
       setIsEditingGeneral(false);
       setIsEditingCareer(false);
       setIsEditingEducation(false);
@@ -264,7 +282,9 @@ const PersonTabs = () => {
                   {isEditingGeneral ? (
                     <DatePickerInput date={editedDob} setDate={setEditedDob} />
                   ) : (
-                    <p className="border-none py-1 h-fit text-sm">{`${sidePanelContent.dob}`}</p>
+                    <p className="text-sm">
+                      {formatDisplayDate(sidePanelContent.dob) || "Unknown"}
+                    </p>
                   )}
                   {!isEditingGeneral && (
                     <a
@@ -295,7 +315,9 @@ const PersonTabs = () => {
                   {isEditingGeneral ? (
                     <DatePickerInput date={editedDod} setDate={setEditedDod} />
                   ) : (
-                    <p className="text-sm">{sidePanelContent.dod}</p>
+                    <p className="text-sm">
+                      {formatDisplayDate(sidePanelContent.dod) || "Alive"}
+                    </p>
                   )}
                 </div>
                 {isEditingGeneral && (

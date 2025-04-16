@@ -168,7 +168,7 @@ const GetStartedModal = ({ treeId }) => {
                     Date of Death
                   </Label>
                 </div>
-                <DatePickerInput setDate={setDodDate} />
+                <DatePickerInput date={dodDate} setDate={setDodDate} />
               </div>
             </div>
 
