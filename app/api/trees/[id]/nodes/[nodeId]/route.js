@@ -7,7 +7,7 @@ const sql = neon(process.env.DATABASE_URL);
 // GET Person by ID
 // ===================
 export async function GET(req, context) {
-  const { nodeId } = context.params;
+  const { nodeId } = await context.params;
 
   try {
     // 🔍 Get person details
@@ -50,13 +50,11 @@ export async function GET(req, context) {
   }
 }
 
-
-
 // ===================
 // POST New Person Node
 // ===================
 export async function POST(req, context) {
-  const { id: treeId } = context.params;
+  const { id: treeId } = await context.params;
 
   try {
     const body = await req.json();
@@ -133,7 +131,7 @@ export async function POST(req, context) {
 // DELETE Person Node
 // ===================
 export async function DELETE(req, context) {
-  const params = context.params;
+  const params = await context.params;
   const personId = parseInt(params.nodeId);
 
   try {

@@ -170,7 +170,7 @@ const PersonTabs = () => {
     }
   };
 
-  const handleSave = async () => {
+  const handleSave = async (e) => {
     toast.loading("Saving changes...");
     try {
       // Update general person info
@@ -200,7 +200,7 @@ const PersonTabs = () => {
           body: JSON.stringify({
             personId: sidePanelContent.id,
             career: updatedCareer,
-          }), // <-- FIXED
+          }),
         }
       );
 
@@ -210,7 +210,7 @@ const PersonTabs = () => {
         body: JSON.stringify({
           personId: sidePanelContent.id,
           education: updatedEducation,
-        }), // <-- FIXED
+        }),
       });
 
       if (!res.ok || !resCareer.ok || !resEducation.ok) {
@@ -226,6 +226,7 @@ const PersonTabs = () => {
         dod: editedDod,
         person_tags: editedTags,
         confidence: editedConfidence,
+        notes: notes,
         additionalInfo: {
           career: editedCareer,
           education: editedEducation,
@@ -234,6 +235,7 @@ const PersonTabs = () => {
           treeId: prev.treeId,
         },
       }));
+
       setIsEditingGeneral(false);
       setIsEditingCareer(false);
       setIsEditingEducation(false);
