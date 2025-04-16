@@ -25,11 +25,14 @@ export async function getRelationships() {
   const data = await sql`select * from relationships`;
   return data;
 }
+
 export async function getImmediateFamily(id) {
   const sql = neon(process.env.DATABASE_URL);
+
   const data = await sql`
+    -- Direct relationships
     SELECT 
-      r.*,
+      r.relationship_id,
       rt.type_name,
       CASE 
         WHEN r.person_1 = ${id} THEN p2.person_id
@@ -55,10 +58,54 @@ export async function getImmediateFamily(id) {
     JOIN person p2 ON r.person_2 = p2.person_id
     JOIN relationship_types rt ON r.fk_type_id = rt.type_id
     WHERE (r.person_1 = ${id} OR r.person_2 = ${id})
-      AND r.fk_type_id IN (1, 2, 3, 4);
+
+    UNION
+
+    -- Infer parents from spouse (spouse of parent)
+    SELECT 
+      r2.relationship_id,
+      'parent' AS type_name,
+      s.person_id AS other_person_id,
+      s.person_firstname AS other_person_firstname,
+      s.person_lastname AS other_person_lastname,
+      'parent' AS direction
+    FROM relationships r
+    JOIN relationships r2 ON r.fk_type_id IN (1, 2) -- parent links
+      AND ((r.person_1 = ${id} AND r2.person_1 = r.person_2)
+        OR (r.person_2 = ${id} AND r2.person_2 = r.person_1))
+      AND r2.fk_type_id = 3 -- spouse
+    JOIN person s ON s.person_id = CASE
+      WHEN r2.person_1 = r.person_2 THEN r2.person_2
+      ELSE r2.person_1
+    END
+
+    UNION
+
+    -- Infer children from spouse
+    SELECT 
+      r2.relationship_id,
+      'child' AS type_name,
+      c.person_id AS other_person_id,
+      c.person_firstname AS other_person_firstname,
+      c.person_lastname AS other_person_lastname,
+      'child' AS direction
+    FROM relationships r
+    JOIN relationships r2 ON r.fk_type_id = 3
+      AND ((r.person_1 = ${id} AND r2.person_1 = r.person_2)
+        OR (r.person_2 = ${id} AND r2.person_2 = r.person_1))
+      AND r2.fk_type_id IN (1, 2)
+    JOIN person c ON c.person_id = CASE
+      WHEN r2.fk_type_id = 1 THEN r2.person_2
+      ELSE r2.person_1
+    END;
   `;
+
+  console.log("🧪 Full ImmediateFamily for ID:", id, data);
   return data;
 }
+
+
+
 
 export async function getSiblingsBySharedParents(id) {
   const sql = neon(process.env.DATABASE_URL);
