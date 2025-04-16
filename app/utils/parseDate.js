@@ -10,8 +10,12 @@ export const formatForBackend = (date) => {
 };
 
 // Converts Date → "DD MMM YYYY" (for readable display)
-export const formatDisplayDate = (date) =>
-  date && !isNaN(date) ? format(date, "dd MMM yyyy") : "Unknown";
+export const formatDisplayDate = (value, isDod = false) => {
+  if (!value) return isDod ? "Alive" : "Unknown";
+  const date = new Date(value);
+  return isNaN(date) ? (isDod ? "Alive" : "Unknown") : format(date, "dd MMM yyyy");
+};
+
 
 // Converts string → Date object (supports "YYYY-MM-DD" or ISO string)
 export const parseDate = (dateStr) => {
