@@ -323,7 +323,7 @@ const PersonTabs = () => {
                   {isEditingGeneral ? (
                     <DatePickerInput date={editedDod} setDate={setEditedDod} />
                   ) : (
-                    <p className="text-sm">{formatDisplayDate(editedDod)}</p>
+                    <p className="text-sm">{formatDisplayDate(editedDod, true)}</p>
                   )}
                 </div>
 
@@ -457,6 +457,7 @@ const PersonTabs = () => {
                   ))}
                 </div>
               </CardContent>
+
               <hr />
 
               {/* Career */}
