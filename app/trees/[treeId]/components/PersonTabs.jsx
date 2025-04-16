@@ -28,33 +28,46 @@ import ConfirmModal from "./ConfirmModal";
 
 const PersonTabs = () => {
   const [sidePanelContent, setSidePanelContent] = useContext(SidePanelContext);
-  const [relationships, setRelationships] = useState([]);
-  const [isEditingGeneral, setIsEditingGeneral] = useState(false);
-  const [isEditingCareer, setIsEditingCareer] = useState(false);
-  const [isEditingEducation, setIsEditingEducation] = useState(false);
-  const [imageFile, setImageFile] = useState(null);
-
-  const [editedGender, setEditedGender] = useState(sidePanelContent.gender);
-  const [notes, setNotes] = useState(sidePanelContent.notes);
-  const [editedDob, setEditedDob] = useState(parseDate(sidePanelContent.dob));
-  const [editedDod, setEditedDod] = useState(parseDate(sidePanelContent.dod));
-  const [editedCareer, setEditedCareer] = useState(
-    sidePanelContent.additionalInfo?.career || []
-  );
-  const [editedEducation, setEditedEducation] = useState(
-    sidePanelContent.additionalInfo?.education || []
-  );
-  const [siblings, setSiblings] = useState([]);
-
   const { treeId } = useParams();
-
   const personId = sidePanelContent.id;
 
+  // General Info State
+  const [isEditingGeneral, setIsEditingGeneral] = useState(false);
+  const [editedGender, setEditedGender] = useState(sidePanelContent.gender || "");
+  const [editedDob, setEditedDob] = useState(parseDate(sidePanelContent.dob));
+  const [editedDod, setEditedDod] = useState(parseDate(sidePanelContent.dod));
+  const [notes, setNotes] = useState(sidePanelContent.notes || "");
   const [editedTags, setEditedTags] = useState(sidePanelContent.person_tags || []);
   const [editedConfidence, setEditedConfidence] = useState(sidePanelContent.confidence || "");
   const [newTagInput, setNewTagInput] = useState("");
 
-  // Format dates before sending
+  // NEW: Place of Birth Fields
+  const [birthTown, setBirthTown] = useState(sidePanelContent.birthTown || "");
+  const [birthCity, setBirthCity] = useState(sidePanelContent.birthCity || "");
+  const [birthState, setBirthState] = useState(sidePanelContent.birthState || "");
+  const [birthCountry, setBirthCountry] = useState(sidePanelContent.birthCountry || "");
+
+  // Career & Education
+  const [isEditingCareer, setIsEditingCareer] = useState(false);
+  const [editedCareer, setEditedCareer] = useState(
+    sidePanelContent.additionalInfo?.career || []
+  );
+  const [careerBackup, setCareerBackup] = useState([]);
+
+  const [isEditingEducation, setIsEditingEducation] = useState(false);
+  const [editedEducation, setEditedEducation] = useState(
+    sidePanelContent.additionalInfo?.education || []
+  );
+  const [educationBackup, setEducationBackup] = useState([]);
+
+  // Relationships
+  const [relationships, setRelationships] = useState([]);
+  const [siblings, setSiblings] = useState([]);
+
+  // File Upload
+  const [imageFile, setImageFile] = useState(null);
+
+  // Format dates before sending to backend
   const updatedCareer = editedCareer.map((job) => ({
     ...job,
     start_date: formatForBackend(job.start_date),
@@ -66,10 +79,6 @@ const PersonTabs = () => {
     start_date: formatForBackend(edu.start_date),
     end_date: formatForBackend(edu.end_date),
   }));
-
-  const [careerBackup, setCareerBackup] = useState([]);
-  const [educationBackup, setEducationBackup] = useState([]);
-
 
   useEffect(() => {
     toast.loading("Loading sidepanel");
@@ -90,6 +99,10 @@ const PersonTabs = () => {
       setNotes(sidePanelContent.notes || "");
       setEditedTags(sidePanelContent.person_tags || []);
       setEditedConfidence(sidePanelContent.confidence || "");
+      setBirthTown(sidePanelContent.birthTown || "");
+      setBirthCity(sidePanelContent.birthCity || "");
+      setBirthState(sidePanelContent.birthState || "");
+      setBirthCountry(sidePanelContent.birthCountry || "");
     }
   }, [sidePanelContent, isEditingGeneral]);
     
@@ -179,10 +192,10 @@ const PersonTabs = () => {
           dod: formatForBackend(editedDod),
           confidence: editedConfidence,
           person_tags: editedTags,
-          birthTown: sidePanelContent.birthTown,
-          birthCity: sidePanelContent.birthCity,
-          birthState: sidePanelContent.birthState,
-          birthCountry: sidePanelContent.birthCountry,
+          birthTown,
+          birthCity,
+          birthState,
+          birthCountry,
           notes: notes,
         }),
       });
@@ -221,6 +234,10 @@ const PersonTabs = () => {
         dod: editedDod,
         person_tags: editedTags,
         confidence: editedConfidence,
+        birthTown: birthTown,
+        birthCity: birthCity,
+        birthState: birthState,
+        birthCountry: birthCountry,
         additionalInfo: {
           career: editedCareer,
           education: editedEducation,
@@ -239,12 +256,12 @@ const PersonTabs = () => {
     toast.dismiss();
   };
 
-  const birthLocation = [
-    sidePanelContent.birthTown,
-    sidePanelContent.birthCity,
-    sidePanelContent.birthState,
-    sidePanelContent.birthCountry,
-  ];
+  // const birthLocation = [
+  //   sidePanelContent.birthTown,
+  //   sidePanelContent.birthCity,
+  //   sidePanelContent.birthState,
+  //   sidePanelContent.birthCountry,
+  // ];
 
   return (
     <div className="max-h-full overflow-hidden">
@@ -305,18 +322,53 @@ const PersonTabs = () => {
                   )}
                 </div>
 
-                {/* DOB */}
+                {/* DOB and Birth Place */}
                 <div className="space-y-0">
                   <Label className="font-semibold text-sm">Birth</Label>
                   {!isEditingGeneral ? (
-                    <p className="text-sm">{formatDisplayDate(editedDob)}</p>
+                    <>
+                      <p className="text-sm">{formatDisplayDate(editedDob)}</p>
+                      <p className="text-sm">
+                        <span className="underline">
+                          {[birthTown, birthCity, birthState, birthCountry]
+                            .filter(Boolean)
+                            .join(", ") || "Place of Birth Unknown"}
+                        </span>
+                      </p>
+                    </>
                   ) : (
                     <>
-                      {console.log("📆 DOB in Edit Mode:", editedDob)}
                       <DatePickerInput date={editedDob} setDate={setEditedDob} />
+                      <div className="grid grid-cols-2 gap-4 mt-2">
+                        <div className="space-y-2 mt-2">
+                          <Input
+                            value={birthTown}
+                            onChange={(e) => setBirthTown(e.target.value)}
+                            placeholder="Town"
+                          />
+                          <Input
+                            value={birthCity}
+                            onChange={(e) => setBirthCity(e.target.value)}
+                            placeholder="City"
+                          />
+                        </div>
+                        <div className="space-y-2 mt-2">
+                          <Input
+                            value={birthState}
+                            onChange={(e) => setBirthState(e.target.value)}
+                            placeholder="State"
+                          />
+                          <Input
+                            value={birthCountry}
+                            onChange={(e) => setBirthCountry(e.target.value)}
+                            placeholder="Country"
+                          />
+                        </div>
+                      </div>
                     </>
                   )}
                 </div>
+
 
                 {/* DOD */}
                 <div className="space-y-0">
