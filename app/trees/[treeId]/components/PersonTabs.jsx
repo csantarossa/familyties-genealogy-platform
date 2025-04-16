@@ -28,6 +28,7 @@ import {
   formatForBackend,
   formatDisplayDate,
 } from "@/app/utils/parseDate";
+import ConfirmModal from "./ConfirmModal";
 
 const PersonTabs = () => {
   const [sidePanelContent, setSidePanelContent] = useContext(SidePanelContext);
@@ -331,7 +332,9 @@ const PersonTabs = () => {
                   {isEditingGeneral ? (
                     <DatePickerInput date={editedDod} setDate={setEditedDod} />
                   ) : (
-                    <p className="text-sm">{formatDisplayDate(editedDod, true)}</p>
+                    <p className="text-sm">
+                      {formatDisplayDate(editedDod, true)}
+                    </p>
                   )}
                 </div>
 
@@ -571,14 +574,20 @@ const PersonTabs = () => {
                           />
                         </div>
 
-                        <Trash
-                          size={18}
-                          className="absolute top-2 right-2 text-red-500 hover:text-red-700 cursor-pointer transition"
-                          onClick={() => {
+                        <ConfirmModal
+                          title="Delete Career Entry"
+                          description="Are you sure you want to remove this career entry?"
+                          onConfirm={() => {
                             const updated = [...editedCareer];
                             updated.splice(index, 1);
                             setEditedCareer(updated);
                           }}
+                          trigger={
+                            <Trash
+                              size={18}
+                              className="absolute top-2 right-2 text-red-500 hover:text-red-700 cursor-pointer transition"
+                            />
+                          }
                         />
                       </>
                     ) : (
@@ -730,14 +739,20 @@ const PersonTabs = () => {
                           />
                         </div>
 
-                        <Trash
-                          size={18}
-                          className="absolute top-2 right-2 text-red-500 hover:text-red-700 cursor-pointer transition"
-                          onClick={() => {
+                        <ConfirmModal
+                          title="Delete Education Entry"
+                          description="Are you sure you want to remove this education entry?"
+                          onConfirm={() => {
                             const updated = [...editedEducation];
                             updated.splice(index, 1);
                             setEditedEducation(updated);
                           }}
+                          trigger={
+                            <Trash
+                              size={18}
+                              className="absolute top-2 right-2 text-red-500 hover:text-red-700 cursor-pointer transition"
+                            />
+                          }
                         />
                       </>
                     ) : (
