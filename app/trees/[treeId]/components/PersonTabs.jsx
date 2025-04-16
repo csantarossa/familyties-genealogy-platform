@@ -78,7 +78,6 @@ const PersonTabs = () => {
         const formData = new FormData();
         formData.append("file", compressedFile);
 
-
         const uploadRes = await fetch(`/api/trees/${treeId}/s3-upload`, {
           method: "POST",
           body: formData,
@@ -225,7 +224,6 @@ const PersonTabs = () => {
         <TabsContent value="info" className="h-full">
           <Card className="border-none shadow-none h-full">
             <div className="h-full pb-10 overflow-y-auto px-4">
-              {/* General Info Section */}
               <CardHeader className="flex flex-row justify-between">
                 <CardTitle className="text-lg">General Information</CardTitle>
                 <div className="flex gap-4 h-full justify-between items-center">
@@ -783,7 +781,6 @@ const PersonTabs = () => {
                 <Button onClick={handleSave}>Update</Button>
               </div>
             </CardContent>
-
           </Card>
         </TabsContent>
       </Tabs>
