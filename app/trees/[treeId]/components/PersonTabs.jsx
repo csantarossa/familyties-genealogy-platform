@@ -24,6 +24,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useParams } from "next/navigation";
 import { format } from "date-fns";
 import { parseDate, formatForBackend, formatDisplayDate } from "@/app/utils/parseDate";
+import ConfirmModal from "./ConfirmModal";
 
 const PersonTabs = () => {
   const [sidePanelContent, setSidePanelContent] = useContext(SidePanelContext);
@@ -558,15 +559,22 @@ const PersonTabs = () => {
                           />
                         </div>
 
-                        <Trash
-                          size={18}
-                          className="absolute top-2 right-2 text-red-500 hover:text-red-700 cursor-pointer transition"
-                          onClick={() => {
+                        <ConfirmModal
+                          title="Delete Career Entry"
+                          description="Are you sure you want to remove this career entry?"
+                          onConfirm={() => {
                             const updated = [...editedCareer];
                             updated.splice(index, 1);
                             setEditedCareer(updated);
                           }}
+                          trigger={
+                            <Trash
+                              size={18}
+                              className="absolute top-2 right-2 text-red-500 hover:text-red-700 cursor-pointer transition"
+                            />
+                          }
                         />
+
                       </>
                     ) : (
                       <div className="space-y-1">
@@ -707,14 +715,20 @@ const PersonTabs = () => {
                           />
                         </div>
 
-                        <Trash
-                          size={18}
-                          className="absolute top-2 right-2 text-red-500 hover:text-red-700 cursor-pointer transition"
-                          onClick={() => {
+                        <ConfirmModal
+                          title="Delete Education Entry"
+                          description="Are you sure you want to remove this education entry?"
+                          onConfirm={() => {
                             const updated = [...editedEducation];
                             updated.splice(index, 1);
                             setEditedEducation(updated);
                           }}
+                          trigger={
+                            <Trash
+                              size={18}
+                              className="absolute top-2 right-2 text-red-500 hover:text-red-700 cursor-pointer transition"
+                            />
+                          }
                         />
                       </>
                     ) : (
