@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { neon } from "@neondatabase/serverless";
+import { parseDate } from "@/app/utils/parseDate";
 
 const sql = neon(process.env.DATABASE_URL);
 
@@ -57,7 +58,7 @@ export async function POST(req, { params }) {
       firstname: body.firstname.trim(),
       middlename: body.middlename?.trim() || null,
       lastname: body.lastname.trim(),
-      gender: null,
+      gender: body.gender || null,
       dob: body.dob,
       dod: body.dod,
       tags: null,
@@ -138,26 +139,35 @@ export async function PUT(req, { params }) {
     additionalInfo,
     gallery,
     notes,
+    confidence,
+    person_tags,
   } = body;
 
-  const safeDod = dod?.toLowerCase?.() === "alive" ? null : dod;
-  const safeDob = dob?.toLowerCase?.() === "unknown" ? null : dob;
+  const safeDob = typeof dob === "string" ? dob : null;
+  const safeDod = typeof dod === "string" ? dod : null;
+
+  console.log("📥 Received DOB:", dob);
+  console.log("🛠 Final safeDob:", safeDob);
+
 
   await sql`
-    UPDATE person
-    SET
-      person_gender = ${gender},
-      person_dob = ${safeDob},
-      person_dod = ${safeDod},
-      birth_town = ${birthTown || null},
-      birth_city = ${birthCity || null},
-      birth_state = ${birthState || null},
-      birth_country = ${birthCountry || null},
-      additional_information = ${JSON.stringify(additionalInfo) || null},
-      gallery = ${JSON.stringify(gallery) || null},
-      notes = ${notes || null} 
-    WHERE person_id = ${personId} AND fk_tree_id = ${id};
-  `;
+  UPDATE person
+  SET
+    person_gender = ${gender},
+    person_dob = ${safeDob},
+    person_dod = ${safeDod},
+    birth_town = ${birthTown || null},
+    birth_city = ${birthCity || null},
+    birth_state = ${birthState || null},
+    birth_country = ${birthCountry || null},
+    additional_information = ${JSON.stringify(additionalInfo) || null},
+    gallery = ${JSON.stringify(gallery) || null},
+    notes = ${notes || null},
+    confidence = ${confidence || null},
+    person_tags = ${JSON.stringify(person_tags) || '[]'}
+  WHERE person_id = ${personId} AND fk_tree_id = ${id};
+`;
+
 
   return NextResponse.json({
     success: true,

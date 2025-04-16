@@ -59,6 +59,7 @@ const AddPersonModal = ({ trigger }) => {
     firstname: "",
     middlename: "",
     lastname: "",
+    gender: null,
     dob: null,
     dod: null,
     img: null,
@@ -142,6 +143,7 @@ const AddPersonModal = ({ trigger }) => {
         firstname: "",
         middlename: "",
         lastname: "",
+        gender: null,
         dob: null,
         dod: null,
         img: null,
@@ -162,17 +164,18 @@ const AddPersonModal = ({ trigger }) => {
     <div className="absolute bottom-16 right-16 z-50">
       <AlertDialog open={addPersonModal} onOpenChange={setAddPersonModal}>
         <AlertDialogTrigger>{trigger}</AlertDialogTrigger>
-        <AlertDialogContent className="w-[430px] h-[430px]">
+        <AlertDialogContent className="w-[430px] max-h-[90vh] flex flex-col overflow-hidden">
+
           <AlertDialogHeader className="flex h-full flex-row justify-between items-start">
             <AlertDialogTitle className="">Add a Person</AlertDialogTitle>
             <Progress className="h-2 w-[50%]" value={progress.progressBar} />
           </AlertDialogHeader>
           <form
             onSubmit={handleSubmitForm}
-            className="w-full h-full flex justify-center items-center"
+            className="flex flex-col flex-1 overflow-hidden"
           >
             <div
-              className={`duration-500 h-[327px] w-full flex flex-col justify-between gap-4 ${
+              className={`duration-500 h-full w-full flex flex-col gap-4 ${
                 progress.page === 1
                   ? "translate-x-0"
                   : "translate-x-[150%] opacity-0 hidden"
@@ -219,12 +222,35 @@ const AddPersonModal = ({ trigger }) => {
                   }
                 />
               </div>
+              <div className="grid w-full items-center gap-1.5">
+                <Label htmlFor="gender" className="text-sm font-medium">
+                  Gender
+                </Label>
+                <Select
+                  onValueChange={(value) =>
+                    setNewPerson({ ...newPerson, gender: value })
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select gender" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectItem value="Male">Male</SelectItem>
+                      <SelectItem value="Female">Female</SelectItem>
+                      <SelectItem value="Other">Other</SelectItem>
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              </div>
+
+
               <div className="flex gap-4">
                 <div className="grid w-full items-center gap-1.5">
                   <Label htmlFor="dob" className="text-sm font-medium">
                     Date of Birth *
                   </Label>
-                  <DatePickerInput setDate={setDobDate} />
+                  <DatePickerInput date={dobDate} setDate={setDobDate} />
                 </div>
                 <div className="grid w-full items-center gap-1.5">
                   <div>
@@ -232,11 +258,11 @@ const AddPersonModal = ({ trigger }) => {
                       Date of Death
                     </Label>
                   </div>
-                  <DatePickerInput setDate={setDodDate} />
+                  <DatePickerInput date={dodDate} setDate={setDodDate} />
                 </div>
               </div>
 
-              <div className="w-full flex justify-between items-center pt-3">
+              <div className="w-full pt-3 flex justify-between items-center border-t px-2">
                 <AlertDialogCancel>Cancel</AlertDialogCancel>
                 <Button
                   type="button"

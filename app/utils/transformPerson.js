@@ -10,12 +10,8 @@ export const transformPerson = async (person) => {
     firstname: person.person_firstname || "",
     middlename: person.person_middlename || "",
     lastname: person.person_lastname || "",
-    dob: person.person_dob
-      ? new Date(person.person_dob).toLocaleDateString()
-      : "Unknown",
-    dod: person.person_dod
-      ? new Date(person.person_dod).toLocaleDateString()
-      : "Alive",
+    dob: person.person_dob ?? null,
+    dod: person.person_dod || null,
     gender: person.person_gender || "",
     img: person.person_main_img || "/person_placeholder.png",
     tags: person.person_tags || [],

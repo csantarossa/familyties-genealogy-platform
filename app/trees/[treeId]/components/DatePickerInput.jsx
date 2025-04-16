@@ -1,19 +1,32 @@
-import { format } from "date-fns";
-import React from "react";
+import { formatForBackend } from "@/app/utils/parseDate";
+
+const formatDateForInput = (date) => {
+  if (!date || isNaN(date)) return "";
+  return formatForBackend(date);
+};
 
 const DatePickerInput = ({ date, setDate }) => {
   return (
-    <div>
+    <>
+      <style jsx>{`
+        input::-webkit-calendar-picker-indicator {
+          filter: invert(1);
+          cursor: pointer;
+        }
+      `}</style>
+
       <input
-        className="bg-white text-sm border w-full p-2 rounded-md text-opacity-70"
         type="date"
-        value={date ?? ""}
+        className="bg-white text-black text-sm border border-gray-300 w-full p-2 rounded-md opacity-90"
+        value={formatDateForInput(date)}
         onChange={(e) => {
-          const formattedDate = format(e.target.value, "yyyy-MM-dd");
-          setDate(formattedDate);
+          const [year, month, day] = e.target.value.split("-").map(Number);
+          const newDate = new Date(year, month - 1, day);
+          setDate(newDate);
         }}
+        onKeyDown={(e) => e.preventDefault()} // prevent typing manually
       />
-    </div>
+    </>
   );
 };
 

@@ -3,38 +3,58 @@ import { neon } from "@neondatabase/serverless";
 
 const sql = neon(process.env.DATABASE_URL);
 
-// DELETE a person node from the tree
-export async function DELETE(req, context) {
-  const params = await context.params;
-  const personId = parseInt(params.nodeId);
+// ===================
+// GET Person by ID
+// ===================
+export async function GET(req, context) {
+  const { nodeId } = context.params;
+
   try {
-    await sql`DELETE FROM images WHERE fk_person_id = ${personId}`;
-    await sql`DELETE FROM career WHERE fk_person_id = ${personId}`;
-    await sql`DELETE FROM education WHERE fk_person_id = ${personId}`;
-
-    await sql`
-        DELETE FROM relationships 
-        WHERE person_1 = ${personId} OR person_2 = ${personId}
+    // 🔍 Get person details
+    const personResult = await sql`
+      SELECT * FROM person WHERE person_id = ${nodeId}
     `;
 
-    await sql`
-        DELETE FROM person 
-        WHERE person_id = ${personId}
+    if (personResult.length === 0) {
+      return NextResponse.json({ error: "Person not found" }, { status: 404 });
+    }
+
+    const person = personResult[0];
+
+    // 📸 Get gallery images
+    const galleryResult = await sql`
+      SELECT image_url FROM images WHERE fk_person_id = ${nodeId}
     `;
+
+    const gallery = galleryResult.map((img) => ({
+      image_url: img.image_url,
+    }));
+
     return NextResponse.json({
-      success: true,
-      message: "Person deleted successfully",
+      person: {
+        ...person,
+        dob: person.person_dob,
+        dod: person.person_dod,
+        person_tags: person.person_tags ?? [],
+        confidence: person.confidence,
+        additionalInfo:
+          typeof person.additional_information === "string"
+            ? JSON.parse(person.additional_information || "{}")
+            : person.additional_information || {},
+        gallery: gallery, // ✅ FIXED
+      },
     });
-  } catch (error) {
-    console.error("Error deleting person:", error);
-    return NextResponse.json(
-      { success: false, message: "Failed to delete person" },
-      { status: 500 }
-    );
+  } catch (err) {
+    console.error("❌ Failed to fetch person:", err);
+    return NextResponse.json({ error: "Internal error" }, { status: 500 });
   }
 }
 
-// POST a new person node to the tree
+
+
+// ===================
+// POST New Person Node
+// ===================
 export async function POST(req, context) {
   const { id: treeId } = context.params;
 
@@ -104,6 +124,41 @@ export async function POST(req, context) {
     console.error("Error adding person:", error);
     return NextResponse.json(
       { success: false, message: "Failed to create person" },
+      { status: 500 }
+    );
+  }
+}
+
+// ===================
+// DELETE Person Node
+// ===================
+export async function DELETE(req, context) {
+  const params = context.params;
+  const personId = parseInt(params.nodeId);
+
+  try {
+    await sql`DELETE FROM images WHERE fk_person_id = ${personId}`;
+    await sql`DELETE FROM career WHERE fk_person_id = ${personId}`;
+    await sql`DELETE FROM education WHERE fk_person_id = ${personId}`;
+
+    await sql`
+      DELETE FROM relationships 
+      WHERE person_1 = ${personId} OR person_2 = ${personId}
+    `;
+
+    await sql`
+      DELETE FROM person 
+      WHERE person_id = ${personId}
+    `;
+
+    return NextResponse.json({
+      success: true,
+      message: "Person deleted successfully",
+    });
+  } catch (error) {
+    console.error("❌ Error deleting person:", error);
+    return NextResponse.json(
+      { success: false, message: "Failed to delete person" },
       { status: 500 }
     );
   }
