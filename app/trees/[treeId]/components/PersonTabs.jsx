@@ -877,12 +877,19 @@ const PersonTabs = () => {
                 sidePanelContent.gallery.map((img, index) => (
                   <div key={index} className="w-28 h-28 relative group">
                     <PopUp img={img.image_url} index={index} />
-                    <button
-                      onClick={() => handleDeleteImage(img.image_url)}
-                      className="absolute top-1 right-1 bg-white text-red-600 rounded-full p-1 shadow hover:bg-red-100 z-10 opacity-0 group-hover:opacity-100 transition"
-                    >
-                      ✖
-                    </button>
+
+                    <ConfirmModal
+                      title="Delete this image?"
+                      description="This action cannot be undone. The image will be permanently removed from the gallery."
+                      onConfirm={() => handleDeleteImage(img.image_url)}
+                      trigger={
+                        <span
+                          className="absolute top-1 right-1 bg-white text-red-600 rounded-full p-1 shadow hover:bg-red-100 z-10 opacity-0 group-hover:opacity-100 transition cursor-pointer"
+                        >
+                          ✖
+                        </span>
+                      }
+                    />
                   </div>
               ))}
 
