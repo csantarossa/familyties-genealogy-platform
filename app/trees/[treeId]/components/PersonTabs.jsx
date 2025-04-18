@@ -25,6 +25,9 @@ import { useParams } from "next/navigation";
 import { format } from "date-fns";
 import { parseDate, formatForBackend, formatDisplayDate } from "@/app/utils/parseDate";
 import ConfirmModal from "./ConfirmModal";
+// To create new relationship
+import RelationshipSelector from "./RelationshipSelector";
+import { createRelationship, deleteRelationship } from "@/app/actions";
 
 const PersonTabs = () => {
   const [sidePanelContent, setSidePanelContent] = useContext(SidePanelContext);
@@ -64,6 +67,14 @@ const PersonTabs = () => {
   const [relationships, setRelationships] = useState([]);
   const [siblings, setSiblings] = useState([]);
 
+  const [isEditingRelationships, setIsEditingRelationships] = useState(false);
+  const [showAddRelation, setShowAddRelation]           = useState(false);
+  const [newRelation, setNewRelation] = useState({
+    otherPersonId: "",
+    typeId: ""
+  });
+
+
   // File Upload
   const [imageFile, setImageFile] = useState(null);
 
@@ -79,6 +90,13 @@ const PersonTabs = () => {
     start_date: formatForBackend(edu.start_date),
     end_date: formatForBackend(edu.end_date),
   }));
+
+  const handleGetRelationships = async () => {
+    const data = await getImmediateFamily(sidePanelContent.id);
+    const siblingData = await getSiblingsBySharedParents(sidePanelContent.id);
+    setSiblings(siblingData);
+    setRelationships(data);
+  };
 
   useEffect(() => {
     toast.loading("Loading sidepanel");
@@ -106,13 +124,6 @@ const PersonTabs = () => {
     }
   }, [sidePanelContent, isEditingGeneral]);
     
-
-  const handleGetRelationships = async () => {
-    const data = await getImmediateFamily(sidePanelContent.id);
-    const siblingData = await getSiblingsBySharedParents(sidePanelContent.id);
-    setSiblings(siblingData);
-    setRelationships(data);
-  };
 
   const handleSaveGallery = async (img) => {
     try {
@@ -490,53 +501,148 @@ const PersonTabs = () => {
               <hr />
 
               {/* Relationships */}
-              <CardHeader>
+              <CardHeader className="flex flex-row justify-between">
                 <CardTitle className="text-lg">Relationships</CardTitle>
+                <div className="flex items-center gap-3">
+                  {isEditingRelationships && (
+                    <Plus
+                      size={20}
+                      className="cursor-pointer"
+                      onClick={() => setShowAddRelation(prev => !prev)}
+                    />
+                  )}
+                  <Edit2
+                    size={16}
+                    className="cursor-pointer"
+                    onClick={() => {
+                      setIsEditingRelationships(prev => !prev);
+                      setShowAddRelation(false);
+                    }}
+                  />
+                </div>
               </CardHeader>
-              
-              <CardContent className="space-y-3">
+
+              <CardContent className="space-y-4">
+                {/* Add‑new form */}
+                {isEditingRelationships && showAddRelation && (
+                  <div className="flex flex-col gap-2 p-2 bg-gray-50 rounded">
+                    <RelationshipSelector
+                      treeId={treeId}
+                      excludeId={personId}
+                      value={newRelation}
+                      onChange={setNewRelation}
+                    />
+                    <Button
+                      className="w-max"
+                      disabled={!newRelation.otherPersonId || !newRelation.typeId}
+                      onClick={async () => {
+                        await createRelationship(
+                          personId,
+                          newRelation.otherPersonId,
+                          newRelation.typeId
+                        );
+                        await handleGetRelationships();
+                        setNewRelation({ otherPersonId: "", typeId: "" });
+                        setShowAddRelation(false);
+                      }}
+                    >
+                      Add Relation
+                    </Button>
+                  </div>
+                )}
+
+                {/* Parents */}
                 <div>
                   <Label className="text-xs font-semibold">Parents</Label>
                   {relationships
-                    .filter((r) => r.direction === "parent")
-                    .map((r) => (
-                      <p key={r.relationship_id} className="text-sm pl-2">
-                        {r.other_person_firstname} {r.other_person_lastname}
-                      </p>
+                    .filter(r => r.direction === "parent")
+                    .map(r => (
+                      <div
+                        key={r.relationship_id}
+                        className="flex justify-between items-center"
+                      >
+                        <p className="text-sm pl-2">
+                          {r.other_person_firstname} {r.other_person_lastname}
+                        </p>
+                        {isEditingRelationships && (
+                          <Trash
+                            size={16}
+                            className="cursor-pointer text-red-500 hover:text-red-700"
+                            onClick={async () => {
+                              await deleteRelationship(r.relationship_id);
+                              await handleGetRelationships();
+                            }}
+                          />
+                        )}
+                      </div>
                     ))}
                 </div>
 
+                {/* Children */}
                 <div>
                   <Label className="text-xs font-semibold">Children</Label>
                   {relationships
-                    .filter((r) => r.direction === "child")
-                    .map((r) => (
-                      <p key={r.relationship_id} className="text-sm pl-2">
-                        {r.other_person_firstname} {r.other_person_lastname}
-                      </p>
+                    .filter(r => r.direction === "child")
+                    .map(r => (
+                      <div
+                        key={r.relationship_id}
+                        className="flex justify-between items-center"
+                      >
+                        <p className="text-sm pl-2">
+                          {r.other_person_firstname} {r.other_person_lastname}
+                        </p>
+                        {isEditingRelationships && (
+                          <Trash
+                            size={16}
+                            className="cursor-pointer text-red-500 hover:text-red-700"
+                            onClick={async () => {
+                              await deleteRelationship(r.relationship_id);
+                              await handleGetRelationships();
+                            }}
+                          />
+                        )}
+                      </div>
                     ))}
                 </div>
 
+                {/* Spouse */}
                 <div>
                   <Label className="text-xs font-semibold">Spouse</Label>
                   {relationships
-                    .filter((r) => r.type_name === "spouse")
-                    .map((r) => (
-                      <p key={r.relationship_id} className="text-sm pl-2">
-                        {r.other_person_firstname} {r.other_person_lastname}
-                      </p>
+                    .filter(r => r.type_name === "spouse")
+                    .map(r => (
+                      <div
+                        key={r.relationship_id}
+                        className="flex justify-between items-center"
+                      >
+                        <p className="text-sm pl-2">
+                          {r.other_person_firstname} {r.other_person_lastname}
+                        </p>
+                        {isEditingRelationships && (
+                          <Trash
+                            size={16}
+                            className="cursor-pointer text-red-500 hover:text-red-700"
+                            onClick={async () => {
+                              await deleteRelationship(r.relationship_id);
+                              await handleGetRelationships();
+                            }}
+                          />
+                        )}
+                      </div>
                     ))}
                 </div>
 
+                {/* Siblings (derived, not editable) */}
                 <div>
                   <Label className="text-xs font-semibold">Siblings</Label>
-                  {siblings.map((sibling) => (
-                    <p key={sibling.person_id} className="text-sm pl-2">
-                      {sibling.person_firstname} {sibling.person_lastname}
+                  {siblings.map(s => (
+                    <p key={s.person_id} className="text-sm pl-2">
+                      {s.person_firstname} {s.person_lastname}
                     </p>
                   ))}
                 </div>
               </CardContent>
+
 
               <hr />
 
