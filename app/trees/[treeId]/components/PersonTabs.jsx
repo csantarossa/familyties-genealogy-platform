@@ -544,6 +544,7 @@ const PersonTabs = () => {
                         await handleGetRelationships();
                         setNewRelation({ otherPersonId: "", typeId: "" });
                         setShowAddRelation(false);
+                        toast.success("Relation added successfully!")
                       }}
                     >
                       Add Relation
@@ -565,13 +566,20 @@ const PersonTabs = () => {
                           {r.other_person_firstname} {r.other_person_lastname}
                         </p>
                         {isEditingRelationships && (
-                          <Trash
-                            size={16}
-                            className="cursor-pointer text-red-500 hover:text-red-700"
-                            onClick={async () => {
-                              await deleteRelationship(r.relationship_id);
+                          <ConfirmModal
+                            title="Delete Relationship"
+                            description="Are you sure you want to remove this relationship?"
+                            onConfirm={async() => {
+                              await deleteRelationship(r.relationship_id)
                               await handleGetRelationships();
+                              toast.success("Relationship deleted.")
                             }}
+                            trigger={
+                              <Trash
+                                size={16}
+                                className="cursor-pointer text-red-500 hover:text-red-700"
+                              />
+                            }
                           />
                         )}
                       </div>
@@ -592,14 +600,21 @@ const PersonTabs = () => {
                           {r.other_person_firstname} {r.other_person_lastname}
                         </p>
                         {isEditingRelationships && (
-                          <Trash
-                            size={16}
-                            className="cursor-pointer text-red-500 hover:text-red-700"
-                            onClick={async () => {
-                              await deleteRelationship(r.relationship_id);
-                              await handleGetRelationships();
-                            }}
-                          />
+                          <ConfirmModal
+                          title="Delete Relationship"
+                          description="Are you sure you want to remove this relationship?"
+                          onConfirm={async() => {
+                            await deleteRelationship(r.relationship_id)
+                            await handleGetRelationships();
+                            toast.success("Relationship deleted.")
+                          }}
+                          trigger={
+                            <Trash
+                              size={16}
+                              className="cursor-pointer text-red-500 hover:text-red-700"
+                            />
+                          }
+                        />
                         )}
                       </div>
                     ))}
@@ -619,14 +634,21 @@ const PersonTabs = () => {
                           {r.other_person_firstname} {r.other_person_lastname}
                         </p>
                         {isEditingRelationships && (
-                          <Trash
-                            size={16}
-                            className="cursor-pointer text-red-500 hover:text-red-700"
-                            onClick={async () => {
-                              await deleteRelationship(r.relationship_id);
-                              await handleGetRelationships();
-                            }}
-                          />
+                          <ConfirmModal
+                          title="Delete Relationship"
+                          description="Are you sure you want to remove this relationship?"
+                          onConfirm={async() => {
+                            await deleteRelationship(r.relationship_id)
+                            await handleGetRelationships();
+                            toast.success("Relationship deleted.")
+                          }}
+                          trigger={
+                            <Trash
+                              size={16}
+                              className="cursor-pointer text-red-500 hover:text-red-700"
+                            />
+                          }
+                        />
                         )}
                       </div>
                     ))}
