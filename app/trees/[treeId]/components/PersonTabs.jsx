@@ -170,6 +170,40 @@ const PersonTabs = () => {
     }
   };
 
+  const handleDeleteImage = async (url) => {
+    toast.loading("Deleting image...");
+    try {
+      const res = await fetch(`/api/trees/${treeId}/s3-upload/gallery`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          person_id: sidePanelContent.id,
+          url: url,
+        }),
+      });
+
+      const result = await res.json();
+
+      if (!res.ok || !result.success) {
+        toast.error("Failed to delete image");
+        return;
+      }
+
+      // Remove from gallery UI
+      setSidePanelContent((prev) => ({
+        ...prev,
+        gallery: prev.gallery.filter((img) => img.image_url !== url),
+      }));
+
+      toast.success("Image deleted");
+    } catch (err) {
+      console.error("❌ Error deleting image:", err);
+      toast.error("Error deleting image");
+    } finally {
+      toast.dismiss();
+    }
+  };
+
   const handleSave = async (e) => {
     toast.loading("Saving changes...");
     try {
@@ -828,9 +862,20 @@ const PersonTabs = () => {
               />
 
               {Array.isArray(sidePanelContent.gallery) &&
-                sidePanelContent?.gallery.map((img, index) => (
-                  <div key={index} className="w-28 h-28 relative">
+                sidePanelContent.gallery.map((img, index) => (
+                  <div key={index} className="w-28 h-28 relative group">
                     <PopUp img={img.image_url} index={index} />
+
+                    <ConfirmModal
+                      title="Delete this image?"
+                      description="This action cannot be undone. The image will be permanently removed from the gallery."
+                      onConfirm={() => handleDeleteImage(img.image_url)}
+                      trigger={
+                        <span className="absolute top-1 right-1 bg-white text-red-600 rounded-full p-1 shadow hover:bg-red-100 z-10 opacity-0 group-hover:opacity-100 transition cursor-pointer">
+                          ✖
+                        </span>
+                      }
+                    />
                   </div>
                 ))}
             </CardContent>
