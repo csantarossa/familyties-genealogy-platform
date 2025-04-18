@@ -36,7 +36,7 @@ export function Navbar() {
   return (
     <Menubar className="border-none">
       <Link
-        href={"/trees/home"}
+        href={"/trees"}
         className={`${dancingScript.className} antialiased font-bold text-xl px-[16px]`}
       >
         <div className="flex justify-center items-center gap-2">
@@ -114,29 +114,29 @@ export function Navbar() {
         </MenubarContent>
       </MenubarMenu>
       <MenubarMenu>
-  <MenubarTrigger>Account</MenubarTrigger>
-  <MenubarContent>
-    <Link href="/preferences" passHref>
-      <MenubarItem asChild>
-        <span>Preferences</span>
-      </MenubarItem>
-    </Link>
-    <Link href="/settings" passHref>
-      <MenubarItem asChild>
-        <span>Settings</span>
-      </MenubarItem>
-    </Link>
-    <MenubarItem
-      className="bg-[#4877c3] text-white font-semibold cursor-pointer"
-      onClick={() => {
-        logout(); // ✅ Clears user from localStorage and context
-        router.push("/login"); // ✅ Redirects to login page
-      }}
-    >
-      Log Out
-    </MenubarItem>
-  </MenubarContent>
-</MenubarMenu>
+        <MenubarTrigger>Account</MenubarTrigger>
+        <MenubarContent>
+          <Link href="/preferences" passHref>
+            <MenubarItem asChild>
+              <span>Preferences</span>
+            </MenubarItem>
+          </Link>
+          <Link href="/settings" passHref>
+            <MenubarItem asChild>
+              <span>Settings</span>
+            </MenubarItem>
+          </Link>
+          <MenubarItem
+            className="bg-[#4877c3] text-white font-semibold cursor-pointer"
+            onClick={() => {
+              logout(); // ✅ Clears user from localStorage and context
+              router.push("/login"); // ✅ Redirects to login page
+            }}
+          >
+            Log Out
+          </MenubarItem>
+        </MenubarContent>
+      </MenubarMenu>
     </Menubar>
   );
 }
