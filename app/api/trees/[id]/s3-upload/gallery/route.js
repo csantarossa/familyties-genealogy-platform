@@ -34,3 +34,26 @@ export async function POST(req) {
     );
   }
 }
+
+// Delete function for gallery tabs
+export async function DELETE(req) {
+  try {
+    const { person_id, url } = await req.json();
+
+    await sql`
+      DELETE FROM images 
+      WHERE fk_person_id = ${person_id} AND image_url = ${url}
+    `;
+
+    return NextResponse.json({
+      success: true,
+      message: "Image deleted successfully",
+    });
+  } catch (error) {
+    console.error("❌ Image delete DB error:", error);
+    return NextResponse.json(
+      { success: false, message: "Failed to delete image" },
+      { status: 500 }
+    );
+  }
+}
