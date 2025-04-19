@@ -107,3 +107,19 @@ export async function getGallery(id) {
   SELECT * FROM images where fk_person_id = ${id};`;
   return data;
 }
+
+export async function createRelationship(person1Id, person2Id, typeId) {
+  const sql = neon(process.env.DATABASE_URL);
+  await sql`
+    INSERT INTO relationships (person_1, person_2, fk_type_id)
+    VALUES (${person1Id}, ${person2Id}, ${typeId})
+  `;
+}
+
+export async function deleteRelationship(relationshipId) {
+  const sql = neon(process.env.DATABASE_URL);
+  await sql`
+    DELETE FROM relationships
+    WHERE relationship_id = ${relationshipId}
+  `;
+}
