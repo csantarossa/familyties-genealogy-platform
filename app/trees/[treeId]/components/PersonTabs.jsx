@@ -52,6 +52,15 @@ const PersonTabs = () => {
   );
   const [siblings, setSiblings] = useState([]);
 
+  const [birthTown, setBirthTown] = useState(sidePanelContent.birthTown || "");
+  const [birthCity, setBirthCity] = useState(sidePanelContent.birthCity || "");
+  const [birthState, setBirthState] = useState(
+    sidePanelContent.birthState || ""
+  );
+  const [birthCountry, setBirthCountry] = useState(
+    sidePanelContent.birthCountry || ""
+  );
+
   const { treeId } = useParams();
 
   const personId = sidePanelContent.id;
@@ -105,6 +114,10 @@ const PersonTabs = () => {
       setNotes(sidePanelContent.notes || "");
       setEditedTags(sidePanelContent.person_tags || []);
       setEditedConfidence(sidePanelContent.confidence || "");
+      setBirthTown(sidePanelContent.birthTown || "");
+      setBirthCity(sidePanelContent.birthCity || "");
+      setBirthState(sidePanelContent.birthState || "");
+      setBirthCountry(sidePanelContent.birthCountry || "");
     }
   }, [sidePanelContent, isEditingGeneral]);
 
@@ -226,10 +239,10 @@ const PersonTabs = () => {
           dod: formatForBackend(editedDod),
           confidence: editedConfidence,
           person_tags: editedTags,
-          birthTown: sidePanelContent.birthTown,
-          birthCity: sidePanelContent.birthCity,
-          birthState: sidePanelContent.birthState,
-          birthCountry: sidePanelContent.birthCountry,
+          birthTown,
+          birthCity,
+          birthState,
+          birthCountry,
           notes: notes,
         }),
       });
@@ -268,6 +281,10 @@ const PersonTabs = () => {
         dod: editedDod,
         person_tags: editedTags,
         confidence: editedConfidence,
+        birthTown: birthTown,
+        birthCity: birthCity,
+        birthState: birthState,
+        birthCountry: birthCountry,
         notes: notes,
         additionalInfo: {
           career: editedCareer,
@@ -358,14 +375,48 @@ const PersonTabs = () => {
                 <div className="space-y-0">
                   <Label className="font-semibold text-sm">Birth</Label>
                   {!isEditingGeneral ? (
-                    <p className="text-sm">{formatDisplayDate(editedDob)}</p>
+                    <>
+                      <p className="text-sm">{formatDisplayDate(editedDob)}</p>
+                      <p className="text-sm">
+                        <span className="">
+                          {[birthTown, birthCity, birthState, birthCountry]
+                            .filter(Boolean)
+                            .join(", ") || "Place of Birth Unknown"}
+                        </span>
+                      </p>
+                    </>
                   ) : (
                     <>
-                      {console.log("📆 DOB in Edit Mode:", editedDob)}
                       <DatePickerInput
                         date={editedDob}
                         setDate={setEditedDob}
                       />
+                      <div className="grid grid-cols-2 gap-4 mt-2">
+                        <div className="space-y-2 mt-2">
+                          <Input
+                            value={birthTown}
+                            onChange={(e) => setBirthTown(e.target.value)}
+                            placeholder="Town"
+                          />
+                          <Input
+                            value={birthCity}
+                            onChange={(e) => setBirthCity(e.target.value)}
+                            placeholder="City"
+                          />
+                        </div>
+                        <div className="space-y-2 mt-2">
+                          <Input
+                            value={birthState}
+                            onChange={(e) => setBirthState(e.target.value)}
+                            placeholder="State"
+                          />
+                          <Input
+                            value={birthCountry}
+                            onChange={(e) => setBirthCountry(e.target.value)}
+                            placeholder="Country"
+                          />
+                        </div>
+                      </div>
                     </>
                   )}
                 </div>
