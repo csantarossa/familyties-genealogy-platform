@@ -23,37 +23,32 @@ const nodeWidth = 310;
 const nodeHeight = 210;
 
 const getLayoutedElements = (nodes, edges) => {
-  dagreGraph.setGraph({ rankdir: "TB", align: "UL" }); // Vertical layout with top-left alignment
+  // 1. Prepare the graph for vertical layout only
+  const verticalEdges = edges.filter(e => e.sourceHandle === "bottom");
 
-  nodes.forEach((node) => {
-    dagreGraph.setNode(node.id, { width: nodeWidth, height: nodeHeight });
-  });
-
-  edges.forEach((edge) => {
-    dagreGraph.setEdge(edge.source, edge.target);
-  });
+  dagreGraph.setGraph({ rankdir: "TB", align: "UL" });
+  nodes.forEach(node =>
+    dagreGraph.setNode(node.id, { width: nodeWidth, height: nodeHeight })
+  );
+  verticalEdges.forEach(e =>
+    dagreGraph.setEdge(e.source, e.target)
+  );
 
   dagre.layout(dagreGraph);
 
-  const newNodes = nodes.map((node) => {
-    const nodeWithPosition = dagreGraph.node(node.id);
+  // 2. Map Dagre positions onto our React Flow nodes
+  const layoutedNodes = nodes.map(node => {
+    const { x, y } = dagreGraph.node(node.id);
     return {
       ...node,
-      targetPosition: "top",
-      sourcePosition: "bottom",
-      position: {
-        x: nodeWithPosition.x - nodeWidth / 2,
-        y: nodeWithPosition.y - nodeHeight / 2,
-      },
+      position: { x: x - nodeWidth / 2, y: y - nodeHeight / 2 },
     };
   });
 
-  // const spouseEdges = edges.filter((edge) => edge.id.startsWith("e")); // Filter spouse edges
-  const otherEdges = edges.filter((edge) => !edge.id.startsWith("e"));
-
+  // 3. Return all nodes plus all edges (spouse edges come along untouched)
   return {
-    nodes: newNodes,
-    edges: [...otherEdges], // Ensure spouses appear last for better layout
+    nodes: layoutedNodes,
+    edges,
   };
 };
 
@@ -145,9 +140,15 @@ function FlowSpace() {
         style: { strokeWidth: 2, stroke: "#000" },
       };
 
-      if (fk_type_id === 2) {
+      if (fk_type_id === 3) {
         edge.sourceHandle = "right";
         edge.targetHandle = "left";
+      } else if (fk_type_id === 2) {
+        edge.sourceHandle = "right";
+        edge.targetHandle = "left";
+      } else {
+        edge.sourceHandle = "bottom"
+        edge.targetHandle = "top";
       }
 
       edges.push(edge);

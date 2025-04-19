@@ -34,8 +34,10 @@ const TreeNode = ({ data }) => {
 
   return (
     <div className="nodrag">
+      <Handle type="target" position={Position.Left} id="left" />
       <Handle type="target" position={Position.Top} id="top" />
       <Handle type="source" position={Position.Bottom} id="bottom" />
+      <Handle type="source" position={Position.Right} id="right" />
       <Card
         onClick={openPanel}
         className="w-fit flex flex-row justify-between items-center p-3 gap-4"
