@@ -29,6 +29,8 @@ import {
   formatDisplayDate,
 } from "@/app/utils/parseDate";
 import ConfirmModal from "./ConfirmModal";
+import RelationshipSelector from "./RelationshipSelector";
+import { createRelationship, deleteRelationship } from "@/app/actions";
 
 const PersonTabs = () => {
   const [sidePanelContent, setSidePanelContent] = useContext(SidePanelContext);
@@ -78,9 +80,15 @@ const PersonTabs = () => {
   const [careerBackup, setCareerBackup] = useState([]);
   const [educationBackup, setEducationBackup] = useState([]);
 
+  const [isEditingRelationships, setIsEditingRelationships] = useState(false);
+  const [showAddRelation, setShowAddRelation] = useState(false);
+  const [newRelation, setNewRelation] = useState({
+    otherPersonId: "",
+    typeId: "",
+  });
+
   useEffect(() => {
     toast.loading("Loading sidepanel");
-
     handleGetRelationships();
     toast.dismiss();
   }, []);
