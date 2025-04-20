@@ -674,15 +674,37 @@ const PersonTabs = () => {
                     ))}
                 </div>
 
-                {/* Siblings (derived, not editable) */}
+                {/* Siblings */}
                 <div>
                   <Label className="text-xs font-semibold">Siblings</Label>
-                  {siblings.map((s) => (
-                    <p key={s.person_id} className="text-sm pl-2">
-                      {s.person_firstname} {s.person_lastname}
-                    </p>
-                  ))}
+                  {relationships
+                    .filter(r => r.type_name === "sibling")
+                    .map(r => (
+                      <div
+                        key={r.relationship_id}
+                        className="flex justify-between items-center"
+                      >
+                        <p className="text-sm pl-2">
+                          {r.other_person_firstname} {r.other_person_lastname}
+                        </p>
+                        {isEditingRelationships && (
+                          <Trash
+                            size={16}
+                            className="cursor-pointer text-red-500 hover:text-red-700"
+                            onClick={async () => {
+                              await deleteRelationship(r.relationship_id);
+                              await handleGetRelationships();
+                              toast.success("Sibling removed.");
+                            }}
+                          />
+                        )}
+                      </div>
+                    ))}
+                  {relationships.filter(r => r.type_name === "sibling").length === 0 && (
+                    <p className="text-sm italic pl-2">No siblings yet.</p>
+                  )}
                 </div>
+
               </CardContent>
               <hr />
 

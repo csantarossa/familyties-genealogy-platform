@@ -144,8 +144,8 @@ function FlowSpace() {
         edge.sourceHandle = "right";
         edge.targetHandle = "left";
       } else if (fk_type_id === 2) {
-        edge.sourceHandle = "right";
-        edge.targetHandle = "left";
+        delete edge.sourceHandle;
+        delete edge.targetHandle;
       } else {
         edge.sourceHandle = "bottom"
         edge.targetHandle = "top";
