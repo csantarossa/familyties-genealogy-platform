@@ -57,20 +57,22 @@ const getLayoutedElements = (nodes, edges) => {
   };
 };
 
-function FlowSpace() {
+function FlowSpace({ refreshTrigger }) {
   const [nodes, setNodes] = useNodesState([]);
   const handleDeleteNodeFromUI = (id) => {
     setNodes((prevNodes) => prevNodes.filter((node) => node.id !== id.toString()));
   };
   const [edges, setEdges] = useEdgesState([]);
-  const [loading, setLoading] = useState(true); // ✅ Added loading state
+  const [loading, setLoading] = useState(true); //  Added loading state
+  const [version, setVersion] = useState(0); // triggers refresh
 
   const params = useParams();
   const treeId = params.treeId;
 
   useEffect(() => {
     fetchAndLayoutTree(treeId);
-  }, []);
+  }, [treeId, refreshTrigger]); // refresh automatically when treeId changes
+
 
   const fetchAndLayoutTree = async (treeId) => {
     setLoading(true);
