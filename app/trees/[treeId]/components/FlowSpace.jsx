@@ -120,6 +120,11 @@ function FlowSpace() {
     relationships.forEach((relationship) => {
       let { person_1, person_2, fk_type_id } = relationship;
 
+      // Skip siblings entirely so no edge is created
+      if (fk_type_id === 2) {
+        return;
+      }
+
       // Skip if people not found in tree
       if (!tree[person_1] || !tree[person_2]) return;
 
@@ -143,11 +148,8 @@ function FlowSpace() {
       if (fk_type_id === 3) {
         edge.sourceHandle = "right";
         edge.targetHandle = "left";
-      } else if (fk_type_id === 2) {
-        delete edge.sourceHandle;
-        delete edge.targetHandle;
       } else {
-        edge.sourceHandle = "bottom"
+        edge.sourceHandle = "bottom";
         edge.targetHandle = "top";
       }
 
