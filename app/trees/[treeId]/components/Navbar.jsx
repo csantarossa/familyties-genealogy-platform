@@ -25,6 +25,7 @@ import { AddPersonModalContext } from "../page";
 import { useUser, logout } from "@/app/contexts/UserContext";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { Import } from "lucide-react";
 
 const dancingScript = Dancing_Script({ subsets: ["latin"] });
 
@@ -49,38 +50,6 @@ export function Navbar() {
       <div className="w-[0.8px] h-full bg-black opacity-40"></div>
 
       <MenubarMenu>
-        {/* <MenubarTrigger>File</MenubarTrigger>
-        <MenubarContent>
-          <MenubarItem>New Tree</MenubarItem>
-          <MenubarItem>Open Tree</MenubarItem>
-          <MenubarSeparator />
-          <MenubarSub>
-            <MenubarSubTrigger>Import</MenubarSubTrigger>
-            <MenubarSubContent className="pr-2">
-              <MenubarItem disabled>From .GEDCOM File</MenubarItem>
-              <MenubarItem disabled>From .JSON File</MenubarItem>
-            </MenubarSubContent>
-          </MenubarSub>
-          <MenubarSub>
-            <MenubarSubTrigger>Export</MenubarSubTrigger>
-            <MenubarSubContent className="pr-2">
-              <MenubarItem disabled>To .GEDCOM File</MenubarItem>
-              <MenubarItem disabled>To .JSON File</MenubarItem>
-            </MenubarSubContent>
-          </MenubarSub>
-          <MenubarSub>
-            <MenubarSubTrigger>Share</MenubarSubTrigger>
-            <MenubarSubContent>
-              <MenubarItem>Email</MenubarItem>
-              <MenubarItem>Copy link</MenubarItem>
-            </MenubarSubContent>
-          </MenubarSub>
-          <MenubarSeparator />
-          <MenubarItem>Save</MenubarItem>
-          <MenubarItem>Print</MenubarItem>
-        </MenubarContent>
-      </MenubarMenu>
-      <MenubarMenu> */}
         <MenubarTrigger>MyTree</MenubarTrigger>
         <MenubarContent>
           <MenubarItem onClick={() => setAddPersonModal(true)}>
@@ -88,19 +57,15 @@ export function Navbar() {
           </MenubarItem>
           <MenubarSeparator />
           <MenubarMenu className="">
-            <MenubarItem className="flex items-center justify-between gap-1">
+            <MenubarItem className="flex items-center gap-1">
+              <Search size={18} strokeWidth={2} className="opacity-70" />
               Search
-              <Search size={18} className="opacity-70" />
             </MenubarItem>
           </MenubarMenu>
           <MenubarSeparator />
-          <MenubarSub>
-            <MenubarSubTrigger>Customise</MenubarSubTrigger>
-            <MenubarSubContent>
-              <MenubarItem>Tags</MenubarItem>
-              <MenubarItem>Events</MenubarItem>
-            </MenubarSubContent>
-          </MenubarSub>
+          <MenubarItem className="gap-2 items-end">
+            <Import size={18} className="opacity-70" /> Import GEDCOM File
+          </MenubarItem>
         </MenubarContent>
       </MenubarMenu>
       <MenubarMenu>
