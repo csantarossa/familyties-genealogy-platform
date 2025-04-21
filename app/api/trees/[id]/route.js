@@ -70,18 +70,19 @@ export async function POST(req, { params }) {
       gallery: null,
       additionalInfo: null,
       treeId: id,
+      confidence: "Unverified",
     };
 
     const result = await sql`
       INSERT INTO person (
         person_firstname, person_middlename, person_lastname, person_gender,
         person_dob, person_dod, person_tags, person_main_img, birth_town, birth_city, birth_state, birth_country,
-        gallery, additional_information, fk_tree_id
+        gallery, additional_information, fk_tree_id, confidence
       ) VALUES (
         ${newPerson.firstname}, ${newPerson.middlename}, ${newPerson.lastname}, ${newPerson.gender},
         ${newPerson.dob}, ${newPerson.dod}, ${newPerson.tags}, ${newPerson.img}, ${newPerson.birthTown}, ${newPerson.birthCity},
         ${newPerson.birthState}, ${newPerson.birthCountry}, ${newPerson.gallery},
-        ${newPerson.additionalInfo}, ${newPerson.treeId}
+        ${newPerson.additionalInfo}, ${newPerson.treeId}, ${newPerson.confidence}
       )
       RETURNING person_id
     `;

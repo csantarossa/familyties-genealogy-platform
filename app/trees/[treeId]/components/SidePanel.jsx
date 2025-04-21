@@ -9,7 +9,7 @@ import {
 import { useParams } from "next/navigation";
 import Image from "next/image";
 import ConfirmModal from "./ConfirmModal";
-import { Trash } from "lucide-react";
+import { ShieldCheck, ShieldQuestion, Trash } from "lucide-react";
 import toast from "react-hot-toast";
 import PersonTabs from "./PersonTabs";
 import {
@@ -23,7 +23,9 @@ import { format } from "date-fns";
 import { PersonContext } from "@/app/contexts/PersonContext";
 
 const SidePanel = () => {
-  const { selected, selectPerson, clearSelection } = useContext(PersonContext);
+  const { selected, selectPerson, setSelected, setPeople, clearSelection } =
+    useContext(PersonContext);
+
   const [trigger, setTrigger] = useState(false);
   const { treeId } = useParams();
 
@@ -67,15 +69,14 @@ const SidePanel = () => {
       >
         <div className="flex flex-col gap-6 h-full">
           <SheetHeader className="flex-row justify-start items-start gap-10 relative">
-            <div className="relative w-32 h-32">
-              <Image
-                alt="Person's main image"
-                layout="fill"
-                objectFit="cover"
-                className="rounded-lg"
-                src={selected.img || "/placeholder.jpg"}
-              />
-            </div>
+            <Image
+              alt="Person's main image"
+              width={120}
+              height={120}
+              className="rounded-lg"
+              src={selected.img || "/placeholder.jpg"}
+            />
+
 
             <div className="flex flex-col justify-start gap-4 h-fit w-full">
               <div>
@@ -137,7 +138,13 @@ const SidePanel = () => {
                       }
 
                       toast.success("Confidence updated!");
-                      selectPerson({ ...selected, confidence: value });
+                      setSelected((prev) => ({ ...prev, confidence: value }));
+                      setPeople((prev) =>
+                        prev.map((p) =>
+                          p.id === selected.id ? { ...p, confidence: value } : p
+                        )
+                      );
+
                     } catch (err) {
                       toast.dismiss();
                       console.error("Error updating confidence:", err);
@@ -147,13 +154,30 @@ const SidePanel = () => {
                 >
                   <SelectTrigger className="w-36 h-fit py-1" tabIndex={-1}>
                     <SelectValue>
-                      {selected.confidence || "Confidence"}
+                      <div className="flex flex-row gap-2 items-center">
+                        {selected.confidence === "Verified" ? (
+                          <ShieldCheck color="green" size={16} />
+                        ) : (
+                          <ShieldQuestion color="orange" size={16} />
+                        )}
+                        {selected.confidence}
+                      </div>
                     </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Verified">Verified</SelectItem>
-                    <SelectItem value="Unverified">Unverified</SelectItem>
-                    <SelectItem value="Focus">Focus</SelectItem>
+                    <SelectItem value="Verified">
+                      <div className="flex flex-row gap-2 items-center">
+                        <ShieldCheck color="green" size={16} />
+                        Verified
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="Unverified">
+                      <div className="flex flex-row gap-2 items-center">
+                        <ShieldQuestion color="orange" size={16} />
+                        Unverified
+                      </div>
+                    </SelectItem>
+
                   </SelectContent>
                 </Select>
 
