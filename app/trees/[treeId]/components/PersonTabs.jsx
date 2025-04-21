@@ -31,45 +31,40 @@ import {
 import ConfirmModal from "./ConfirmModal";
 import RelationshipSelector from "./RelationshipSelector";
 import { createRelationship, deleteRelationship } from "@/app/actions";
+import { PersonContext } from "@/app/contexts/PersonContext";
 
 const PersonTabs = () => {
-  const [sidePanelContent, setSidePanelContent] = useContext(SidePanelContext);
+  const { treeId } = useParams();
+  const { selected, setPeople, setSelected } = useContext(PersonContext);
+
   const [relationships, setRelationships] = useState([]);
   const [isEditingGeneral, setIsEditingGeneral] = useState(false);
   const [isEditingCareer, setIsEditingCareer] = useState(false);
   const [isEditingEducation, setIsEditingEducation] = useState(false);
   const [imageFile, setImageFile] = useState(null);
 
-  const [editedGender, setEditedGender] = useState(sidePanelContent.gender);
-  const [notes, setNotes] = useState(sidePanelContent.notes);
-  const [editedDob, setEditedDob] = useState(parseDate(sidePanelContent.dob));
-  const [editedDod, setEditedDod] = useState(parseDate(sidePanelContent.dod));
+  const [editedGender, setEditedGender] = useState(selected.gender);
+  const [notes, setNotes] = useState(selected.notes);
+  const [editedDob, setEditedDob] = useState(parseDate(selected.dob));
+  const [editedDod, setEditedDod] = useState(parseDate(selected.dod));
   const [editedCareer, setEditedCareer] = useState(
-    sidePanelContent.additionalInfo?.career || []
+    selected.additionalInfo?.career || []
   );
   const [editedEducation, setEditedEducation] = useState(
-    sidePanelContent.additionalInfo?.education || []
+    selected.additionalInfo?.education || []
   );
   const [siblings, setSiblings] = useState([]);
 
-  const [birthTown, setBirthTown] = useState(sidePanelContent.birthTown || "");
-  const [birthCity, setBirthCity] = useState(sidePanelContent.birthCity || "");
-  const [birthState, setBirthState] = useState(
-    sidePanelContent.birthState || ""
-  );
-  const [birthCountry, setBirthCountry] = useState(
-    sidePanelContent.birthCountry || ""
-  );
+  const [birthTown, setBirthTown] = useState(selected.birthTown || "");
+  const [birthCity, setBirthCity] = useState(selected.birthCity || "");
+  const [birthState, setBirthState] = useState(selected.birthState || "");
+  const [birthCountry, setBirthCountry] = useState(selected.birthCountry || "");
 
-  const { treeId } = useParams();
+  const personId = selected.id;
 
-  const personId = sidePanelContent.id;
-
-  const [editedTags, setEditedTags] = useState(
-    sidePanelContent.person_tags || []
-  );
+  const [editedTags, setEditedTags] = useState(selected.person_tags || []);
   const [editedConfidence, setEditedConfidence] = useState(
-    sidePanelContent.confidence || ""
+    selected.confidence || ""
   );
   const [newTagInput, setNewTagInput] = useState("");
 
@@ -104,26 +99,26 @@ const PersonTabs = () => {
 
   useEffect(() => {
     if (!isEditingGeneral) {
-      if (sidePanelContent.dob) {
-        setEditedDob(parseDate(sidePanelContent.dob));
+      if (selected.dob) {
+        setEditedDob(parseDate(selected.dob));
       }
-      if (sidePanelContent.dod) {
-        setEditedDod(parseDate(sidePanelContent.dod));
+      if (selected.dod) {
+        setEditedDod(parseDate(selected.dod));
       }
-      setEditedGender(sidePanelContent.gender || "");
-      setNotes(sidePanelContent.notes || "");
-      setEditedTags(sidePanelContent.person_tags || []);
-      setEditedConfidence(sidePanelContent.confidence || "");
-      setBirthTown(sidePanelContent.birthTown || "");
-      setBirthCity(sidePanelContent.birthCity || "");
-      setBirthState(sidePanelContent.birthState || "");
-      setBirthCountry(sidePanelContent.birthCountry || "");
+      setEditedGender(selected.gender || "");
+      setNotes(selected.notes || "");
+      setEditedTags(selected.tags || []);
+      setEditedConfidence(selected.confidence || "");
+      setBirthTown(selected.birthTown || "");
+      setBirthCity(selected.birthCity || "");
+      setBirthState(selected.birthState || "");
+      setBirthCountry(selected.birthCountry || "");
     }
-  }, [sidePanelContent, isEditingGeneral]);
+  }, [selected, isEditingGeneral]);
 
   const handleGetRelationships = async () => {
-    const data = await getImmediateFamily(sidePanelContent.id);
-    const siblingData = await getSiblingsBySharedParents(sidePanelContent.id);
+    const data = await getImmediateFamily(selected.id);
+    const siblingData = await getSiblingsBySharedParents(selected.id);
     setSiblings(siblingData);
     setRelationships(data);
   };
@@ -131,7 +126,7 @@ const PersonTabs = () => {
   const handleSaveGallery = async (img) => {
     try {
       toast.loading("Saving image");
-      const personId = sidePanelContent.id;
+      const personId = selected.id;
       let uploadedImageUrl = null;
 
       // ✅ Upload the image first if one was selected
@@ -154,7 +149,7 @@ const PersonTabs = () => {
         uploadedImageUrl = uploadData.url;
 
         if (uploadedImageUrl) {
-          setSidePanelContent((prev) => ({
+          setSelected((prev) => ({
             ...prev,
             gallery: [
               ...(prev.gallery || []),
@@ -198,7 +193,7 @@ const PersonTabs = () => {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          person_id: sidePanelContent.id,
+          person_id: selected.id,
           url: url,
         }),
       });
@@ -211,7 +206,7 @@ const PersonTabs = () => {
       }
 
       // Remove from gallery UI
-      setSidePanelContent((prev) => ({
+      setSelected((prev) => ({
         ...prev,
         gallery: prev.gallery.filter((img) => img.image_url !== url),
       }));
@@ -229,16 +224,16 @@ const PersonTabs = () => {
     toast.loading("Saving changes...");
     try {
       // Update general person info
-      const res = await fetch(`/api/trees/${sidePanelContent.treeId}`, {
+      const res = await fetch(`/api/trees/${treeId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          personId: sidePanelContent.id,
+          personId: selected.id,
           gender: editedGender,
           dob: formatForBackend(editedDob),
           dod: formatForBackend(editedDod),
           confidence: editedConfidence,
-          person_tags: editedTags,
+          tags: editedTags,
           birthTown,
           birthCity,
           birthState,
@@ -247,23 +242,20 @@ const PersonTabs = () => {
         }),
       });
 
-      const resCareer = await fetch(
-        `/api/trees/${sidePanelContent.id}/career`,
-        {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            personId: sidePanelContent.id,
-            career: updatedCareer,
-          }),
-        }
-      );
+      const resCareer = await fetch(`/api/trees/${selected.id}/career`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          personId: selected.id,
+          career: updatedCareer,
+        }),
+      });
 
       const resEducation = await fetch(`/api/trees/${personId}/education`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          personId: sidePanelContent.id,
+          personId: selected.id,
           education: updatedEducation,
         }),
       });
@@ -272,14 +264,29 @@ const PersonTabs = () => {
         toast.error("Failed to update data.");
         return;
       }
-
+      const updatedFields = {
+        gender: editedGender,
+        dob: editedDob,
+        dod: editedDod,
+        tags: editedTags,
+        confidence: editedConfidence,
+        birthTown,
+        birthCity,
+        birthState,
+        birthCountry,
+        notes,
+        additionalInfo: {
+          career: editedCareer,
+          education: editedEducation,
+        },
+      };
       toast.success("Updated successfully!");
-      setSidePanelContent((prev) => ({
+      setSelected((prev) => ({
         ...prev,
         gender: editedGender,
         dob: editedDob,
         dod: editedDod,
-        person_tags: editedTags,
+        tags: editedTags,
         confidence: editedConfidence,
         birthTown: birthTown,
         birthCity: birthCity,
@@ -295,6 +302,10 @@ const PersonTabs = () => {
         },
       }));
 
+      setPeople((prev) =>
+        prev.map((p) => (p.id === selected.id ? { ...p, ...updatedFields } : p))
+      );
+
       setIsEditingGeneral(false);
       setIsEditingCareer(false);
       setIsEditingEducation(false);
@@ -306,10 +317,10 @@ const PersonTabs = () => {
   };
 
   const birthLocation = [
-    sidePanelContent.birthTown,
-    sidePanelContent.birthCity,
-    sidePanelContent.birthState,
-    sidePanelContent.birthCountry,
+    selected.birthTown,
+    selected.birthCity,
+    selected.birthState,
+    selected.birthCountry,
   ];
 
   return (
@@ -339,18 +350,18 @@ const PersonTabs = () => {
                   className="cursor-pointer"
                   onClick={() => {
                     if (!isEditingGeneral) {
-                      const dobParsed = parseDate(sidePanelContent.dob);
-                      const dodParsed = parseDate(sidePanelContent.dod);
+                      const dobParsed = parseDate(selected.dob);
+                      const dodParsed = parseDate(selected.dod);
 
-                      console.log("🧠 RAW DOB:", sidePanelContent.dob);
+                      console.log("🧠 RAW DOB:", selected.dob);
                       console.log("🧠 PARSED DOB:", dobParsed);
 
                       setEditedDob(dobParsed);
                       setEditedDod(dodParsed);
-                      setEditedGender(sidePanelContent.gender || "");
-                      setNotes(sidePanelContent.notes || "");
-                      setEditedTags(sidePanelContent.person_tags || []);
-                      setEditedConfidence(sidePanelContent.confidence || "");
+                      setEditedGender(selected.gender || "");
+                      setNotes(selected.notes || "");
+                      setEditedTags(selected.tags || []);
+                      setEditedConfidence(selected.confidence || "");
                     }
                     setIsEditingGeneral((prev) => !prev);
                   }}
@@ -367,7 +378,7 @@ const PersonTabs = () => {
                       onChange={(e) => setEditedGender(e.target.value)}
                     />
                   ) : (
-                    <p className="text-sm">{sidePanelContent.gender}</p>
+                    <p className="text-sm">{selected.gender}</p>
                   )}
                 </div>
 
@@ -504,9 +515,9 @@ const PersonTabs = () => {
                     <Button
                       variant="ghost"
                       onClick={() => {
-                        setEditedGender(sidePanelContent.gender);
-                        setEditedDob(parseDate(sidePanelContent.dob));
-                        setEditedDod(parseDate(sidePanelContent.dod));
+                        setEditedGender(selected.gender);
+                        setEditedDob(parseDate(selected.dob));
+                        setEditedDod(parseDate(selected.dod));
                         setIsEditingGeneral(false);
                       }}
                     >
@@ -1037,8 +1048,8 @@ const PersonTabs = () => {
                 }}
               />
 
-              {Array.isArray(sidePanelContent.gallery) &&
-                sidePanelContent.gallery.map((img, index) => (
+              {Array.isArray(selected.gallery) &&
+                selected.gallery.map((img, index) => (
                   <div key={index} className="w-28 h-28 relative group">
                     <PopUp img={img.image_url} index={index} />
 
@@ -1080,7 +1091,7 @@ const PersonTabs = () => {
                 <Button
                   variant="ghost"
                   onClick={() => {
-                    setNotes(sidePanelContent.notes);
+                    setNotes(selected.notes);
                   }}
                 >
                   <RotateCcw />
