@@ -25,6 +25,7 @@ import { PersonContext } from "@/app/contexts/PersonContext";
 const SidePanel = () => {
   const { selected, selectPerson, setSelected, setPeople, clearSelection } =
     useContext(PersonContext);
+
   const [trigger, setTrigger] = useState(false);
   const { treeId } = useParams();
 
@@ -75,6 +76,7 @@ const SidePanel = () => {
               className="rounded-lg"
               src={selected.img || "/placeholder.jpg"}
             />
+
 
             <div className="flex flex-col justify-start gap-4 h-fit w-full">
               <div>
@@ -142,6 +144,7 @@ const SidePanel = () => {
                           p.id === selected.id ? { ...p, confidence: value } : p
                         )
                       );
+
                     } catch (err) {
                       toast.dismiss();
                       console.error("Error updating confidence:", err);
@@ -174,6 +177,7 @@ const SidePanel = () => {
                         Unverified
                       </div>
                     </SelectItem>
+
                   </SelectContent>
                 </Select>
 

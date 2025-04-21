@@ -11,6 +11,7 @@ import { Handle, Position } from "@xyflow/react";
 import Image from "next/image";
 
 import { ShieldCheck, ShieldQuestion } from "lucide-react";
+
 import { formatDisplayDate } from "@/app/utils/parseDate";
 import { PersonContext } from "@/app/contexts/PersonContext";
 
