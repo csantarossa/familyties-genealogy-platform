@@ -15,7 +15,14 @@ import { Badge } from "@/components/ui/badge";
 import { SidePanelContext } from "../page";
 import { format } from "date-fns";
 import ConfirmModal from "./ConfirmModal";
-import { Trash } from "lucide-react";
+import {
+  Check,
+  FileQuestion,
+  SearchX,
+  ShieldCheck,
+  ShieldQuestion,
+  Trash,
+} from "lucide-react";
 import { formatDisplayDate } from "@/app/utils/parseDate";
 import { PersonContext } from "@/app/contexts/PersonContext";
 
@@ -35,19 +42,6 @@ const TreeNode = ({ data }) => {
         onClick={openPanel}
         className="w-fit flex flex-row justify-between items-center p-3 gap-4"
       >
-        {data.confidence && (
-          <Badge
-            className={`fixed text-xs top-[-10px] left-[-13px] ${
-              data.confidence === "Verified"
-                ? "bg-green-400"
-                : data.confidence === "Unverified"
-                ? "bg-red-400"
-                : "bg-blue-400"
-            }`}
-          >
-            {data.confidence}
-          </Badge>
-        )}
         <div className="h-24 flex justify-center items-center">
           {data.tags.length > 0 && (
             <div className="flex items-center justify-end gap-2 h-4 absolute -top-3 -right-3 bg-white border py-3 px-2 rounded-lg">
@@ -81,8 +75,13 @@ const TreeNode = ({ data }) => {
               {data.lastname}
             </CardTitle>
             <div className="flex flex-col justify-between gap-1">
-              <CardDescription className="capitalize text-xs mt-1">
-                {data.gender}
+              <CardDescription className="capitalize text-xs mt-1 flex justify-between items-center">
+                {data.gender || <div></div>}
+                {data.confidence === "Unverified" ? (
+                  <ShieldQuestion color="orange" size={14} />
+                ) : (
+                  <ShieldCheck color="green" size={14} />
+                )}
               </CardDescription>
               <CardDescription className="capitalize text-xs mt-1">
                 {formatDisplayDate(data.dob)} -{" "}
