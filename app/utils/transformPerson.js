@@ -20,7 +20,7 @@ export const transformPerson = async (person) => {
     birthState: person.birth_state || "",
     birthCountry: person.birth_country || "",
     gallery: gallery || [],
-    confidence: getConfidenceScore(person.confidence),
+    confidence: person.confidence,
     additionalInfo: {
       career: career || [], // leave this as-is for now
       education: education || [], // override with real education from DB
@@ -28,10 +28,4 @@ export const transformPerson = async (person) => {
     },
     notes: person.notes || "",
   };
-};
-
-const getConfidenceScore = (confidence) => {
-  if (confidence === 1) return "Verified";
-  if (confidence === 2) return "Unverified";
-  return null;
 };
