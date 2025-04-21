@@ -17,20 +17,15 @@ import { format } from "date-fns";
 import ConfirmModal from "./ConfirmModal";
 import { Trash } from "lucide-react";
 import { formatDisplayDate } from "@/app/utils/parseDate";
+import { PersonContext } from "@/app/contexts/PersonContext";
 
 const TreeNode = ({ data }) => {
   const { treeId } = useParams();
-  const [confirm, setConfirm] = useState(false);
-  const [sidePanelContent, setSidePanelContent] = useContext(SidePanelContext);
+  const { selectPerson } = useContext(PersonContext);
 
   const openPanel = () => {
-    setSidePanelContent({
-      id: data.id,
-      trigger: true,
-      treeId: treeId,
-      ...data,
-    });
-  };  
+    selectPerson(data);
+  };
 
   return (
     <div className="nodrag">
@@ -90,7 +85,8 @@ const TreeNode = ({ data }) => {
                 {data.gender}
               </CardDescription>
               <CardDescription className="capitalize text-xs mt-1">
-                {formatDisplayDate(data.dob)} - {formatDisplayDate(data.dod, true)}
+                {formatDisplayDate(data.dob)} -{" "}
+                {formatDisplayDate(data.dod, true)}
               </CardDescription>
             </div>
           </CardHeader>

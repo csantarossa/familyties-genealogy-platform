@@ -10,6 +10,7 @@ import { Navbar } from "./components/Navbar";
 import { useParams, useRouter } from "next/navigation";
 import { useUser } from "@/app/contexts/UserContext";
 import { getTrees } from "@/app/actions";
+import { PersonProvider } from "@/app/contexts/PersonContext";
 
 export const SidePanelContext = createContext();
 export const AddPersonModalContext = createContext();
@@ -52,23 +53,27 @@ function Home() {
   };
 
   return (
-    <AddPersonModalContext.Provider value={[addPersonModal, setAddPersonModal]}>
-      <SidePanelContext.Provider
-        value={[sidePanelContent, setSidePanelContent]}
+    <PersonProvider treeId={treeId}>
+      <AddPersonModalContext.Provider
+        value={[addPersonModal, setAddPersonModal]}
       >
-        <div className="w-screen max-h-screen">
-          <div className="flex justify-center items-center p-5 gap-10 rounded-2xl shadow-md w-fit absolute z-50 bg-white left-[50%] translate-x-[-50%]">
-            {/* <Link href={"#"}>Logo</Link> */}
-            <Navbar />
+        <SidePanelContext.Provider
+          value={[sidePanelContent, setSidePanelContent]}
+        >
+          <div className="w-screen max-h-screen">
+            <div className="flex justify-center items-center p-5 gap-10 rounded-2xl shadow-md w-fit absolute z-50 bg-white left-[50%] translate-x-[-50%]">
+              {/* <Link href={"#"}>Logo</Link> */}
+              <Navbar />
+            </div>
+
+            <AddPersonModal trigger={<AddPersonButton />} />
+
+            <SidePanel />
+            <FlowSpace />
           </div>
-
-          <AddPersonModal trigger={<AddPersonButton />} />
-
-          <SidePanel />
-          <FlowSpace />
-        </div>
-      </SidePanelContext.Provider>
-    </AddPersonModalContext.Provider>
+        </SidePanelContext.Provider>
+      </AddPersonModalContext.Provider>
+    </PersonProvider>
   );
 }
 

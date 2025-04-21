@@ -1,160 +1,75 @@
 "use client";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useContext, useEffect, useState, useMemo } from "react";
+import { useParams } from "next/navigation";
 import {
   ReactFlow,
   Background,
+  Controls,
   useNodesState,
   useEdgesState,
-  Controls,
 } from "@xyflow/react";
 import dagre from "@dagrejs/dagre";
 import "@xyflow/react/dist/style.css";
+import toast from "react-hot-toast";
+
 import TreeNode from "./TreeNode";
-import { getPeople, getRelationships } from "@/app/actions";
-import { useParams } from "next/navigation";
 import BackButton from "./BackButton";
 import GetStartedModal from "./GetStartedModal";
-import toast from "react-hot-toast";
-import { transformPerson } from "@/app/utils/transformPerson";
+import { PersonContext } from "@/app/contexts/PersonContext";
+import { getRelationships } from "@/app/actions";
 
-const dagreGraph = new dagre.graphlib.Graph().setDefaultEdgeLabel(() => ({}));
-
+// Dagre config
 const nodeWidth = 310;
 const nodeHeight = 210;
+const dagreGraph = new dagre.graphlib.Graph().setDefaultEdgeLabel(() => ({}));
 
-const getLayoutedElements = (nodes, edges) => {
-  dagreGraph.setGraph({ rankdir: "TB", align: "UL" }); // Vertical layout with top-left alignment
+export default function FlowSpace() {
+  const { treeId } = useParams();
+  const { people, loading: peopleLoading } = useContext(PersonContext);
 
-  nodes.forEach((node) => {
-    dagreGraph.setNode(node.id, { width: nodeWidth, height: nodeHeight });
-  });
-
-  edges.forEach((edge) => {
-    dagreGraph.setEdge(edge.source, edge.target);
-  });
-
-  dagre.layout(dagreGraph);
-
-  const newNodes = nodes.map((node) => {
-    const nodeWithPosition = dagreGraph.node(node.id);
-    return {
-      ...node,
-      targetPosition: "top",
-      sourcePosition: "bottom",
-      position: {
-        x: nodeWithPosition.x - nodeWidth / 2,
-        y: nodeWithPosition.y - nodeHeight / 2,
-      },
-    };
-  });
-
-  // const spouseEdges = edges.filter((edge) => edge.id.startsWith("e")); // Filter spouse edges
-  const otherEdges = edges.filter((edge) => !edge.id.startsWith("e"));
-
-  return {
-    nodes: newNodes,
-    edges: [...otherEdges], // Ensure spouses appear last for better layout
-  };
-};
-
-function FlowSpace() {
   const [nodes, setNodes] = useNodesState([]);
-  const handleDeleteNodeFromUI = (id) => {
-    setNodes((prevNodes) =>
-      prevNodes.filter((node) => node.id !== id.toString())
-    );
-  };
   const [edges, setEdges] = useEdgesState([]);
-  const [loading, setLoading] = useState(true); // ✅ Added loading state
+  const [loading, setLoading] = useState(true);
 
-  const params = useParams();
-  const treeId = params.treeId;
+  // Remove node from UI
+  const handleDeleteNode = (id) => {
+    setNodes((prev) => prev.filter((n) => n.id !== id.toString()));
+  };
 
+  // Fetch relationships and layout once people are ready
   useEffect(() => {
-    fetchAndLayoutTree(treeId);
-  }, []);
+    if (peopleLoading) return;
 
-  const fetchAndLayoutTree = async (treeId) => {
     setLoading(true);
-    toast.loading("Setting up the tree");
-    try {
-      const people = await getPeople(treeId); // Fetch people data from the API
-      const relationships = await getRelationships(treeId); // Fetch relationships from the API
+    const toastId = toast.loading("Setting up the tree…");
 
-      const treeEntries = await Promise.all(
-        people.map(async (person) => ({
-          id: `${person.person_id}`,
-          name: `${person.person_firstname} ${person.person_lastname}`,
-          data: await transformPerson(person),
-        }))
-      );
+    // Build nodes from context
+    const rawNodes = people.map((p) => ({
+      id: `${p.id}`,
+      type: "treeCard",
+      data: { ...p, onDelete: handleDeleteNode },
+      position: { x: 0, y: 0 },
+    }));
+    setNodes(rawNodes);
 
-      const tree = {};
-      treeEntries.forEach((entry) => {
-        tree[entry.id] = entry;
+    // Fetch and render edges
+    getRelationships(treeId)
+      .then((rels) => {
+        const peopleMap = Object.fromEntries(people.map((p) => [p.id, p]));
+        const rawEdges = generateEdges(rels, peopleMap);
+
+        const { nodes: layoutedNodes, edges: layoutedEdges } =
+          getLayoutedElements(rawNodes, rawEdges);
+
+        setNodes(layoutedNodes);
+        setEdges(layoutedEdges);
+      })
+      .catch((err) => console.error("Error loading relationships:", err))
+      .finally(() => {
+        toast.dismiss(toastId);
+        setLoading(false);
       });
-
-      const reactFlowNodes = Object.values(tree).map((node) => ({
-        id: node.id,
-        type: "treeCard",
-        data: {
-          ...node.data,
-          onDelete: handleDeleteNodeFromUI,
-        },
-        position: { x: 0, y: 0 },
-      }));
-
-      const relationshipEdges = generateEdges(relationships, tree);
-      const layoutedElements = getLayoutedElements(
-        reactFlowNodes,
-        relationshipEdges
-      );
-
-      setNodes(layoutedElements.nodes);
-      setEdges(layoutedElements.edges);
-      setLoading(false);
-    } catch (error) {
-      console.error("Error fetching and laying out the tree:", error);
-    }
-    toast.dismiss();
-  };
-
-  const generateEdges = (relationships, tree) => {
-    const edges = [];
-
-    relationships.forEach((relationship) => {
-      let { person_1, person_2, fk_type_id } = relationship;
-
-      // Skip if people not found in tree
-      if (!tree[person_1] || !tree[person_2]) return;
-
-      // Relationship direction logic
-      if (fk_type_id === 1) {
-        // person_1 is child, so child -> parent
-        [person_1, person_2] = [person_1, person_2]; // no swap needed, this line optional
-      } else if (fk_type_id === 4) {
-        // person_1 is parent, so child <- parent
-        [person_1, person_2] = [person_2, person_1]; // swap to make parent -> child
-      }
-
-      const edge = {
-        id: `${fk_type_id}-${person_1}-${person_2}`,
-        source: `${person_1}`,
-        target: `${person_2}`,
-        type: "smoothstep",
-        style: { strokeWidth: 2, stroke: "#000" },
-      };
-
-      if (fk_type_id === 2) {
-        edge.sourceHandle = "right";
-        edge.targetHandle = "left";
-      }
-
-      edges.push(edge);
-    });
-
-    return edges;
-  };
+  }, [peopleLoading, people, treeId]);
 
   const nodeTypes = useMemo(() => ({ treeCard: TreeNode }), []);
 
@@ -167,9 +82,7 @@ function FlowSpace() {
         fitView
         style={{ backgroundColor: "#F7F9FB" }}
       >
-        {loading ? ( // ✅ Show nothing while loading
-          <></>
-        ) : nodes.length === 0 ? ( // ✅ Show modal only when loading is finished and no nodes exist
+        {loading ? null : nodes.length === 0 ? (
           <GetStartedModal treeId={treeId} />
         ) : (
           <>
@@ -183,4 +96,54 @@ function FlowSpace() {
   );
 }
 
-export default FlowSpace;
+// --- Helpers ---
+function generateEdges(relationships, peopleMap) {
+  return relationships.reduce((acc, { person_1, person_2, fk_type_id }) => {
+    if (!peopleMap[person_1] || !peopleMap[person_2]) return acc;
+
+    let src = person_1;
+    let tgt = person_2;
+    if (fk_type_id === 4) {
+      [src, tgt] = [person_2, person_1];
+    }
+
+    const edge = {
+      id: `${fk_type_id}-${src}-${tgt}`,
+      source: `${src}`,
+      target: `${tgt}`,
+      type: "smoothstep",
+      style: { strokeWidth: 2 },
+    };
+
+    if (fk_type_id === 2) {
+      edge.sourceHandle = "right";
+      edge.targetHandle = "left";
+    }
+
+    acc.push(edge);
+    return acc;
+  }, []);
+}
+
+function getLayoutedElements(nodes, edges) {
+  dagreGraph.setGraph({ rankdir: "TB", align: "UL" });
+
+  nodes.forEach((n) =>
+    dagreGraph.setNode(n.id, { width: nodeWidth, height: nodeHeight })
+  );
+  edges.forEach((e) => dagreGraph.setEdge(e.source, e.target));
+
+  dagre.layout(dagreGraph);
+
+  const layouted = nodes.map((n) => {
+    const { x, y } = dagreGraph.node(n.id);
+    return {
+      ...n,
+      position: { x: x - nodeWidth / 2, y: y - nodeHeight / 2 },
+      targetPosition: "top",
+      sourcePosition: "bottom",
+    };
+  });
+
+  return { nodes: layouted, edges };
+}

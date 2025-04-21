@@ -137,7 +137,7 @@ export async function PUT(req, { params }) {
     gallery,
     notes,
     confidence,
-    person_tags,
+    tags,
   } = body;
 
   const safeDob = typeof dob === "string" ? dob : null;
@@ -160,7 +160,7 @@ export async function PUT(req, { params }) {
     gallery = ${JSON.stringify(gallery) || null},
     notes = ${notes || null},
     confidence = ${confidence || null},
-    person_tags = ${JSON.stringify(person_tags) || "[]"}
+    person_tags = ${JSON.stringify(tags) || "[]"}
   WHERE person_id = ${personId} AND fk_tree_id = ${id};
 `;
 
