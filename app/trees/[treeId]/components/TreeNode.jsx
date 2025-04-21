@@ -1,28 +1,17 @@
 "use client";
-import React, { useContext, useState } from "react";
+import React, { useContext } from "react";
 import { useParams } from "next/navigation";
 import {
   Card,
-  CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
 import { Handle, Position } from "@xyflow/react";
 import Image from "next/image";
-import { Badge } from "@/components/ui/badge";
-import { SidePanelContext } from "../page";
-import { format } from "date-fns";
-import ConfirmModal from "./ConfirmModal";
-import {
-  Check,
-  FileQuestion,
-  SearchX,
-  ShieldCheck,
-  ShieldQuestion,
-  Trash,
-} from "lucide-react";
+
+import { ShieldCheck, ShieldQuestion } from "lucide-react";
+
 import { formatDisplayDate } from "@/app/utils/parseDate";
 import { PersonContext } from "@/app/contexts/PersonContext";
 
