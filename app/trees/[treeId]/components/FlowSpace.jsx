@@ -17,147 +17,193 @@ import GetStartedModal from "./GetStartedModal";
 import toast from "react-hot-toast";
 import { transformPerson } from "@/app/utils/transformPerson";
 
-const dagreGraph = new dagre.graphlib.Graph().setDefaultEdgeLabel(() => ({}));
+// Constants for node dimensions
+const NODE_W = 310;
+const NODE_H = 210;
 
-const nodeWidth = 310;
-const nodeHeight = 210;
-
-const getLayoutedElements = (nodes, edges) => {
-  // 1. Prepare the graph for vertical layout only
+/**
+ * Runs a Dagre layout on only the parent→child edges to compute
+ * initial positions for each node.
+ */
+function runDagre(nodes, edges) {
+  const g = new dagre.graphlib.Graph().setDefaultEdgeLabel(() => ({}));
   const verticalEdges = edges.filter(e => e.sourceHandle === "bottom");
 
-  dagreGraph.setGraph({ rankdir: "TB", align: "UL" });
-  nodes.forEach(node =>
-    dagreGraph.setNode(node.id, { width: nodeWidth, height: nodeHeight })
-  );
-  verticalEdges.forEach(e =>
-    dagreGraph.setEdge(e.source, e.target)
-  );
-
-  dagre.layout(dagreGraph);
-
-  // 2. Map Dagre positions onto our React Flow nodes
-  const layoutedNodes = nodes.map(node => {
-    const { x, y } = dagreGraph.node(node.id);
-    return {
-      ...node,
-      position: { x: x - nodeWidth / 2, y: y - nodeHeight / 2 },
-    };
+  // Graph configuration: spacing between nodes and ranks
+  g.setGraph({
+    rankdir: "TB",    // top to bottom
+    align: "UL",      // upper-left alignment
+    nodesep: 60,       // horizontal gap between nodes
+    ranksep: 100,      // vertical gap between ranks (generations)
+    marginx: 20,
+    marginy: 20,
   });
 
-  // 3. Return all nodes plus all edges (spouse edges come along untouched)
-  return {
-    nodes: layoutedNodes,
-    edges,
-  };
-};
+  // Register each node
+  nodes.forEach(node =>
+    g.setNode(node.id, { width: NODE_W, height: NODE_H })
+  );
 
-function FlowSpace() {
+  // Register only the vertical (parent→child) edges for layout
+  verticalEdges.forEach(edge =>
+    g.setEdge(edge.source, edge.target)
+  );
+
+  // Compute layout
+  dagre.layout(g);
+
+  // Pull back computed positions and adjust by half the node size
+  return nodes.map(node => {
+    const { x, y } = g.node(node.id);
+    return {
+      ...node,
+      position: { x: x - NODE_W / 2, y: y - NODE_H / 2 },
+    };
+  });
+}
+
+export default function FlowSpace() {
   const [nodes, setNodes] = useNodesState([]);
-  const handleDeleteNodeFromUI = (id) => {
-    setNodes((prevNodes) =>
-      prevNodes.filter((node) => node.id !== id.toString())
-    );
-  };
   const [edges, setEdges] = useEdgesState([]);
-  const [loading, setLoading] = useState(true); // ✅ Added loading state
-
-  const params = useParams();
-  const treeId = params.treeId;
+  const [loading, setLoading] = useState(true);
+  const { treeId } = useParams();
 
   useEffect(() => {
     fetchAndLayoutTree(treeId);
-  }, []);
+  }, [treeId]);
 
-  const fetchAndLayoutTree = async (treeId) => {
+  /**
+   * Fetches people and relationships, computes positions, snaps spouses,
+   * then clusters children under their parents.
+   */
+  async function fetchAndLayoutTree(id) {
     setLoading(true);
     toast.loading("Setting up the tree");
-    try {
-      const people = await getPeople(treeId); // Fetch people data from the API
-      const relationships = await getRelationships(treeId); // Fetch relationships from the API
 
-      const treeEntries = await Promise.all(
-        people.map(async (person) => ({
-          id: `${person.person_id}`,
-          name: `${person.person_firstname} ${person.person_lastname}`,
-          data: await transformPerson(person),
+    try {
+      // 1) Fetch data
+      const people = await getPeople(id);
+      const relationships = await getRelationships(id);
+
+      // 2) Build React Flow nodes
+      const entries = await Promise.all(
+        people.map(async p => ({
+          id: String(p.person_id),
+          data: await transformPerson(p),
         }))
       );
-
-      const tree = {};
-      treeEntries.forEach((entry) => {
-        tree[entry.id] = entry;
-      });
-
-      const reactFlowNodes = Object.values(tree).map((node) => ({
-        id: node.id,
+      const entryMap = Object.fromEntries(
+        entries.map(e => [e.id, e])
+      );
+      const rfNodes = entries.map(e => ({
+        id: e.id,
         type: "treeCard",
         data: {
-          ...node.data,
-          onDelete: handleDeleteNodeFromUI,
+          ...e.data,
+          onDelete: nid => setNodes(ns => ns.filter(n => n.id !== nid)),
         },
         position: { x: 0, y: 0 },
       }));
 
-      const relationshipEdges = generateEdges(relationships, tree);
-      const layoutedElements = getLayoutedElements(
-        reactFlowNodes,
-        relationshipEdges
+      // 3) Build edges (parents & spouses; skip siblings)
+      const rfEdges = relationships.flatMap(r => {
+        const { person_1, person_2, fk_type_id } = r;
+        if (fk_type_id === 2) return [];
+        if (!entryMap[person_1] || !entryMap[person_2]) return [];
+
+        let src = person_1, tgt = person_2;
+        // Swap direction for parent→child edges
+        if (fk_type_id === 4) [src, tgt] = [person_2, person_1];
+
+        return [{
+          id: `${fk_type_id}-${src}-${tgt}`,
+          source: String(src),
+          target: String(tgt),
+          type: "smoothstep",
+          style: { stroke: "#000", strokeWidth: 2 },
+          sourceHandle: fk_type_id === 3 ? "right" : "bottom",
+          targetHandle: fk_type_id === 3 ? "left"  : "top",
+        }];
+      });
+
+      // 4) Initial Dagre layout for parent→child edges
+      const laid = runDagre(rfNodes, rfEdges);
+
+      // 5) Spouse-snapping: keep each couple centered on their Dagre midpoint
+      const SPACING = NODE_W + 60;
+      const mapById = Object.fromEntries(
+        laid.map(n => [n.id, { ...n }])
       );
+      relationships
+        .filter(r => r.fk_type_id === 3)
+        .forEach(({ person_1, person_2 }) => {
+          const id1 = String(person_1);
+          const id2 = String(person_2);
+          const node1 = mapById[id1];
+          const node2 = mapById[id2];
+          if (!node1 || !node2) return;
 
-      setNodes(layoutedElements.nodes);
-      setEdges(layoutedElements.edges);
-      setLoading(false);
+          // Compute fixed midpoint from Dagre
+          const midX = (node1.position.x + node2.position.x) / 2;
+          const midY = (node1.position.y + node2.position.y) / 2;
+
+          // Place spouses symmetrically around that midpoint
+          node1.position.x = midX - SPACING / 2;
+          node2.position.x = midX + SPACING / 2;
+          node1.position.y = midY;
+          node2.position.y = midY;
+        });
+
+      // 6) Child-centering: fan out children under their parent couple
+      const CHILD_GAP = NODE_W;
+      // Build parent→children lookup
+      const childrenMap = {};
+      rfEdges
+        .filter(e => e.sourceHandle === "bottom")
+        .forEach(e => {
+          (childrenMap[e.source] ??= []).push(e.target);
+        });
+
+      // For every married couple, gather & spread kids
+      relationships
+        .filter(r => r.fk_type_id === 3)
+        .forEach(({ person_1, person_2 }) => {
+          const p1 = String(person_1);
+          const p2 = String(person_2);
+          const kids = Array.from(
+            new Set([...(childrenMap[p1] || []), ...(childrenMap[p2] || [])])
+          );
+          if (kids.length === 0) return;
+
+          const parent1 = mapById[p1];
+          const parent2 = mapById[p2];
+          if (!parent1 || !parent2) return;
+
+          // Midpoint under the couple
+          const midX = (parent1.position.x + parent2.position.x) / 2;
+          // Total span and start position
+          const total = (kids.length - 1) * CHILD_GAP;
+          const start = midX - total / 2;
+
+          // Assign each child its own X
+          kids.forEach((kidId, i) => {
+            const child = mapById[kidId];
+            if (!child) return;
+            child.position.x = start + i * CHILD_GAP;
+            // Y remains as set by Dagre (or spouse snap)
+          });
+        });
+
+      // 7) Commit final layout
+      setNodes(Object.values(mapById));
+      setEdges(rfEdges);
     } catch (error) {
-      console.error("Error fetching and laying out the tree:", error);
+      console.error(error);
+    } finally {
+      toast.dismiss();
+      setLoading(false);
     }
-    toast.dismiss();
-  };
-
-  const generateEdges = (relationships, tree) => {
-    const edges = [];
-
-    relationships.forEach((relationship) => {
-      let { person_1, person_2, fk_type_id } = relationship;
-
-      // Skip siblings entirely so no edge is created
-      if (fk_type_id === 2) {
-        return;
-      }
-
-      // Skip if people not found in tree
-      if (!tree[person_1] || !tree[person_2]) return;
-
-      // Relationship direction logic
-      if (fk_type_id === 1) {
-        // person_1 is child, so child -> parent
-        [person_1, person_2] = [person_1, person_2]; // no swap needed, this line optional
-      } else if (fk_type_id === 4) {
-        // person_1 is parent, so child <- parent
-        [person_1, person_2] = [person_2, person_1]; // swap to make parent -> child
-      }
-
-      const edge = {
-        id: `${fk_type_id}-${person_1}-${person_2}`,
-        source: `${person_1}`,
-        target: `${person_2}`,
-        type: "smoothstep",
-        style: { strokeWidth: 2, stroke: "#000" },
-      };
-
-      if (fk_type_id === 3) {
-        edge.sourceHandle = "right";
-        edge.targetHandle = "left";
-      } else {
-        edge.sourceHandle = "bottom";
-        edge.targetHandle = "top";
-      }
-
-      edges.push(edge);
-    });
-
-    return edges;
-  };
+  }
 
   const nodeTypes = useMemo(() => ({ treeCard: TreeNode }), []);
 
@@ -170,9 +216,7 @@ function FlowSpace() {
         fitView
         style={{ backgroundColor: "#F7F9FB" }}
       >
-        {loading ? ( // ✅ Show nothing while loading
-          <></>
-        ) : nodes.length === 0 ? ( // ✅ Show modal only when loading is finished and no nodes exist
+        {loading ? null : nodes.length === 0 ? (
           <GetStartedModal treeId={treeId} />
         ) : (
           <>
@@ -185,5 +229,3 @@ function FlowSpace() {
     </div>
   );
 }
-
-export default FlowSpace;
