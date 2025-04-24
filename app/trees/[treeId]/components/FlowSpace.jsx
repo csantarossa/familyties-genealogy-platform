@@ -79,22 +79,20 @@ export default function FlowSpace() {
   async function fetchAndLayoutTree(id) {
     setLoading(true);
     toast.loading("Setting up the tree");
-
+  
     try {
       // 1) Fetch data
       const people = await getPeople(id);
       const relationships = await getRelationships(id);
-
-      // 2) Build React Flow nodes
+  
+      // 2) Build nodes
       const entries = await Promise.all(
         people.map(async p => ({
           id: String(p.person_id),
           data: await transformPerson(p),
         }))
       );
-      const entryMap = Object.fromEntries(
-        entries.map(e => [e.id, e])
-      );
+      const entryMap = Object.fromEntries(entries.map(e => [e.id, e]));
       const rfNodes = entries.map(e => ({
         id: e.id,
         type: "treeCard",
@@ -104,17 +102,15 @@ export default function FlowSpace() {
         },
         position: { x: 0, y: 0 },
       }));
-
-      // 3) Build edges (parents & spouses; skip siblings)
+  
+      // 3) Build edges
       const rfEdges = relationships.flatMap(r => {
         const { person_1, person_2, fk_type_id } = r;
-        if (fk_type_id === 2) return [];
-        if (!entryMap[person_1] || !entryMap[person_2]) return [];
-
+        if (fk_type_id === 2 || !entryMap[person_1] || !entryMap[person_2]) return [];
+  
         let src = person_1, tgt = person_2;
-        // Swap direction for parent→child edges
         if (fk_type_id === 4) [src, tgt] = [person_2, person_1];
-
+  
         return [{
           id: `${fk_type_id}-${src}-${tgt}`,
           source: String(src),
@@ -125,15 +121,13 @@ export default function FlowSpace() {
           targetHandle: fk_type_id === 3 ? "left"  : "top",
         }];
       });
-
-      // 4) Initial Dagre layout for parent→child edges
+  
+      // 4) Layout parent-child edges with Dagre
       const laid = runDagre(rfNodes, rfEdges);
-
-      // 5) Spouse-snapping: keep each couple centered on their Dagre midpoint
+      const mapById = Object.fromEntries(laid.map(n => [n.id, { ...n }]));
+  
+      // 5) Snap spouses horizontally
       const SPACING = NODE_W + 60;
-      const mapById = Object.fromEntries(
-        laid.map(n => [n.id, { ...n }])
-      );
       relationships
         .filter(r => r.fk_type_id === 3)
         .forEach(({ person_1, person_2 }) => {
@@ -142,58 +136,60 @@ export default function FlowSpace() {
           const node1 = mapById[id1];
           const node2 = mapById[id2];
           if (!node1 || !node2) return;
-
-          // Compute fixed midpoint from Dagre
+  
           const midX = (node1.position.x + node2.position.x) / 2;
           const midY = (node1.position.y + node2.position.y) / 2;
-
-          // Place spouses symmetrically around that midpoint
+  
           node1.position.x = midX - SPACING / 2;
           node2.position.x = midX + SPACING / 2;
           node1.position.y = midY;
           node2.position.y = midY;
         });
-
-      // 6) Child-centering: fan out children under their parent couple
-      const CHILD_GAP = NODE_W;
-      // Build parent→children lookup
-      const childrenMap = {};
+  
+      // 6) Sibling layout with spouse-aware block spacing
+      const parentToChildren = {};
       rfEdges
         .filter(e => e.sourceHandle === "bottom")
         .forEach(e => {
-          (childrenMap[e.source] ??= []).push(e.target);
+          (parentToChildren[e.source] ??= []).push(e.target);
         });
-
-      // For every married couple, gather & spread kids
-      relationships
-        .filter(r => r.fk_type_id === 3)
-        .forEach(({ person_1, person_2 }) => {
-          const p1 = String(person_1);
-          const p2 = String(person_2);
-          const kids = Array.from(
-            new Set([...(childrenMap[p1] || []), ...(childrenMap[p2] || [])])
-          );
-          if (kids.length === 0) return;
-
-          const parent1 = mapById[p1];
-          const parent2 = mapById[p2];
-          if (!parent1 || !parent2) return;
-
-          // Midpoint under the couple
-          const midX = (parent1.position.x + parent2.position.x) / 2;
-          // Total span and start position
-          const total = (kids.length - 1) * CHILD_GAP;
-          const start = midX - total / 2;
-
-          // Assign each child its own X
-          kids.forEach((kidId, i) => {
-            const child = mapById[kidId];
-            if (!child) return;
-            child.position.x = start + i * CHILD_GAP;
-            // Y remains as set by Dagre (or spouse snap)
+  
+      const getSpouse = (id) => {
+        const rel = relationships.find(
+          r => r.fk_type_id === 3 && (r.person_1 == id || r.person_2 == id)
+        );
+        if (!rel) return null;
+        return String(rel.person_1 == id ? rel.person_2 : rel.person_1);
+      };
+  
+      Object.entries(parentToChildren).forEach(([parentId, children]) => {
+        const siblingIds = Array.from(new Set(children));
+        if (siblingIds.length === 0) return;
+  
+        // Create horizontal "blocks" of person + optional spouse
+        const blocks = siblingIds.map((id) => {
+          const person = mapById[id];
+          const spouseId = getSpouse(id);
+          const spouse = mapById[spouseId];
+          return [person, spouse].filter(Boolean);
+        });
+  
+        const blockWidths = blocks.map(b => b.length * NODE_W + (b.length - 1) * 60);
+        const totalWidth = blockWidths.reduce((a, b) => a + b, 0) + (blocks.length - 1) * 60;
+  
+        const parentNode = mapById[parentId];
+        if (!parentNode) return;
+  
+        let cursorX = parentNode.position.x - totalWidth / 2;
+  
+        blocks.forEach((block, i) => {
+          block.forEach((node, j) => {
+            node.position.x = cursorX + j * (NODE_W + 60);
           });
+          cursorX += blockWidths[i] + 60;
         });
-
+      });
+  
       // 7) Commit final layout
       setNodes(Object.values(mapById));
       setEdges(rfEdges);
@@ -204,6 +200,7 @@ export default function FlowSpace() {
       setLoading(false);
     }
   }
+  
 
   const nodeTypes = useMemo(() => ({ treeCard: TreeNode }), []);
 
