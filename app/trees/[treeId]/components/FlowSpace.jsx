@@ -104,7 +104,7 @@ export default function FlowSpace() {
         node2.position.y = sharedY;
       });
 
-      // Step 3: Spread children evenly below each couple
+      // Step 3: Spread children centered under couples
       const childrenMap = {};
       rfEdges.filter(e => e.sourceHandle === "bottom").forEach(e => {
         (childrenMap[e.source] ??= []).push(e.target);
@@ -114,8 +114,7 @@ export default function FlowSpace() {
         const p1 = String(person_1);
         const p2 = String(person_2);
         const kids = Array.from(new Set([...(childrenMap[p1] || []), ...(childrenMap[p2] || [])]));
-        if (kids.length === 0) return;
-
+        
         const parent1 = mapById[p1];
         const parent2 = mapById[p2];
         if (!parent1 || !parent2) return;
@@ -123,14 +122,40 @@ export default function FlowSpace() {
         const midX = (parent1.position.x + parent2.position.x) / 2;
         const y = Math.max(parent1.position.y, parent2.position.y) + NODE_H + 60;
 
-        const blocks = kids.map((id) => {
+        if (kids.length === 0) return;
+
+        // Special case: center single child under both parents
+        if (kids.length === 1) {
+          const child = mapById[kids[0]];
+          if (child) {
+            child.position.x = midX;
+            child.position.y = y;
+          }
+          return;
+        }
+
+        const blocks = [];
+        const placed = new Set();
+
+        kids.forEach((id) => {
+          if (placed.has(id)) return;
           const person = mapById[id];
+          if (!person) return;
+
           const spouseRel = relationships.find(
             r => r.fk_type_id === 3 && (r.person_1 == id || r.person_2 == id)
           );
           const spouseId = spouseRel ? String(spouseRel.person_1 == id ? spouseRel.person_2 : spouseRel.person_1) : null;
           const spouse = spouseId ? mapById[spouseId] : null;
-          return spouse ? [person, spouse] : [person];
+
+          if (spouse && !placed.has(spouseId)) {
+            blocks.push([person, spouse]);
+            placed.add(id);
+            placed.add(spouseId);
+          } else {
+            blocks.push([person]);
+            placed.add(id);
+          }
         });
 
         const blockWidths = blocks.map(b => b.length * NODE_W + (b.length - 1) * 60);
@@ -138,13 +163,15 @@ export default function FlowSpace() {
 
         let cursorX = midX - totalWidth / 2;
         blocks.forEach((block, i) => {
+          const innerSpacing = (NODE_W + 60);
           block.forEach((node, j) => {
-            node.position.x = cursorX + j * (NODE_W + 60);
+            node.position.x = cursorX + j * innerSpacing;
             node.position.y = y;
           });
-          cursorX += blockWidths[i] + 60;
+          cursorX += blockWidths[i] + 60; // space between blocks
         });
       });
+
 
       setNodes(Object.values(mapById));
       setEdges(rfEdges);
