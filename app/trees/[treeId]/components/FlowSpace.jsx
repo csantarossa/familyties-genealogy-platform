@@ -20,17 +20,13 @@ import { transformPerson } from "@/app/utils/transformPerson";
 const NODE_W = 310;
 const NODE_H = 210;
 
-// --- Dagre layout for parent-child hierarchy ---
 function runDagre(nodes, edges) {
   const g = new dagre.graphlib.Graph().setDefaultEdgeLabel(() => ({}));
   const verticalEdges = edges.filter(e => e.sourceHandle === "bottom");
-
   g.setGraph({ rankdir: "TB", align: "UL", nodesep: 60, ranksep: 100, marginx: 20, marginy: 20 });
   nodes.forEach(node => g.setNode(node.id, { width: NODE_W, height: NODE_H }));
   verticalEdges.forEach(edge => g.setEdge(edge.source, edge.target));
-
   dagre.layout(g);
-
   return nodes.map(node => {
     const { x, y } = g.node(node.id);
     return { ...node, position: { x: x - NODE_W / 2, y: y - NODE_H / 2 } };
@@ -54,28 +50,21 @@ export default function FlowSpace() {
     try {
       const people = await getPeople(id);
       const relationships = await getRelationships(id);
-
-      const entries = await Promise.all(people.map(async p => ({
-        id: String(p.person_id),
-        data: await transformPerson(p),
-      })));
+      const entries = await Promise.all(
+        people.map(async p => ({ id: String(p.person_id), data: await transformPerson(p) }))
+      );
 
       const entryMap = Object.fromEntries(entries.map(e => [e.id, e]));
-
       const rfNodes = entries.map(e => ({
         id: e.id,
         type: "treeCard",
-        data: {
-          ...e.data,
-          onDelete: nid => setNodes(ns => ns.filter(n => n.id !== nid)),
-        },
+        data: { ...e.data, onDelete: nid => setNodes(ns => ns.filter(n => n.id !== nid)) },
         position: { x: 0, y: 0 },
       }));
 
       const rfEdges = relationships.flatMap(r => {
         const { person_1, person_2, fk_type_id } = r;
         if (fk_type_id === 2 || !entryMap[person_1] || !entryMap[person_2]) return [];
-
         let src = person_1, tgt = person_2;
         if (fk_type_id === 4) [src, tgt] = [person_2, person_1];
 
@@ -94,10 +83,11 @@ export default function FlowSpace() {
         }];
       });
 
+      // Step 1: Layout with Dagre based on parent-child connections
       const laid = runDagre(rfNodes, rfEdges);
       const mapById = Object.fromEntries(laid.map(n => [n.id, { ...n }]));
 
-      // --- Snap all spouses side-by-side ---
+      // Step 2: Position spouses side-by-side
       const SPACING = NODE_W + 60;
       relationships.filter(r => r.fk_type_id === 3).forEach(({ person_1, person_2 }) => {
         const id1 = String(person_1);
@@ -108,71 +98,51 @@ export default function FlowSpace() {
 
         const midX = (node1.position.x + node2.position.x) / 2;
         const sharedY = Math.min(node1.position.y, node2.position.y);
-
         node1.position.x = midX - SPACING / 2;
         node2.position.x = midX + SPACING / 2;
         node1.position.y = sharedY;
         node2.position.y = sharedY;
       });
 
-      // --- Space children under parents as blocks ---
+      // Step 3: Spread children evenly below each couple
       const childrenMap = {};
       rfEdges.filter(e => e.sourceHandle === "bottom").forEach(e => {
         (childrenMap[e.source] ??= []).push(e.target);
       });
 
-      Object.entries(childrenMap).forEach(([parentId, children]) => {
-        const siblingSet = new Set(children);
+      relationships.filter(r => r.fk_type_id === 3).forEach(({ person_1, person_2 }) => {
+        const p1 = String(person_1);
+        const p2 = String(person_2);
+        const kids = Array.from(new Set([...(childrenMap[p1] || []), ...(childrenMap[p2] || [])]));
+        if (kids.length === 0) return;
 
-        // Also include their spouses
-        children.forEach(childId => {
-          const spouse = relationships.find(r => r.fk_type_id === 3 && (r.person_1 == childId || r.person_2 == childId));
-          if (spouse) {
-            const other = spouse.person_1 == childId ? spouse.person_2 : spouse.person_1;
-            siblingSet.add(String(other));
-          }
-        });
+        const parent1 = mapById[p1];
+        const parent2 = mapById[p2];
+        if (!parent1 || !parent2) return;
 
-        const siblingIds = Array.from(siblingSet);
-        const blocks = [];
-        const placed = new Set();
+        const midX = (parent1.position.x + parent2.position.x) / 2;
+        const y = Math.max(parent1.position.y, parent2.position.y) + NODE_H + 60;
 
-        siblingIds.forEach(id => {
-          if (placed.has(id)) return;
+        const blocks = kids.map((id) => {
           const person = mapById[id];
-          if (!person) return;
-
-          const spouseRel = relationships.find(r => r.fk_type_id === 3 && (r.person_1 == id || r.person_2 == id));
-          if (spouseRel) {
-            const spouseId = String(spouseRel.person_1 == id ? spouseRel.person_2 : spouseRel.person_1);
-            const spouse = mapById[spouseId];
-            if (spouse && !placed.has(spouseId)) {
-              blocks.push([person, spouse]);
-              placed.add(id);
-              placed.add(spouseId);
-              return;
-            }
-          }
-
-          blocks.push([person]);
-          placed.add(id);
+          const spouseRel = relationships.find(
+            r => r.fk_type_id === 3 && (r.person_1 == id || r.person_2 == id)
+          );
+          const spouseId = spouseRel ? String(spouseRel.person_1 == id ? spouseRel.person_2 : spouseRel.person_1) : null;
+          const spouse = spouseId ? mapById[spouseId] : null;
+          return spouse ? [person, spouse] : [person];
         });
 
         const blockWidths = blocks.map(b => b.length * NODE_W + (b.length - 1) * 60);
         const totalWidth = blockWidths.reduce((a, b) => a + b, 0) + (blocks.length - 1) * 60;
 
-        const parentNode = mapById[parentId];
-        if (!parentNode) return;
-
-        let startX = parentNode.position.x - totalWidth / 2;
-        const y = parentNode.position.y + NODE_H + 60;
-
-        blocks.forEach(block => {
-          block.forEach((node, i) => {
-            node.position.x = startX + i * (NODE_W + 60);
+        let cursorX = midX - totalWidth / 2;
+        blocks.forEach((block, i) => {
+          block.forEach((node, j) => {
+            node.position.x = cursorX + j * (NODE_W + 60);
             node.position.y = y;
           });
-          startX += block.length * NODE_W + (block.length - 1) * 60 + 60;
+          cursorX += blockWidths[i] + 60;
         });
       });
 
@@ -187,6 +157,7 @@ export default function FlowSpace() {
   }
 
   const nodeTypes = useMemo(() => ({ treeCard: TreeNode }), []);
+
   return (
     <div className="w-screen h-screen bg-zinc-200/50">
       <ReactFlow
