@@ -20,6 +20,14 @@ import { format } from "date-fns";
 import DatePickerInput from "./DatePickerInput";
 import toast from "react-hot-toast";
 import BackButton from "./BackButton";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const GetStartedModal = ({ treeId }) => {
   const [dobDate, setDobDate] = useState(null);
@@ -33,6 +41,7 @@ const GetStartedModal = ({ treeId }) => {
     firstname: "",
     middlename: "",
     lastname: "",
+    gender: null,
     dob: null,
     dod: null,
     img: null,
@@ -191,6 +200,27 @@ const GetStartedModal = ({ treeId }) => {
                     setNewPerson({ ...newPerson, lastname: e.target.value })
                   }
                 />
+              </div>
+              <div className="grid w-full items-center gap-1.5">
+                <Label htmlFor="gender" className="text-sm font-medium">
+                  Gender
+                </Label>
+                <Select
+                  onValueChange={(value) =>
+                    setNewPerson({ ...newPerson, gender: value })
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select gender" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectItem value="Male">Male</SelectItem>
+                      <SelectItem value="Female">Female</SelectItem>
+                      <SelectItem value="Other">Other</SelectItem>
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
               </div>
               <div className="flex gap-4 w-full">
                 <div className="grid w-full items-center gap-1.5">
