@@ -10,6 +10,7 @@ import {
 import dagre from "@dagrejs/dagre";
 import "@xyflow/react/dist/style.css";
 import TreeNode from "./TreeNode";
+import SpouseContainerNode from "./SpouseContainerNode";
 import { getPeople, getRelationships } from "@/app/actions";
 import { useParams } from "next/navigation";
 import BackButton from "./BackButton";
@@ -19,18 +20,383 @@ import { transformPerson } from "@/app/utils/transformPerson";
 
 const NODE_W = 310;
 const NODE_H = 210;
+const SPOUSE_CONTAINER_W = NODE_W * 2 + 80; // Width for two nodes + spacing
+const HORIZONTAL_SPACING = 60; // Space between nodes horizontally
+const VERTICAL_SPACING = 100; // Space between generations
 
-function runDagre(nodes, edges) {
-  const g = new dagre.graphlib.Graph().setDefaultEdgeLabel(() => ({}));
-  const verticalEdges = edges.filter(e => e.sourceHandle === "bottom");
-  g.setGraph({ rankdir: "TB", align: "UL", nodesep: 60, ranksep: 100, marginx: 20, marginy: 20 });
-  nodes.forEach(node => g.setNode(node.id, { width: NODE_W, height: NODE_H }));
-  verticalEdges.forEach(edge => g.setEdge(edge.source, edge.target));
-  dagre.layout(g);
-  return nodes.map(node => {
-    const { x, y } = g.node(node.id);
-    return { ...node, position: { x: x - NODE_W / 2, y: y - NODE_H / 2 } };
+// Hybrid layout function combining dagre with spouse containers
+function hybridLayout(nodes, relationships) {
+  // Create maps for easy data access
+  const nodeMap = Object.fromEntries(
+    nodes.map((node) => [node.id, { ...node }])
+  );
+
+  // Build relationship maps
+  const spouseMap = {};
+
+  // Process spouse relationships
+  relationships.forEach((rel) => {
+    if (rel.fk_type_id === 3) {
+      const id1 = String(rel.person_1);
+      const id2 = String(rel.person_2);
+
+      if (!nodeMap[id1] || !nodeMap[id2]) return;
+
+      spouseMap[id1] = id2;
+      spouseMap[id2] = id1;
+    }
   });
+
+  // Create spouse containers and track contained nodes
+  const spouseContainers = [];
+  const containedNodes = new Set();
+
+  // Create containers for each couple
+  Object.entries(spouseMap).forEach(([id1, id2]) => {
+    // Only process each couple once (by lower ID to avoid duplicates)
+    if (id1 < id2 && nodeMap[id1] && nodeMap[id2]) {
+      const containerId = `spouse-container-${id1}-${id2}`;
+
+      spouseContainers.push({
+        id: containerId,
+        type: "spouseContainer",
+        data: {
+          person: nodeMap[id1].data,
+          spouse: nodeMap[id2].data,
+        },
+        position: { x: 0, y: 0 },
+        // Store the IDs of the contained nodes for reference
+        containedIds: [id1, id2],
+      });
+
+      // Mark these nodes as contained
+      containedNodes.add(id1);
+      containedNodes.add(id2);
+    }
+  });
+
+  // Create a map from original IDs to container IDs
+  const nodeToContainerMap = {};
+  spouseContainers.forEach((container) => {
+    container.containedIds.forEach((id) => {
+      nodeToContainerMap[id] = container.id;
+    });
+  });
+
+  // Create a new modified list of nodes, including containers and non-contained individuals
+  const modifiedNodes = [
+    ...spouseContainers,
+    ...nodes.filter((node) => !containedNodes.has(node.id)),
+  ];
+
+  // Create transformed relationships for dagre layout
+  const transformedRelationships = relationships.filter((rel) => {
+    // Skip spouse relationships as they're now represented by containers
+    if (rel.fk_type_id === 3) return false;
+
+    // Keep parent-child relationships
+    if (rel.fk_type_id === 4) {
+      const childId = String(rel.person_1);
+      const parentId = String(rel.person_2);
+
+      // Skip if either node doesn't exist in our map
+      if (!nodeMap[childId] || !nodeMap[parentId]) return false;
+
+      return true;
+    }
+
+    return rel.fk_type_id !== 2; // Skip type 2 relationships
+  });
+
+  // Create edges for dagre layout
+  const dagreEdges = transformedRelationships.flatMap((rel) => {
+    if (rel.fk_type_id === 4) {
+      const childId = String(rel.person_1);
+      const parentId = String(rel.person_2);
+
+      // Get effective IDs (using containers where relevant)
+      const effectiveChildId = nodeToContainerMap[childId] || childId;
+      const effectiveParentId = nodeToContainerMap[parentId] || parentId;
+
+      // Skip if both nodes are in the same container
+      if (effectiveChildId === effectiveParentId) return [];
+
+      return [
+        {
+          id: `${rel.fk_type_id}-${effectiveParentId}-${effectiveChildId}`,
+          source: effectiveParentId,
+          target: effectiveChildId,
+          sourceHandle: "bottom",
+          targetHandle: "top",
+        },
+      ];
+    }
+
+    return [];
+  });
+
+  // Run dagre layout on the modified nodes
+  return runDagre(modifiedNodes, dagreEdges, nodeToContainerMap);
+}
+
+// Modified dagre layout function to handle spouse containers
+function runDagre(nodes, edges, nodeToContainerMap) {
+  const g = new dagre.graphlib.Graph().setDefaultEdgeLabel(() => ({}));
+
+  // Configure dagre with horizontal and vertical spacing
+  g.setGraph({
+    rankdir: "TB",
+    align: "UL",
+    nodesep: HORIZONTAL_SPACING * 1.5,
+    ranksep: VERTICAL_SPACING * 1.5,
+    marginx: 30,
+    marginy: 30,
+  });
+
+  // Add nodes to dagre graph with proper dimensions
+  nodes.forEach((node) => {
+    const width = node.type === "spouseContainer" ? SPOUSE_CONTAINER_W : NODE_W;
+    const height = NODE_H;
+    g.setNode(node.id, { width, height });
+  });
+
+  // Add edges to dagre graph
+  edges.forEach((edge) => g.setEdge(edge.source, edge.target));
+
+  // Run the layout
+  dagre.layout(g);
+
+  // Extract positions from dagre
+  const positionedNodes = nodes.map((node) => {
+    const { x, y } = g.node(node.id);
+    const width = node.type === "spouseContainer" ? SPOUSE_CONTAINER_W : NODE_W;
+    return {
+      ...node,
+      position: {
+        x: x - width / 2,
+        y: y - NODE_H / 2,
+      },
+    };
+  });
+
+  // Create object map of positioned nodes for reference
+  const positionedNodeMap = Object.fromEntries(
+    positionedNodes.map((node) => [node.id, node])
+  );
+
+  // Refine positioning for siblings (children of the same parent)
+  const childrenByParent = {};
+
+  edges.forEach((edge) => {
+    const parentId = edge.source;
+    const childId = edge.target;
+
+    if (!childrenByParent[parentId]) {
+      childrenByParent[parentId] = [];
+    }
+
+    childrenByParent[parentId].push(childId);
+  });
+
+  // Center children under their parents
+  Object.entries(childrenByParent).forEach(([parentId, childIds]) => {
+    if (childIds.length > 1) {
+      const parent = positionedNodeMap[parentId];
+      if (!parent) return;
+
+      const parentWidth =
+        parent.type === "spouseContainer" ? SPOUSE_CONTAINER_W : NODE_W;
+      const parentCenterX = parent.position.x + parentWidth / 2;
+
+      // Calculate children's total width
+      let totalChildWidth = 0;
+      let spacingNeeded = 0;
+
+      childIds.forEach((childId) => {
+        const child = positionedNodeMap[childId];
+        if (!child) return;
+
+        const childWidth =
+          child.type === "spouseContainer" ? SPOUSE_CONTAINER_W : NODE_W;
+        totalChildWidth += childWidth;
+        spacingNeeded += 1;
+      });
+
+      // Add spacing between children
+      totalChildWidth += (spacingNeeded - 1) * HORIZONTAL_SPACING;
+
+      // Calculate starting position to center the children under the parent
+      let startX = parentCenterX - totalChildWidth / 2;
+
+      // Position children
+      childIds.forEach((childId) => {
+        const child = positionedNodeMap[childId];
+        if (!child) return;
+
+        const childWidth =
+          child.type === "spouseContainer" ? SPOUSE_CONTAINER_W : NODE_W;
+
+        // Center this child
+        child.position.x = startX;
+
+        // Move to next position
+        startX += childWidth + HORIZONTAL_SPACING;
+      });
+    }
+  });
+
+  // Create a more accurate node-to-position map after adjustments
+  const adjustedNodeMap = Object.fromEntries(
+    positionedNodes.map((node) => [node.id, { ...node }])
+  );
+
+  // Final improvement: Handle nodes with multiple parents by centering them
+  const parentsByChild = {};
+
+  edges.forEach((edge) => {
+    const parentId = edge.source;
+    const childId = edge.target;
+
+    if (!parentsByChild[childId]) {
+      parentsByChild[childId] = [];
+    }
+
+    parentsByChild[childId].push(parentId);
+  });
+
+  // Center children between multiple parents
+  Object.entries(parentsByChild).forEach(([childId, parentIds]) => {
+    if (parentIds.length > 1) {
+      const child = adjustedNodeMap[childId];
+      if (!child) return;
+
+      let totalParentCenterX = 0;
+
+      parentIds.forEach((parentId) => {
+        const parent = adjustedNodeMap[parentId];
+        if (!parent) return;
+
+        const parentWidth =
+          parent.type === "spouseContainer" ? SPOUSE_CONTAINER_W : NODE_W;
+        totalParentCenterX += parent.position.x + parentWidth / 2;
+      });
+
+      const avgParentCenterX = totalParentCenterX / parentIds.length;
+      const childWidth =
+        child.type === "spouseContainer" ? SPOUSE_CONTAINER_W : NODE_W;
+
+      // Center child between parents
+      child.position.x = avgParentCenterX - childWidth / 2;
+    }
+  });
+
+  return Object.values(adjustedNodeMap);
+}
+
+function createEdges(relationships, nodeMap, nodeToContainerMap) {
+  // Use a Set to track unique edge combinations and avoid duplicates
+  const uniqueEdgeKeys = new Set();
+  const edges = [];
+
+  relationships.forEach((r) => {
+    const { person_1, person_2, fk_type_id } = r;
+
+    // Skip non-existent nodes or non-relevant relationships
+    if (
+      fk_type_id === 2 || // Skip this relationship type
+      !nodeMap[String(person_1)] ||
+      !nodeMap[String(person_2)]
+    ) {
+      return;
+    }
+
+    // For parent-child relationship: parent (source) -> child (target)
+    // For parent-child, original data has person_2 as parent, person_1 as child
+    let src = person_1;
+    let tgt = person_2;
+
+    // For parent-child relationships, the parent is person_2 and should be the source
+    if (fk_type_id === 4) {
+      [src, tgt] = [person_2, person_1];
+    }
+
+    // Convert to string IDs
+    src = String(src);
+    tgt = String(tgt);
+
+    // Get the original IDs (needed for identifying specific handles)
+    const originalSrc = src;
+    const originalTgt = tgt;
+
+    // If either node is in a spouse container, use the container ID instead
+    const effectiveSrc = nodeToContainerMap[src] || src;
+    const effectiveTgt = nodeToContainerMap[tgt] || tgt;
+
+    // Skip if both nodes are in the same container (internal relationship)
+    if (effectiveSrc === effectiveTgt) {
+      return;
+    }
+
+    // Skip spouse relationships if either person is in a container
+    // (as the container itself visually represents the spouse relationship)
+    if (
+      fk_type_id === 3 &&
+      (nodeToContainerMap[src] || nodeToContainerMap[tgt])
+    ) {
+      return;
+    }
+
+    // Create a unique key for this edge to prevent duplicates
+    // Using both node IDs and relationship type, sorted to ensure consistency
+    const edgeKey = `${fk_type_id}-${[effectiveSrc, effectiveTgt]
+      .sort()
+      .join("-")}`;
+
+    // If we've already created this edge, skip it
+    if (uniqueEdgeKeys.has(edgeKey)) {
+      return;
+    }
+
+    // Track this unique edge
+    uniqueEdgeKeys.add(edgeKey);
+
+    // Generate a unique ID that includes the relationship ID to guarantee uniqueness
+    const edgeId = `${fk_type_id}-${effectiveSrc}-${effectiveTgt}-${
+      r.relationship_id || Math.random().toString(36).substr(2, 9)
+    }`;
+
+    // Determine source and target handles based on relationship type and container status
+    let sourceHandle = fk_type_id === 3 ? "right" : "bottom";
+    let targetHandle = fk_type_id === 3 ? "left" : "top";
+
+    // For parent-child relationships where the source is a spouse container,
+    // use the specific handle for the parent inside the container
+    if (fk_type_id === 4 && effectiveSrc !== originalSrc) {
+      sourceHandle = `bottom`; // Use the container's bottom handle
+    }
+
+    // For parent-child relationships where the target is a spouse container,
+    // use the specific handle for the child inside the container
+    if (fk_type_id === 4 && effectiveTgt !== originalTgt) {
+      targetHandle = `top-${originalTgt}`; // Use the specific person's top handle
+    }
+
+    edges.push({
+      id: edgeId,
+      source: effectiveSrc,
+      target: effectiveTgt,
+      type: "smoothstep",
+      style: {
+        stroke: "#000",
+        strokeWidth: 3,
+        strokeDasharray: fk_type_id === 3 ? "6 4" : undefined,
+      },
+      sourceHandle: sourceHandle,
+      targetHandle: targetHandle,
+    });
+  });
+
+  return edges;
 }
 
 export default function FlowSpace() {
@@ -50,130 +416,68 @@ export default function FlowSpace() {
     try {
       const people = await getPeople(id);
       const relationships = await getRelationships(id);
+
+      // Ensure each relationship has a unique identifier
+      const enhancedRelationships = relationships.map((rel, index) => ({
+        ...rel,
+        relationship_id: rel.relationship_id || `rel-${index}`,
+      }));
+
       const entries = await Promise.all(
-        people.map(async p => ({ id: String(p.person_id), data: await transformPerson(p) }))
+        people.map(async (p) => ({
+          id: String(p.person_id),
+          data: await transformPerson(p),
+        }))
       );
 
-      const entryMap = Object.fromEntries(entries.map(e => [e.id, e]));
-      const rfNodes = entries.map(e => ({
+      const entryMap = Object.fromEntries(entries.map((e) => [e.id, e]));
+      const rfNodes = entries.map((e) => ({
         id: e.id,
         type: "treeCard",
-        data: { ...e.data, onDelete: nid => setNodes(ns => ns.filter(n => n.id !== nid)) },
+        data: {
+          ...e.data,
+          onDelete: (nid) => setNodes((ns) => ns.filter((n) => n.id !== nid)),
+        },
         position: { x: 0, y: 0 },
       }));
 
-      const rfEdges = relationships.flatMap(r => {
-        const { person_1, person_2, fk_type_id } = r;
-        if (fk_type_id === 2 || !entryMap[person_1] || !entryMap[person_2]) return [];
-        let src = person_1, tgt = person_2;
-        if (fk_type_id === 4) [src, tgt] = [person_2, person_1];
+      // Create spouse map for tracking relationships
+      const spouseMap = {};
+      enhancedRelationships.forEach((r) => {
+        if (r.fk_type_id === 3) {
+          const id1 = String(r.person_1);
+          const id2 = String(r.person_2);
 
-        return [{
-          id: `${fk_type_id}-${src}-${tgt}`,
-          source: String(src),
-          target: String(tgt),
-          type: "smoothstep",
-          style: {
-            stroke: "#000",
-            strokeWidth: 2,
-            strokeDasharray: fk_type_id === 3 ? "6 4" : undefined,
-          },
-          sourceHandle: fk_type_id === 3 ? "right" : "bottom",
-          targetHandle: fk_type_id === 3 ? "left" : "top",
-        }];
-      });
-
-      // Step 1: Layout with Dagre based on parent-child connections
-      const laid = runDagre(rfNodes, rfEdges);
-      const mapById = Object.fromEntries(laid.map(n => [n.id, { ...n }]));
-
-      // Step 2: Position spouses side-by-side
-      const SPACING = NODE_W + 60;
-      relationships.filter(r => r.fk_type_id === 3).forEach(({ person_1, person_2 }) => {
-        const id1 = String(person_1);
-        const id2 = String(person_2);
-        const node1 = mapById[id1];
-        const node2 = mapById[id2];
-        if (!node1 || !node2) return;
-
-        const midX = (node1.position.x + node2.position.x) / 2;
-        const sharedY = Math.min(node1.position.y, node2.position.y);
-        node1.position.x = midX - SPACING / 2;
-        node2.position.x = midX + SPACING / 2;
-        node1.position.y = sharedY;
-        node2.position.y = sharedY;
-      });
-
-      // Step 3: Spread children centered under couples
-      const childrenMap = {};
-      rfEdges.filter(e => e.sourceHandle === "bottom").forEach(e => {
-        (childrenMap[e.source] ??= []).push(e.target);
-      });
-
-      relationships.filter(r => r.fk_type_id === 3).forEach(({ person_1, person_2 }) => {
-        const p1 = String(person_1);
-        const p2 = String(person_2);
-        const kids = Array.from(new Set([...(childrenMap[p1] || []), ...(childrenMap[p2] || [])]));
-        
-        const parent1 = mapById[p1];
-        const parent2 = mapById[p2];
-        if (!parent1 || !parent2) return;
-
-        const midX = (parent1.position.x + parent2.position.x) / 2;
-        const y = Math.max(parent1.position.y, parent2.position.y) + NODE_H + 60;
-
-        if (kids.length === 0) return;
-
-        // Special case: center single child under both parents
-        if (kids.length === 1) {
-          const child = mapById[kids[0]];
-          if (child) {
-            child.position.x = midX;
-            child.position.y = y;
+          if (entryMap[id1] && entryMap[id2]) {
+            spouseMap[id1] = id2;
+            spouseMap[id2] = id1;
           }
-          return;
         }
-
-        const blocks = [];
-        const placed = new Set();
-
-        kids.forEach((id) => {
-          if (placed.has(id)) return;
-          const person = mapById[id];
-          if (!person) return;
-
-          const spouseRel = relationships.find(
-            r => r.fk_type_id === 3 && (r.person_1 == id || r.person_2 == id)
-          );
-          const spouseId = spouseRel ? String(spouseRel.person_1 == id ? spouseRel.person_2 : spouseRel.person_1) : null;
-          const spouse = spouseId ? mapById[spouseId] : null;
-
-          if (spouse && !placed.has(spouseId)) {
-            blocks.push([person, spouse]);
-            placed.add(id);
-            placed.add(spouseId);
-          } else {
-            blocks.push([person]);
-            placed.add(id);
-          }
-        });
-
-        const blockWidths = blocks.map(b => b.length * NODE_W + (b.length - 1) * 60);
-        const totalWidth = blockWidths.reduce((a, b) => a + b, 0) + (blocks.length - 1) * 60;
-
-        let cursorX = midX - totalWidth / 2;
-        blocks.forEach((block, i) => {
-          const innerSpacing = (NODE_W + 60);
-          block.forEach((node, j) => {
-            node.position.x = cursorX + j * innerSpacing;
-            node.position.y = y;
-          });
-          cursorX += blockWidths[i] + 60; // space between blocks
-        });
       });
 
+      // Create node-to-container mapping
+      const nodeToContainerMap = {};
 
-      setNodes(Object.values(mapById));
+      // Apply hybrid layout with spouse containers and dagre positioning
+      const layoutedNodes = hybridLayout(rfNodes, enhancedRelationships);
+
+      // Update the nodeToContainerMap based on the layouted nodes
+      layoutedNodes.forEach((node) => {
+        if (node.type === "spouseContainer" && node.containedIds) {
+          node.containedIds.forEach((id) => {
+            nodeToContainerMap[id] = node.id;
+          });
+        }
+      });
+
+      // Create edges with the updated node structure
+      const rfEdges = createEdges(
+        enhancedRelationships,
+        entryMap,
+        nodeToContainerMap
+      );
+
+      setNodes(layoutedNodes);
       setEdges(rfEdges);
     } catch (error) {
       console.error(error);
@@ -183,7 +487,13 @@ export default function FlowSpace() {
     }
   }
 
-  const nodeTypes = useMemo(() => ({ treeCard: TreeNode }), []);
+  const nodeTypes = useMemo(
+    () => ({
+      treeCard: TreeNode,
+      spouseContainer: SpouseContainerNode,
+    }),
+    []
+  );
 
   return (
     <div className="w-screen h-screen bg-zinc-200/50">

@@ -95,20 +95,15 @@ export default function Home() {
                       {tree.tree_name}
                     </h1>
 
-                    {/* Allows you do delete any tree except #2 as this is my demo tree */}
-                    {tree.tree_id === 2 ? (
-                      <></>
-                    ) : (
-                      <Trash
-                        size={18}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          e.preventDefault();
-                          handleDeleteTree(tree);
-                        }}
-                        className="w-fit h-fit"
-                      />
-                    )}
+                    <Trash
+                      size={18}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        handleDeleteTree(tree);
+                      }}
+                      className="w-fit h-fit"
+                    />
                   </div>
 
                   <p className="text-sm text-gray-700 text-start">

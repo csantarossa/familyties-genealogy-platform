@@ -109,10 +109,26 @@ export async function getGallery(id) {
 }
 
 export async function createRelationship(person1Id, person2Id, typeId) {
+  const isChildRelation = Number(typeId) === 1;
+  const isParentRelation = Number(typeId) === 4;
+  let person1 = person1Id;
+  let person2 = person2Id;
+  let type = typeId;
+
+  if (isChildRelation) {
+    person1 = person1Id;
+    person2 = person2Id;
+    type = 4;
+  } else if (isParentRelation) {
+    person1 = person2Id;
+    person2 = person1Id;
+    type = 4;
+  }
+
   const sql = neon(process.env.DATABASE_URL);
   await sql`
     INSERT INTO relationships (person_1, person_2, fk_type_id)
-    VALUES (${person1Id}, ${person2Id}, ${typeId})
+    VALUES (${person1}, ${person2}, ${type})
   `;
 }
 

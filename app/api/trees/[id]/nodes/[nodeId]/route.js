@@ -97,16 +97,32 @@ export async function POST(req, context) {
     const newPersonId = result[0].person_id;
 
     if (body.relation && body.relationType) {
+      const isChildRelation = Number(body.relationType) === 1;
+      const isParentRelation = Number(body.relationType) === 4;
+      let person1 = body.relation;
+      let person2 = newPersonId;
+      let type;
+
+      // MAY BE ISSUES HERE SINCE I REVERSED THE ADD RELATION FORM
+      if (isChildRelation) {
+        person2 = body.relation;
+        person1 = newPersonId;
+        type = 4;
+      } else if (isParentRelation) {
+        person1 = newPersonId;
+        person2 = body.relation;
+      }
+
       await sql`
-        INSERT INTO relationships (
+      INSERT INTO relationships (
         person_1,
         person_2,
         fk_type_id
-        ) VALUES (
-        ${newPersonId},
-        ${body.relation},
-    ${body.relationType}
-    )
+      ) VALUES (
+        ${person1},
+        ${person2},
+        ${type || body.relationType}
+      )
     `;
     }
 

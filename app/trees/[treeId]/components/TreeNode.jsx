@@ -13,14 +13,12 @@ import { Handle, Position } from "@xyflow/react";
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import { SidePanelContext } from "../page";
-import { format } from "date-fns";
-import ConfirmModal from "./ConfirmModal";
-import { Trash } from "lucide-react";
 import { formatDisplayDate } from "@/app/utils/parseDate";
 
-const TreeNode = ({ data }) => {
+const TreeNode = ({ data, isInSpouseContainer = false }) => {
   const { treeId } = useParams();
   const [confirm, setConfirm] = useState(false);
+  const { id } = data;
   const [sidePanelContent, setSidePanelContent] = useContext(SidePanelContext);
 
   const openPanel = () => {
@@ -30,17 +28,93 @@ const TreeNode = ({ data }) => {
       treeId: treeId,
       ...data,
     });
-  };  
+  };
 
   return (
     <div className="nodrag">
-      <Handle type="target" position={Position.Left} id="left" />
-      <Handle type="target" position={Position.Top} id="top" />
-      <Handle type="source" position={Position.Bottom} id="bottom" />
-      <Handle type="source" position={Position.Right} id="right" />
+      {/* Standard handles that remain but will be visually hidden */}
+      <Handle
+        type="target"
+        position={Position.Top}
+        id="top"
+        className="!absolute !top-0 !left-1/2 !-translate-x-1/2 !w-32 opacity-0"
+      />
+      <Handle
+        type="target"
+        position={Position.Left}
+        id="left"
+        className="!absolute !left-0 !top-1/2 !-translate-y-1/2 !h-24 opacity-0"
+      />
+      <Handle
+        type="source"
+        position={Position.Right}
+        id="right"
+        className="!absolute !right-0 !top-1/2 !-translate-y-1/2 !h-24 opacity-0"
+      />
+
+      {/* Only show the bottom handle if not in a spouse container */}
+      {!isInSpouseContainer && (
+        <Handle
+          type="source"
+          position={Position.Bottom}
+          id="bottom"
+          className="!absolute !bottom-0 !left-1/2 !-translate-x-1/2 opacity-0"
+        />
+      )}
+
+      {/* This adds distributed connection points across the bottom */}
+      {!isInSpouseContainer && (
+        <>
+          <Handle
+            type="source"
+            position={Position.Bottom}
+            id={`bottom-left`}
+            className="!absolute !bottom-0 !left-1/4 !-translate-x-1/2 opacity-0"
+            style={{ background: "#000" }}
+          />
+          <Handle
+            type="source"
+            position={Position.Bottom}
+            id={`bottom-center`}
+            className="!absolute !bottom-0 !left-1/2 !-translate-x-1/2 opacity-0"
+            style={{ background: "#000" }}
+          />
+          <Handle
+            type="source"
+            position={Position.Bottom}
+            id={`bottom-right`}
+            className="!absolute !bottom-0 !left-3/4 !-translate-x-1/2 opacity-0"
+            style={{ background: "#000" }}
+          />
+        </>
+      )}
+
+      {/* This adds distributed connection points across the top */}
+      <Handle
+        type="target"
+        position={Position.Top}
+        id={`top-left`}
+        className="!absolute !top-0 !left-1/4 !-translate-x-1/2 opacity-0"
+        style={{ background: "#000" }}
+      />
+      <Handle
+        type="target"
+        position={Position.Top}
+        id={`top-center`}
+        className="!absolute !top-0 !left-1/2 !-translate-x-1/2 opacity-0"
+        style={{ background: "#000" }}
+      />
+      <Handle
+        type="target"
+        position={Position.Top}
+        id={`top-right`}
+        className="!absolute !top-0 !left-3/4 !-translate-x-1/2 opacity-0"
+        style={{ background: "#000" }}
+      />
+
       <Card
         onClick={openPanel}
-        className="w-fit flex flex-row justify-between items-center p-3 gap-4"
+        className="w-72 flex flex-row justify-between items-center p-3 gap-4"
       >
         {data.confidence && (
           <Badge
@@ -56,7 +130,7 @@ const TreeNode = ({ data }) => {
           </Badge>
         )}
         <div className="h-24 flex justify-center items-center">
-          {data.tags.length > 0 && (
+          {data.tags && data.tags.length > 0 && (
             <div className="flex items-center justify-end gap-2 h-4 absolute -top-3 -right-3 bg-white border py-3 px-2 rounded-lg">
               {data.tags.map((tag, index) => (
                 <p className="text-xs" key={index}>
@@ -74,7 +148,6 @@ const TreeNode = ({ data }) => {
               className="rounded-lg"
             />
           </div>
-
           <CardHeader className="h-fit flex-col flex justify-start relative">
             <div className="flex gap-1">
               <CardTitle className="text-sm font-medium capitalize">
@@ -92,7 +165,8 @@ const TreeNode = ({ data }) => {
                 {data.gender}
               </CardDescription>
               <CardDescription className="capitalize text-xs mt-1">
-                {formatDisplayDate(data.dob)} - {formatDisplayDate(data.dod, true)}
+                {formatDisplayDate(data.dob)} -{" "}
+                {formatDisplayDate(data.dod, true)}
               </CardDescription>
             </div>
           </CardHeader>
