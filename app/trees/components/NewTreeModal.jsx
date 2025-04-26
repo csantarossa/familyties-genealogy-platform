@@ -88,8 +88,8 @@ const NewTreeModal = ({ onTreeCreated }) => {
               </Label>
               <Input
                 type="text"
-                id="firstname"
-                placeholder="Firstname"
+                id="treeTitle"
+                placeholder="Tree Title"
                 onChange={(e) =>
                   setNewTree({ ...newTree, title: e.target.value })
                 }
@@ -102,8 +102,8 @@ const NewTreeModal = ({ onTreeCreated }) => {
               </Label>
               <Input
                 type="text"
-                id="lastname"
-                placeholder="Lastname"
+                id="treeDesc"
+                placeholder="Describe your Tree"
                 onChange={(e) =>
                   setNewTree({ ...newTree, desc: e.target.value })
                 }
