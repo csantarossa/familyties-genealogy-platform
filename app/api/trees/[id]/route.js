@@ -70,19 +70,18 @@ export async function POST(req, { params }) {
       gallery: null,
       additionalInfo: null,
       treeId: id,
-      confidence: "Unverified",
     };
 
     const result = await sql`
       INSERT INTO person (
         person_firstname, person_middlename, person_lastname, person_gender,
         person_dob, person_dod, person_tags, person_main_img, birth_town, birth_city, birth_state, birth_country,
-        gallery, additional_information, fk_tree_id, confidence
+        gallery, additional_information, fk_tree_id
       ) VALUES (
         ${newPerson.firstname}, ${newPerson.middlename}, ${newPerson.lastname}, ${newPerson.gender},
         ${newPerson.dob}, ${newPerson.dod}, ${newPerson.tags}, ${newPerson.img}, ${newPerson.birthTown}, ${newPerson.birthCity},
         ${newPerson.birthState}, ${newPerson.birthCountry}, ${newPerson.gallery},
-        ${newPerson.additionalInfo}, ${newPerson.treeId}, ${newPerson.confidence}
+        ${newPerson.additionalInfo}, ${newPerson.treeId}
       )
       RETURNING person_id
     `;
@@ -90,15 +89,30 @@ export async function POST(req, { params }) {
     const newPersonId = result[0].person_id;
 
     if (body.relation && body.relationType) {
+      const isChildRelation = Number(body.relationType) === 1;
+      const isParentRelation = Number(body.relationType) === 4;
+      let person1 = body.relation;
+      let person2 = newPersonId;
+      let type;
+
+      if (isChildRelation) {
+        person2 = body.relation;
+        person1 = newPersonId;
+        type = 4;
+      } else if (isParentRelation) {
+        person2 = newPersonId;
+        person1 = body.relation;
+      }
+
       await sql`
       INSERT INTO relationships (
         person_1,
         person_2,
         fk_type_id
       ) VALUES (
-        ${newPersonId},
-        ${body.relation},
-        ${body.relationType}
+        ${person1},
+        ${person2},
+        ${type || body.relationType}
       )
     `;
     }
