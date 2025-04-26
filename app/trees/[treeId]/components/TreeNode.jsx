@@ -10,7 +10,7 @@ import {
 import { Handle, Position } from "@xyflow/react";
 import Image from "next/image";
 
-import { ShieldCheck, ShieldQuestion } from "lucide-react";
+import { CircleCheck, CircleMinus } from "lucide-react";
 
 import { formatDisplayDate } from "@/app/utils/parseDate";
 import { PersonContext } from "@/app/contexts/PersonContext";
@@ -143,9 +143,9 @@ const TreeNode = ({ data, isInSpouseContainer = false }) => {
               <CardDescription className="capitalize text-xs mt-1 flex justify-between items-center">
                 {data.gender || <div></div>}
                 {data.confidence === "Unverified" ? (
-                  <ShieldQuestion color="orange" size={14} />
+                  <CircleMinus color="orange" size={14} />
                 ) : (
-                  <ShieldCheck color="green" size={14} />
+                  <CircleCheck color="green" size={14} />
                 )}
               </CardDescription>
               <CardDescription className="capitalize text-xs mt-1">
