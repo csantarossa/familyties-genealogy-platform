@@ -34,7 +34,19 @@ export default function RelationshipSelector({
         onValueChange={(v) => onChange({ ...value, otherPersonId: Number(v) })}
       >
         <SelectTrigger className="flex-1">
-          <SelectValue placeholder="Select person" />
+          {value.otherPersonId ? (
+            <div>
+              {
+                people.find(
+                  (p) =>
+                    p.person_id.toString() === value.otherPersonId?.toString()
+                )?.person_firstname
+              }
+              &apos;s
+            </div>
+          ) : (
+            <SelectValue placeholder="Select person" />
+          )}
         </SelectTrigger>
         <SelectContent>
           {people

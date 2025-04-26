@@ -160,12 +160,15 @@ const AddPersonModal = ({ trigger }) => {
     }
   };
 
+  const findRelation = nodes.find(
+    (n) => n.person_id.toString() === relation.relationId
+  )?.person_firstname;
+
   return (
     <div className="absolute bottom-16 right-16 z-50">
       <AlertDialog open={addPersonModal} onOpenChange={setAddPersonModal}>
         <AlertDialogTrigger>{trigger}</AlertDialogTrigger>
         <AlertDialogContent className="w-[430px] max-h-[90vh] flex flex-col overflow-hidden">
-
           <AlertDialogHeader className="flex h-full flex-row justify-between items-start">
             <AlertDialogTitle className="">Add a Person</AlertDialogTitle>
             <Progress className="h-2 w-[50%]" value={progress.progressBar} />
@@ -244,7 +247,6 @@ const AddPersonModal = ({ trigger }) => {
                 </Select>
               </div>
 
-
               <div className="flex gap-4">
                 <div className="grid w-full items-center gap-1.5">
                   <Label htmlFor="dob" className="text-sm font-medium">
@@ -314,7 +316,15 @@ const AddPersonModal = ({ trigger }) => {
                       className="w-[180px]"
                       onClick={() => getNodes()}
                     >
-                      <SelectValue placeholder="Select a person" />
+                      {relation.relationId ? (
+                        <p
+                          dangerouslySetInnerHTML={{
+                            __html: `${findRelation}&apos;s`,
+                          }}
+                        />
+                      ) : (
+                        <SelectValue placeholder="Select a person" />
+                      )}
                     </SelectTrigger>
                     <SelectContent>
                       <SelectGroup className="flex flex-col gap-1">
@@ -344,7 +354,8 @@ const AddPersonModal = ({ trigger }) => {
                         </TooltipTrigger>
                         <TooltipContent>
                           <p className="w-52 text-center">
-                            How is the <strong>selected person</strong> related?
+                            How is this new person related to the selected
+                            person?
                           </p>
                         </TooltipContent>
                       </Tooltip>
