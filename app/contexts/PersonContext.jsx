@@ -2,6 +2,7 @@
 import React, { createContext, useState, useEffect } from "react";
 import { getPeople } from "@/app/actions";
 import { transformPerson } from "@/app/utils/transformPerson";
+import toast from "react-hot-toast";
 
 export const PersonContext = createContext({
   people: [],
@@ -21,6 +22,7 @@ export function PersonProvider({ treeId, children }) {
 
   useEffect(() => {
     async function fetchAll() {
+      toast.loading("Loading people...");
       setLoading(true);
       try {
         const raw = await getPeople(treeId);
@@ -30,6 +32,7 @@ export function PersonProvider({ treeId, children }) {
         console.error("Error loading people", e);
       } finally {
         setLoading(false);
+        toast.dismiss();
       }
     }
     fetchAll();
