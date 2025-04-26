@@ -57,7 +57,7 @@ const getLayoutedElements = (nodes, edges) => {
   };
 };
 
-function FlowSpace() {
+function FlowSpace({ refreshTrigger }) {
   const [nodes, setNodes] = useNodesState([]);
   const handleDeleteNodeFromUI = (id) => {
     setNodes((prevNodes) =>
@@ -65,14 +65,14 @@ function FlowSpace() {
     );
   };
   const [edges, setEdges] = useEdgesState([]);
-  const [loading, setLoading] = useState(true); // ✅ Added loading state
+  const [loading, setLoading] = useState(true); //  Added loading state
 
   const params = useParams();
   const treeId = params.treeId;
 
   useEffect(() => {
     fetchAndLayoutTree(treeId);
-  }, []);
+  }, [treeId, refreshTrigger]); //  refresh on GEDCOM import
 
   const fetchAndLayoutTree = async (treeId) => {
     setLoading(true);

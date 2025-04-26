@@ -4,6 +4,7 @@ import React, { useContext } from "react";
 import Link from "next/link";
 import { Dancing_Script } from "next/font/google";
 import { Search } from "@geist-ui/icons";
+import { FileInputContext } from "../page";
 
 import {
   Menubar,
@@ -33,6 +34,8 @@ export function Navbar() {
   const [addPersonModal, setAddPersonModal] = useContext(AddPersonModalContext);
   const { user, logout } = useUser();
   const router = useRouter();
+  const fileInputRef = useContext(FileInputContext);
+
 
   return (
     <Menubar className="border-none">
@@ -63,9 +66,15 @@ export function Navbar() {
             </MenubarItem>
           </MenubarMenu>
           <MenubarSeparator />
-          <MenubarItem className="gap-2 items-end">
-            <Import size={18} className="opacity-70" /> Import GEDCOM File
-          </MenubarItem>
+          <MenubarItem
+  className="gap-2 items-end cursor-pointer"
+  onClick={() => {
+    fileInputRef?.current?.click(); // 👈 triggers the real file input
+  }}
+>
+  <Import size={18} className="opacity-70" />
+  <span>Import GEDCOM File</span>
+</MenubarItem>
         </MenubarContent>
       </MenubarMenu>
       <MenubarMenu>

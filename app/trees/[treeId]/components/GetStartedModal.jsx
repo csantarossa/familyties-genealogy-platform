@@ -20,6 +20,9 @@ import { format } from "date-fns";
 import DatePickerInput from "./DatePickerInput";
 import toast from "react-hot-toast";
 import BackButton from "./BackButton";
+import { useContext } from "react";
+import { FileInputContext } from "../page"; 
+
 
 const GetStartedModal = ({ treeId }) => {
   const [dobDate, setDobDate] = useState(null);
@@ -37,6 +40,8 @@ const GetStartedModal = ({ treeId }) => {
     dod: null,
     img: null,
   });
+
+  const fileInputRef = useContext(FileInputContext);
 
   useEffect(() => {
     setNewPerson((prev) => ({
@@ -122,7 +127,9 @@ const GetStartedModal = ({ treeId }) => {
               </div>
               <p>or</p>
               <div
-                onClick={() => setStartMethod("gedcom")}
+                onClick={() => {
+                                  fileInputRef?.current?.click();
+                                }}
                 className="h-32 w-48 shadow-md rounded-xl flex flex-col justify-center items-center border p-4 hover:shadow-xl duration-200 cursor-pointer"
               >
                 <h1 className="text-center font-medium">Import GEDCOM file</h1>
