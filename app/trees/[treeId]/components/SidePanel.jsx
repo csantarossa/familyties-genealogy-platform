@@ -9,7 +9,7 @@ import {
 import { useParams } from "next/navigation";
 import Image from "next/image";
 import ConfirmModal from "./ConfirmModal";
-import { ShieldCheck, ShieldQuestion, Trash } from "lucide-react";
+import { CircleCheck, CircleMinus, Trash } from "lucide-react";
 import toast from "react-hot-toast";
 import PersonTabs from "./PersonTabs";
 import {
@@ -77,7 +77,6 @@ const SidePanel = () => {
               src={selected.img || "/placeholder.jpg"}
             />
 
-
             <div className="flex flex-col justify-start gap-4 h-fit w-full">
               <div>
                 <h3 className="capitalize font-medium text-xl w-64 truncate">
@@ -144,7 +143,6 @@ const SidePanel = () => {
                           p.id === selected.id ? { ...p, confidence: value } : p
                         )
                       );
-
                     } catch (err) {
                       toast.dismiss();
                       console.error("Error updating confidence:", err);
@@ -156,9 +154,9 @@ const SidePanel = () => {
                     <SelectValue>
                       <div className="flex flex-row gap-2 items-center">
                         {selected.confidence === "Verified" ? (
-                          <ShieldCheck color="green" size={16} />
+                          <CircleCheck color="green" size={16} />
                         ) : (
-                          <ShieldQuestion color="orange" size={16} />
+                          <CircleMinus color="orange" size={16} />
                         )}
                         {selected.confidence}
                       </div>
@@ -167,17 +165,16 @@ const SidePanel = () => {
                   <SelectContent>
                     <SelectItem value="Verified">
                       <div className="flex flex-row gap-2 items-center">
-                        <ShieldCheck color="green" size={16} />
+                        <CircleCheck color="green" size={16} />
                         Verified
                       </div>
                     </SelectItem>
                     <SelectItem value="Unverified">
                       <div className="flex flex-row gap-2 items-center">
-                        <ShieldQuestion color="orange" size={16} />
+                        <CircleMinus color="orange" size={16} />
                         Unverified
                       </div>
                     </SelectItem>
-
                   </SelectContent>
                 </Select>
 
