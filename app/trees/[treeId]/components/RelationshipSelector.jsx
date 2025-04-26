@@ -42,7 +42,7 @@ export default function RelationshipSelector({
                     p.person_id.toString() === value.otherPersonId?.toString()
                 )?.person_firstname
               }
-              's
+              &apos;s
             </div>
           ) : (
             <SelectValue placeholder="Select person" />

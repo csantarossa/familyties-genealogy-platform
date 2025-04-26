@@ -317,7 +317,11 @@ const AddPersonModal = ({ trigger }) => {
                       onClick={() => getNodes()}
                     >
                       {relation.relationId ? (
-                        <div>{`${findRelation}'s`}</div>
+                        <p
+                          dangerouslySetInnerHTML={{
+                            __html: `${findRelation}&apos;s`,
+                          }}
+                        />
                       ) : (
                         <SelectValue placeholder="Select a person" />
                       )}
