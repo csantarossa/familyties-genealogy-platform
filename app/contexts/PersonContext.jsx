@@ -24,19 +24,18 @@ export function PersonProvider({ treeId, children, setProgress }) {
     async function fetchAll() {
       setLoading(true);
       try {
-        setProgress?.(10);
+        toast.loading("Loading people...");
         const raw = await getPeople(treeId);
-        setProgress?.(30);
 
         // Use the new bulk transformation function instead of mapping individual transforms
         const list = await transformPeople(raw);
 
-        setProgress?.(70);
         setPeople(list);
       } catch (e) {
         console.error("Error loading people", e);
         toast.error("Failed to load family tree data");
       } finally {
+        toast.dismiss();
         setLoading(false);
       }
     }
