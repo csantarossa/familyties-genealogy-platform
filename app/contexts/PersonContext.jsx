@@ -1,7 +1,7 @@
 "use client";
 import React, { createContext, useState, useEffect } from "react";
 import { getPeople } from "@/app/actions";
-import { transformPerson } from "@/app/utils/transformPerson";
+import { transformPeople, transformPerson } from "@/app/utils/transformPerson";
 import toast from "react-hot-toast";
 
 export const PersonContext = createContext({
@@ -27,11 +27,15 @@ export function PersonProvider({ treeId, children, setProgress }) {
         setProgress?.(10);
         const raw = await getPeople(treeId);
         setProgress?.(30);
-        const list = await Promise.all(raw.map(transformPerson));
+
+        // Use the new bulk transformation function instead of mapping individual transforms
+        const list = await transformPeople(raw);
+
         setProgress?.(70);
         setPeople(list);
       } catch (e) {
         console.error("Error loading people", e);
+        toast.error("Failed to load family tree data");
       } finally {
         setLoading(false);
       }

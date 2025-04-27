@@ -87,25 +87,51 @@ export async function getSiblingsBySharedParents(id) {
   return data;
 }
 
-export async function getEducation(id) {
+export async function getAllEducation(personIds) {
   const sql = neon(process.env.DATABASE_URL);
   const data = await sql`
-  SELECT * FROM education where fk_person_id = ${id} order by start_date asc;`;
-  return data;
+    SELECT * FROM education WHERE fk_person_id = ANY(${personIds}) ORDER BY start_date ASC;
+  `;
+
+  // Group by person ID
+  return data.reduce((acc, item) => {
+    if (!acc[item.fk_person_id]) {
+      acc[item.fk_person_id] = [];
+    }
+    acc[item.fk_person_id].push(item);
+    return acc;
+  }, {});
 }
 
-export async function getCareer(id) {
+export async function getAllCareer(personIds) {
   const sql = neon(process.env.DATABASE_URL);
   const data = await sql`
-  SELECT * FROM career where fk_person_id = ${id} order by start_date asc;`;
-  return data;
+    SELECT * FROM career WHERE fk_person_id = ANY(${personIds}) ORDER BY start_date ASC;
+  `;
+
+  return data.reduce((acc, item) => {
+    if (!acc[item.fk_person_id]) {
+      acc[item.fk_person_id] = [];
+    }
+    acc[item.fk_person_id].push(item);
+    return acc;
+  }, {});
 }
 
-export async function getGallery(id) {
+export async function getAllGallery(personIds) {
   const sql = neon(process.env.DATABASE_URL);
   const data = await sql`
-  SELECT * FROM images where fk_person_id = ${id};`;
-  return data;
+    SELECT * FROM images WHERE fk_person_id = ANY(${personIds});
+  `;
+
+  // Group by person ID
+  return data.reduce((acc, item) => {
+    if (!acc[item.fk_person_id]) {
+      acc[item.fk_person_id] = [];
+    }
+    acc[item.fk_person_id].push(item);
+    return acc;
+  }, {});
 }
 
 export async function createRelationship(person1Id, person2Id, typeId) {
