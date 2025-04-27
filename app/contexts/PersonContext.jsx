@@ -22,7 +22,6 @@ export function PersonProvider({ treeId, children }) {
 
   useEffect(() => {
     async function fetchAll() {
-      toast.loading("Loading people...");
       setLoading(true);
       try {
         const raw = await getPeople(treeId);
@@ -32,7 +31,6 @@ export function PersonProvider({ treeId, children }) {
         console.error("Error loading people", e);
       } finally {
         setLoading(false);
-        toast.dismiss();
       }
     }
     fetchAll();
