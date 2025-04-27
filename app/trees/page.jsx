@@ -6,17 +6,20 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { getTrees } from "../actions";
 import { useUser } from "../contexts/UserContext";
-import { Trash } from "lucide-react";
+import { Edit, Trash } from "lucide-react";
 import toast from "react-hot-toast";
 import NewTreeModal from "./components/NewTreeModal";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import EditTreeModal from "./components/EditTreeModal";
 const dancingScript = Dancing_Script({ subsets: ["latin"] });
 
 export default function Home() {
   const [trees, setTrees] = useState([]);
   const router = useRouter();
   const { user, logout } = useUser();
+  const [editedTitle, setEditedTitle] = useState("");
+  const [editedDesc, setEditedDesc] = useState("");
 
   useEffect(() => {
     if (user) {
@@ -29,6 +32,22 @@ export default function Home() {
     const data = await getTrees(user.id);
     setTrees(data);
     toast.dismiss();
+  };
+
+  const handleTreeRename = async (tree_id) => {
+    console.log("Begun");
+    try {
+      const response = await fetch("/api/trees", {
+        method: "PUT",
+        headers: {
+          "Content-type": "application/json",
+        },
+        body: JSON.stringify({ tree_id, editedDesc, editedTitle }),
+      });
+      console.log(await response.json());
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const handleDeleteTree = async (tree) => {
@@ -88,32 +107,43 @@ export default function Home() {
               className="h-fit w-fit"
               href={`/trees/${tree.tree_id}`}
             >
-              <div className="w-48 h-40 flex flex-col justify-start p-6 bg-gray-100 hover:bg-gray-50 rounded-lg cursor-pointer border-4 border-gray-100 duration-150">
+              <div className="w-48 h-40 flex flex-col justify-start p-6 bg-gray-100 hover:bg-gray-50 rounded-lg cursor-pointer border-4 border-gray-100 duration-150 relative">
                 <div className="flex flex-col justify-start items-start overflow-hidden gap-1">
                   <div className="flex justify-between w-full items-start gap-1">
                     <h1 className="font-semibold text-start w-full leading-none">
                       {tree.tree_name}
                     </h1>
-
-                    {/* Allows you do delete any tree except #2 as this is my demo tree */}
-                    {tree.tree_id === 2 ? (
-                      <></>
-                    ) : (
-                      <Trash
-                        size={18}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          e.preventDefault();
-                          handleDeleteTree(tree);
-                        }}
-                        className="w-fit h-fit"
-                      />
-                    )}
                   </div>
 
                   <p className="text-sm text-gray-700 text-start">
                     {tree.tree_desc}
                   </p>
+                </div>
+                <div className="flex gap-3 absolute right-2 bottom-2">
+                  {/* <div
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handleTreeRename(tree.tree_id);
+                    }}
+                  > */}
+                  <EditTreeModal
+                    editedTitle={tree.tree_name}
+                    editedDesc={tree.tree_desc}
+                    id={tree.tree_id}
+                    setEditedTitle={setEditedTitle}
+                    setEditedDesc={setEditedDesc}
+                  />
+                  {/* </div> */}
+
+                  <Trash
+                    size={17}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handleDeleteTree(tree);
+                    }}
+                  />
                 </div>
               </div>
             </Link>
