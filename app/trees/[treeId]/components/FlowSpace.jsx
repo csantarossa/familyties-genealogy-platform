@@ -728,8 +728,6 @@ export default function FlowSpace({ refreshTrigger }) {
 
   // Fetch relationships and layout once people are ready
   useEffect(() => {
-    toast.loading("Setting up tree...");
-
     if (peopleLoading) {
       return;
     }
@@ -744,7 +742,9 @@ export default function FlowSpace({ refreshTrigger }) {
       position: { x: 0, y: 0 },
     }));
 
+    toast.dismiss();
     // Fetch and render edges
+    toast.loading("Loading relationships...");
     getRelationships(treeId)
       .then((rels) => {
         // Ensure each relationship has a unique identifier
