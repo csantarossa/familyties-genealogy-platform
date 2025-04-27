@@ -109,7 +109,6 @@ export async function getAllCareer(personIds) {
     SELECT * FROM career WHERE fk_person_id = ANY(${personIds}) ORDER BY start_date ASC;
   `;
 
-  // Group by person ID
   return data.reduce((acc, item) => {
     if (!acc[item.fk_person_id]) {
       acc[item.fk_person_id] = [];
