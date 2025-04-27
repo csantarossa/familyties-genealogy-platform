@@ -732,10 +732,11 @@ export default function FlowSpace({ refreshTrigger }) {
   useEffect(() => {
     setProgress(10);
     if (peopleLoading) {
-      setProgress((prev) => Math.min(prev + 10, 30));
+      setProgress(30);
       return;
     }
 
+    setProgress(40); // Raw nodes created
     setLoading(true);
     const toastId = toast.loading("Setting up the tree…");
 
@@ -746,8 +747,6 @@ export default function FlowSpace({ refreshTrigger }) {
       data: { ...p, onDelete: handleDeleteNode },
       position: { x: 0, y: 0 },
     }));
-
-    setProgress(40); // Raw nodes created
 
     // Fetch and render edges
     getRelationships(treeId)
@@ -812,22 +811,22 @@ export default function FlowSpace({ refreshTrigger }) {
         style={{ backgroundColor: "#F7F9FB" }}
       >
         {loading === true && (
-          <Card className="w-80 h-56 absolute top-[50%] translate-y-[-50%] left-[50%] translate-x-[-50%] ">
-            <CardHeader>
-              <CardTitle>Hey</CardTitle>
+          <Card className="w-80 h-fit absolute top-[50%] translate-y-[-50%] left-[50%] translate-x-[-50%] p-5 flex flex-col gap-5">
+            <CardHeader className="">
+              <CardTitle>Loading Tree</CardTitle>
               <CardDescription>Your tree is being loaded...</CardDescription>
-              <CardContent className="flex flex-col justify-center items-center">
-                <Progress value={progress} />
-                {progress <= 10 && <p>Starting tree...</p>}
-                {progress > 10 && progress <= 30 && <p>Fetching people...</p>}
-                {progress === 40 && <p>Fetching relationships...</p>}
-                {progress === 50 && <p>Initialising layout...</p>}
-                {progress === 65 && <p>Initialising layout...</p>}
-                {progress === 75 && <p>Initialising layout...</p>}
-                {progress === 85 && <p>Initialising layout...</p>}
-                {progress === 100 && <p>Complete</p>}
-              </CardContent>
             </CardHeader>
+            <CardContent className="flex flex-col justify-center items-center w-full h-full">
+              <Progress value={progress} />
+              {progress <= 10 && <p>Starting tree...</p>}
+              {progress > 10 && progress <= 30 && <p>Fetching people...</p>}
+              {progress === 40 && <p>Fetching relationships...</p>}
+              {progress === 50 && <p>Initialising layout...</p>}
+              {progress === 65 && <p>Initialising layout...</p>}
+              {progress === 75 && <p>Initialising layout...</p>}
+              {progress === 85 && <p>Initialising layout...</p>}
+              {progress === 100 && <p>Complete</p>}
+            </CardContent>
           </Card>
         )}
         {loading ? null : nodes.length === 0 ? (

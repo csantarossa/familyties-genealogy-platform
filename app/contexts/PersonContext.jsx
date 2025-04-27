@@ -12,7 +12,7 @@ export const PersonContext = createContext({
   clearSelection: () => {},
 });
 
-export function PersonProvider({ treeId, children }) {
+export function PersonProvider({ treeId, children, setProgress }) {
   const [people, setPeople] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState({
@@ -24,8 +24,11 @@ export function PersonProvider({ treeId, children }) {
     async function fetchAll() {
       setLoading(true);
       try {
+        setProgress?.(10);
         const raw = await getPeople(treeId);
+        setProgress?.(30);
         const list = await Promise.all(raw.map(transformPerson));
+        setProgress?.(70);
         setPeople(list);
       } catch (e) {
         console.error("Error loading people", e);
