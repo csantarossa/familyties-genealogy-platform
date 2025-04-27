@@ -26,6 +26,8 @@ import { useUser, logout } from "@/app/contexts/UserContext";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Import } from "lucide-react";
+import { FileInputContext } from "../page";
+import ConfirmModal from "./ConfirmModal";
 
 const dancingScript = Dancing_Script({ subsets: ["latin"] });
 
@@ -33,6 +35,7 @@ export function Navbar() {
   const [addPersonModal, setAddPersonModal] = useContext(AddPersonModalContext);
   const { user, logout } = useUser();
   const router = useRouter();
+  const fileInputRef = useContext(FileInputContext);
 
   return (
     <Menubar className="border-none">
@@ -63,8 +66,19 @@ export function Navbar() {
             </MenubarItem>
           </MenubarMenu>
           <MenubarSeparator />
-          <MenubarItem className="gap-2 items-end">
-            <Import size={18} className="opacity-70" /> Import GEDCOM File
+          <MenubarItem
+            onClick={() => {
+              const confirmation = confirm(
+                "WARNING: This will remove everyone on the current tree. Would you like to continue?"
+              );
+              if (confirmation) {
+                fileInputRef?.current?.click();
+              }
+            }}
+            className="gap-2 items-end"
+          >
+            <Import size={18} className="opacity-70" />
+            Import GEDCOM File
           </MenubarItem>
         </MenubarContent>
       </MenubarMenu>

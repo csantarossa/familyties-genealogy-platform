@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import imageCompression from "browser-image-compression";
 import {
   AlertDialog,
@@ -28,6 +28,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { FileInputContext } from "../page";
 
 const GetStartedModal = ({ treeId }) => {
   const [dobDate, setDobDate] = useState(null);
@@ -46,6 +47,8 @@ const GetStartedModal = ({ treeId }) => {
     dod: null,
     img: null,
   });
+
+  const fileInputRef = useContext(FileInputContext);
 
   useEffect(() => {
     setNewPerson((prev) => ({
@@ -131,7 +134,10 @@ const GetStartedModal = ({ treeId }) => {
               </div>
               <p>or</p>
               <div
-                onClick={() => setStartMethod("gedcom")}
+                onClick={() => {
+                  setStartMethod("gedcom");
+                  fileInputRef?.current?.click();
+                }}
                 className="h-32 w-48 shadow-md rounded-xl flex flex-col justify-center items-center border p-4 hover:shadow-xl duration-200 cursor-pointer"
               >
                 <h1 className="text-center font-medium">Import GEDCOM file</h1>

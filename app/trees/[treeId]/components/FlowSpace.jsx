@@ -19,11 +19,12 @@ import GetStartedModal from "./GetStartedModal";
 import { PersonContext } from "@/app/contexts/PersonContext";
 import { getRelationships } from "@/app/actions";
 
-const NODE_W = 310;
+// Adjusted dimensions and spacing for better layout
+const NODE_W = 360; // Reduced from 720 to match TreeNode's actual width
 const NODE_H = 210;
-const SPOUSE_CONTAINER_W = NODE_W * 2 + 80; // Width for two nodes + spacing
-const HORIZONTAL_SPACING = 60; // Space between nodes horizontally
-const VERTICAL_SPACING = 100; // Space between generations
+const SPOUSE_CONTAINER_W = NODE_W * 2 + 40; // Reduced spacing between spouses
+const HORIZONTAL_SPACING = 120; // Increased for better separation between nodes
+const VERTICAL_SPACING = 150; // Increased for better separation between generations
 
 function hybridLayout(nodes, relationships) {
   // Create maps for easy data access
@@ -34,8 +35,17 @@ function hybridLayout(nodes, relationships) {
   // Build relationship maps
   const spouseMap = {};
 
-  // Process spouse relationships
+  // Build parent-child relationships map
+  const childToParentsMap = {};
+  const parentToChildrenMap = {};
+
+  // Track already created spouse containers
+  const spouseContainersMap = {};
+  const parentPositionsMap = {}; // Track parent positions in containers (left or right)
+
+  // Process relationships
   relationships.forEach((rel) => {
+    // Process spouse relationships
     if (rel.fk_type_id === 3) {
       const id1 = String(rel.person_1);
       const id2 = String(rel.person_2);
@@ -45,35 +55,169 @@ function hybridLayout(nodes, relationships) {
       spouseMap[id1] = id2;
       spouseMap[id2] = id1;
     }
+
+    // Process parent-child relationships
+    if (rel.fk_type_id === 4) {
+      const childId = String(rel.person_1);
+      const parentId = String(rel.person_2);
+
+      // Skip if either node doesn't exist
+      if (!nodeMap[childId] || !nodeMap[parentId]) return;
+
+      // Track parents for each child
+      if (!childToParentsMap[childId]) {
+        childToParentsMap[childId] = [];
+      }
+      childToParentsMap[childId].push(parentId);
+
+      // Track children for each parent
+      if (!parentToChildrenMap[parentId]) {
+        parentToChildrenMap[parentId] = [];
+      }
+      parentToChildrenMap[parentId].push(childId);
+    }
   });
 
-  // Create spouse containers and track contained nodes
+  // Create topological sorting of nodes to process parents before children
+  function createTopologicalOrder() {
+    const visited = new Set();
+    const order = [];
+
+    function dfs(nodeId) {
+      if (visited.has(nodeId)) return;
+      visited.add(nodeId);
+
+      // Process parents first (if any)
+      const parents = childToParentsMap[nodeId] || [];
+      for (const parentId of parents) {
+        dfs(parentId);
+      }
+
+      order.push(nodeId);
+    }
+
+    // Start DFS from all nodes
+    for (const nodeId of Object.keys(nodeMap)) {
+      dfs(nodeId);
+    }
+
+    return order;
+  }
+
+  const processingOrder = createTopologicalOrder();
+
+  // Create spouse containers in topological order
   const spouseContainers = [];
   const containedNodes = new Set();
 
-  // Create containers for each couple
-  Object.entries(spouseMap).forEach(([id1, id2]) => {
-    // Only process each couple once (by lower ID to avoid duplicates)
-    if (id1 < id2 && nodeMap[id1] && nodeMap[id2]) {
-      const containerId = `spouse-container-${id1}-${id2}`;
+  // Process nodes in order (parents before children)
+  for (const nodeId of processingOrder) {
+    // Skip if this node is already in a container
+    if (containedNodes.has(nodeId)) continue;
 
-      spouseContainers.push({
-        id: containerId,
-        type: "spouseContainer",
-        data: {
-          person: nodeMap[id1].data,
-          spouse: nodeMap[id2].data,
-        },
-        position: { x: 0, y: 0 },
-        // Store the IDs of the contained nodes for reference
-        containedIds: [id1, id2],
-      });
+    // Check if this node has a spouse
+    const spouseId = spouseMap[nodeId];
+    if (!spouseId || containedNodes.has(spouseId)) continue;
 
-      // Mark these nodes as contained
-      containedNodes.add(id1);
-      containedNodes.add(id2);
+    // Both node and spouse exist and are not yet in containers
+    const id1 = nodeId;
+    const id2 = spouseId;
+    const containerId = `spouse-container-${id1}-${id2}`;
+
+    // Get person data for both spouses
+    const person1 = nodeMap[id1].data;
+    const person2 = nodeMap[id2].data;
+
+    // SIMPLIFIED POSITIONING LOGIC: Focus solely on parent-child relationships
+    let leftPerson, rightPerson;
+    let positionDetermined = false;
+
+    // Check if either person has a parent in a spouse container
+    const parents1 = childToParentsMap[id1] || [];
+    const parents2 = childToParentsMap[id2] || [];
+
+    // For each parent of person1, check if the parent is in a container
+    for (const parentId of parents1) {
+      if (!parentPositionsMap[parentId]) continue;
+
+      // If we know the parent's position, position the child accordingly
+      const parentPosition = parentPositionsMap[parentId];
+
+      if (parentPosition === "left") {
+        // If parent is on the left, put this person on the left
+        leftPerson = person1;
+        rightPerson = person2;
+        positionDetermined = true;
+      } else if (parentPosition === "right") {
+        // If parent is on the right, put this person on the right
+        leftPerson = person2;
+        rightPerson = person1;
+        positionDetermined = true;
+      }
+
+      if (positionDetermined) break;
     }
-  });
+
+    // If person1's parents didn't determine position, try person2's parents
+    if (!positionDetermined) {
+      for (const parentId of parents2) {
+        if (!parentPositionsMap[parentId]) continue;
+
+        const parentPosition = parentPositionsMap[parentId];
+
+        if (parentPosition === "left") {
+          // If parent is on the left, put this person on the left
+          leftPerson = person2;
+          rightPerson = person1;
+          positionDetermined = true;
+        } else if (parentPosition === "right") {
+          // If parent is on the right, put this person on the right
+          leftPerson = person1;
+          rightPerson = person2;
+          positionDetermined = true;
+        }
+
+        if (positionDetermined) break;
+      }
+    }
+
+    // If parents didn't determine position, use the node IDs as a consistent fallback
+    if (!positionDetermined) {
+      // Simple deterministic fallback that has nothing to do with gender or surnames
+      if (parseInt(id1) < parseInt(id2)) {
+        leftPerson = person1;
+        rightPerson = person2;
+      } else {
+        leftPerson = person2;
+        rightPerson = person1;
+      }
+    }
+
+    // Record positions of people in this container for their children to reference
+    parentPositionsMap[person1.id] = leftPerson === person1 ? "left" : "right";
+    parentPositionsMap[person2.id] = rightPerson === person2 ? "right" : "left";
+
+    // Create the spouse container with the determined positions
+    spouseContainers.push({
+      id: containerId,
+      type: "spouseContainer",
+      data: {
+        person: leftPerson,
+        spouse: rightPerson,
+      },
+      position: { x: 0, y: 0 },
+      // Store the IDs of the contained nodes for reference
+      containedIds: [id1, id2],
+    });
+
+    // Track these nodes as contained
+    containedNodes.add(id1);
+    containedNodes.add(id2);
+
+    // Track this container for the contained nodes
+    spouseContainersMap[id1] = containerId;
+    spouseContainersMap[id2] = containerId;
+  }
 
   // Create a map from original IDs to container IDs
   const nodeToContainerMap = {};
@@ -128,6 +272,11 @@ function hybridLayout(nodes, relationships) {
           target: effectiveChildId,
           sourceHandle: "bottom",
           targetHandle: "top",
+          // Store the original ids for specific connection points
+          data: {
+            originalSource: parentId,
+            originalTarget: childId,
+          },
         },
       ];
     }
@@ -137,22 +286,37 @@ function hybridLayout(nodes, relationships) {
 
   // Run dagre layout on the modified nodes
   return {
-    nodes: runDagre(modifiedNodes, dagreEdges, nodeToContainerMap),
+    nodes: runDagre(
+      modifiedNodes,
+      dagreEdges,
+      nodeToContainerMap,
+      parentToChildrenMap,
+      childToParentsMap
+    ),
     nodeToContainerMap,
   };
 }
 
-function runDagre(nodes, edges, nodeToContainerMap) {
+function runDagre(
+  nodes,
+  edges,
+  nodeToContainerMap,
+  parentToChildrenMap,
+  childToParentsMap
+) {
   const g = new dagre.graphlib.Graph().setDefaultEdgeLabel(() => ({}));
 
-  // Configure dagre with horizontal and vertical spacing
+  // Configure dagre with improved horizontal and vertical spacing
   g.setGraph({
-    rankdir: "TB",
-    align: "UL",
-    nodesep: HORIZONTAL_SPACING * 1.5,
-    ranksep: VERTICAL_SPACING * 1.5,
-    marginx: 30,
-    marginy: 30,
+    rankdir: "TB", // Top to bottom layout
+    align: "DL", // Changed from UL to DL for better centering
+    nodesep: HORIZONTAL_SPACING * 2, // Increased spacing between nodes in same rank
+    ranksep: VERTICAL_SPACING, // Space between ranks (generations)
+    marginx: 50,
+    marginy: 50,
+    rankSep: VERTICAL_SPACING,
+    acyclicer: "greedy", // Help with node ordering
+    ranker: "network-simplex", // Better for genealogical trees
   });
 
   // Add nodes to dagre graph with proper dimensions
@@ -186,96 +350,100 @@ function runDagre(nodes, edges, nodeToContainerMap) {
     positionedNodes.map((node) => [node.id, node])
   );
 
-  // Refine positioning for siblings (children of the same parent)
+  // Build parent-child relationships
   const childrenByParent = {};
-
-  edges.forEach((edge) => {
-    const parentId = edge.source;
-    const childId = edge.target;
-
-    if (!childrenByParent[parentId]) {
-      childrenByParent[parentId] = [];
-    }
-
-    childrenByParent[parentId].push(childId);
-  });
-
-  // Center children under their parents
-  Object.entries(childrenByParent).forEach(([parentId, childIds]) => {
-    if (childIds.length > 1) {
-      const parent = positionedNodeMap[parentId];
-      if (!parent) return;
-
-      const parentWidth =
-        parent.type === "spouseContainer" ? SPOUSE_CONTAINER_W : NODE_W;
-      const parentCenterX = parent.position.x + parentWidth / 2;
-
-      // Calculate children's total width
-      let totalChildWidth = 0;
-      let spacingNeeded = 0;
-
-      childIds.forEach((childId) => {
-        const child = positionedNodeMap[childId];
-        if (!child) return;
-
-        const childWidth =
-          child.type === "spouseContainer" ? SPOUSE_CONTAINER_W : NODE_W;
-        totalChildWidth += childWidth;
-        spacingNeeded += 1;
-      });
-
-      // Add spacing between children
-      totalChildWidth += (spacingNeeded - 1) * HORIZONTAL_SPACING;
-
-      // Calculate starting position to center the children under the parent
-      let startX = parentCenterX - totalChildWidth / 2;
-
-      // Position children
-      childIds.forEach((childId) => {
-        const child = positionedNodeMap[childId];
-        if (!child) return;
-
-        const childWidth =
-          child.type === "spouseContainer" ? SPOUSE_CONTAINER_W : NODE_W;
-
-        // Center this child
-        child.position.x = startX;
-
-        // Move to next position
-        startX += childWidth + HORIZONTAL_SPACING;
-      });
-    }
-  });
-
-  // Create a more accurate node-to-position map after adjustments
-  const adjustedNodeMap = Object.fromEntries(
-    positionedNodes.map((node) => [node.id, { ...node }])
-  );
-
-  // Final improvement: Handle nodes with multiple parents by centering them
   const parentsByChild = {};
 
   edges.forEach((edge) => {
     const parentId = edge.source;
     const childId = edge.target;
 
+    // Track children by parent
+    if (!childrenByParent[parentId]) {
+      childrenByParent[parentId] = [];
+    }
+    childrenByParent[parentId].push(childId);
+
+    // Track parents by child
     if (!parentsByChild[childId]) {
       parentsByChild[childId] = [];
     }
-
     parentsByChild[childId].push(parentId);
   });
 
-  // Center children between multiple parents
-  Object.entries(parentsByChild).forEach(([childId, parentIds]) => {
-    if (parentIds.length > 1) {
-      const child = adjustedNodeMap[childId];
+  // First pass: Center children under their parents (handle both single and multiple children)
+  Object.entries(childrenByParent).forEach(([parentId, childIds]) => {
+    const parent = positionedNodeMap[parentId];
+    if (!parent) return;
+
+    const parentWidth =
+      parent.type === "spouseContainer" ? SPOUSE_CONTAINER_W : NODE_W;
+    const parentCenterX = parent.position.x + parentWidth / 2;
+
+    // Special handling for single child - center directly under parent
+    if (childIds.length === 1) {
+      const childId = childIds[0];
+      const child = positionedNodeMap[childId];
       if (!child) return;
 
-      let totalParentCenterX = 0;
+      const childWidth =
+        child.type === "spouseContainer" ? SPOUSE_CONTAINER_W : NODE_W;
 
+      // Position the single child centered under the parent
+      child.position.x = parentCenterX - childWidth / 2;
+      return;
+    }
+
+    // Handle multiple children
+    if (childIds.length > 1) {
+      // Calculate total width needed for all children with spacing
+      let totalChildrenWidth = 0;
+      const childWidths = [];
+
+      childIds.forEach((childId) => {
+        const child = positionedNodeMap[childId];
+        if (!child) return;
+
+        const childWidth =
+          child.type === "spouseContainer" ? SPOUSE_CONTAINER_W : NODE_W;
+
+        childWidths.push(childWidth);
+        totalChildrenWidth += childWidth;
+      });
+
+      // Add spacing between children
+      const totalSpacing = (childIds.length - 1) * HORIZONTAL_SPACING;
+      totalChildrenWidth += totalSpacing;
+
+      // Calculate start position to center all children under the parent
+      let currentX = parentCenterX - totalChildrenWidth / 2;
+
+      // Position children
+      childIds.forEach((childId, index) => {
+        const child = positionedNodeMap[childId];
+        if (!child) return;
+
+        const childWidth = childWidths[index];
+
+        // Position this child
+        child.position.x = currentX;
+
+        // Move to next position
+        currentX += childWidth + HORIZONTAL_SPACING;
+      });
+    }
+  });
+
+  // Second pass: Handle nodes with multiple parents by placing them between the parents
+  Object.entries(parentsByChild).forEach(([childId, parentIds]) => {
+    if (parentIds.length > 1) {
+      const child = positionedNodeMap[childId];
+      if (!child) return;
+
+      // Calculate center position between all parents
+      let totalParentCenterX = 0;
       parentIds.forEach((parentId) => {
-        const parent = adjustedNodeMap[parentId];
+        const parent = positionedNodeMap[parentId];
         if (!parent) return;
 
         const parentWidth =
@@ -292,7 +460,145 @@ function runDagre(nodes, edges, nodeToContainerMap) {
     }
   });
 
-  return Object.values(adjustedNodeMap);
+  // Third pass: Ensure no nodes overlap horizontally by adjusting nodes in the same generation
+  const nodesByRank = {};
+
+  // Group nodes by their vertical position (rank/generation)
+  positionedNodes.forEach((node) => {
+    const rankY = Math.round(node.position.y / 10) * 10; // Round to help group nodes in the same rank
+    if (!nodesByRank[rankY]) {
+      nodesByRank[rankY] = [];
+    }
+    nodesByRank[rankY].push(node);
+  });
+
+  // For each rank, check and fix overlaps
+  Object.values(nodesByRank).forEach((rankNodes) => {
+    // Sort nodes by x position
+    rankNodes.sort((a, b) => a.position.x - b.position.x);
+
+    // Check each node against its right neighbor
+    for (let i = 0; i < rankNodes.length - 1; i++) {
+      const current = rankNodes[i];
+      const next = rankNodes[i + 1];
+
+      const currentWidth =
+        current.type === "spouseContainer" ? SPOUSE_CONTAINER_W : NODE_W;
+      const currentRight = current.position.x + currentWidth;
+      const minSpacing = HORIZONTAL_SPACING / 2; // Minimum space between nodes
+
+      // If there's an overlap
+      if (currentRight + minSpacing > next.position.x) {
+        // Move the next node
+        const overlap = currentRight + minSpacing - next.position.x;
+
+        // Shift this node and all nodes to its right
+        for (let j = i + 1; j < rankNodes.length; j++) {
+          rankNodes[j].position.x += overlap;
+        }
+      }
+    }
+  });
+
+  // Fourth pass: Final adjustment for single children with no siblings in the same generation
+  // This helps with the case of isolated nodes that might be positioned far to one side
+  Object.entries(childrenByParent).forEach(([parentId, childIds]) => {
+    if (childIds.length === 1) {
+      const childId = childIds[0];
+      const child = positionedNodeMap[childId];
+      const parent = positionedNodeMap[parentId];
+
+      if (!child || !parent) return;
+
+      // Check if this child is the only one in its rank
+      const childRankY = Math.round(child.position.y / 10) * 10;
+      const siblingsInRank = nodesByRank[childRankY] || [];
+
+      // If it's alone in this rank or has very few siblings
+      if (siblingsInRank.length <= 2) {
+        const parentWidth =
+          parent.type === "spouseContainer" ? SPOUSE_CONTAINER_W : NODE_W;
+        const childWidth =
+          child.type === "spouseContainer" ? SPOUSE_CONTAINER_W : NODE_W;
+        const parentCenterX = parent.position.x + parentWidth / 2;
+
+        // Force center the child under its parent again (this might override earlier positioning)
+        child.position.x = parentCenterX - childWidth / 2;
+      }
+    }
+  });
+
+  // Fifth pass: Final adjustment to ensure consistent parent-child alignment
+  // This ensures that children in spouse containers appear on the same side as their parents
+  Object.entries(parentsByChild).forEach(([childId, parentIds]) => {
+    const child = positionedNodeMap[childId];
+    if (!child || child.type !== "spouseContainer") return;
+
+    // Skip nodes that aren't spouse containers
+    if (!child.containedIds || child.containedIds.length !== 2) return;
+
+    // Get the two people in this container
+    const [personId1, personId2] = child.containedIds;
+
+    // Check if either person has a parent in one of our parent containers
+    let foundMatchingParent = false;
+    let swapNeeded = false;
+
+    // For each parent of this child container
+    for (const parentId of parentIds) {
+      const parent = positionedNodeMap[parentId];
+      if (!parent || parent.type !== "spouseContainer") continue;
+
+      // Skip if parent isn't a spouse container
+      if (!parent.containedIds || parent.containedIds.length !== 2) continue;
+
+      // Check if any person in the parent container is a parent of either person in child container
+      for (const potentialParentId of parent.containedIds) {
+        // For each person in the child container
+        for (let i = 0; i < child.containedIds.length; i++) {
+          const childPersonId = child.containedIds[i];
+
+          // Check if this is a parent-child relationship
+          const isParentOf =
+            parentToChildrenMap[potentialParentId]?.includes(childPersonId);
+          if (!isParentOf) continue;
+
+          // We found a parent-child relationship!
+          foundMatchingParent = true;
+
+          // Check if parent is on the left in parent container
+          const isParentOnLeft =
+            parent.data.person.id.toString() === potentialParentId.toString();
+
+          // Check if child is on the left in child container
+          const isChildOnLeft =
+            child.data.person.id.toString() === childPersonId.toString();
+
+          // If parent and child aren't on the same side, we need to swap
+          if (isParentOnLeft !== isChildOnLeft) {
+            swapNeeded = true;
+          }
+
+          // Once we find a match, we can stop looking
+          break;
+        }
+
+        if (foundMatchingParent) break;
+      }
+
+      if (foundMatchingParent) break;
+    }
+
+    // If we need to swap positions in the child container
+    if (foundMatchingParent && swapNeeded) {
+      // Swap the positions
+      const temp = child.data.person;
+      child.data.person = child.data.spouse;
+      child.data.spouse = temp;
+    }
+  });
+
+  return positionedNodes;
 }
 
 function createEdges(relationships, nodeMap, nodeToContainerMap) {
@@ -401,7 +707,7 @@ function createEdges(relationships, nodeMap, nodeToContainerMap) {
   return edges;
 }
 
-export default function FlowSpace() {
+export default function FlowSpace({ refreshTrigger }) {
   const { treeId } = useParams();
   const { people, loading: peopleLoading } = useContext(PersonContext);
 
@@ -462,7 +768,7 @@ export default function FlowSpace() {
         toast.dismiss(toastId);
         setLoading(false);
       });
-  }, [peopleLoading, people, treeId]);
+  }, [peopleLoading, people, treeId, refreshTrigger]);
 
   const nodeTypes = useMemo(
     () => ({
