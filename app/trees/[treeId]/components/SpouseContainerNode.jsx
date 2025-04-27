@@ -22,21 +22,21 @@ function SpouseContainerNode({ data, id }) {
           type="target"
           position={Position.Top}
           id={`top-left-${personId}`}
-          className="!absolute !top-0 !left-1/4 !-translate-x-1/2 opacity-0"
+          className="!absolute !top-[50%] !translate-y-[-50%] !left-[50%] !translate-x-[-50%] opacity-0"
           style={{ background: "#000" }}
         />
         <Handle
           type="target"
           position={Position.Top}
           id={`top-${personId}`}
-          className="!absolute !top-0 !left-1/2 !-translate-x-1/2 opacity-0"
+          className="!absolute !top-[50%] !translate-y-[-50%] !left-[50%] !translate-x-[-50%] opacity-0"
           style={{ background: "#000" }}
         />
         <Handle
           type="target"
           position={Position.Top}
           id={`top-right-${personId}`}
-          className="!absolute !top-0 !left-3/4 !-translate-x-1/2 opacity-0"
+          className="!absolute !top-[50%] !translate-y-[-50%] !left-[50%] !translate-x-[-50%] opacity-0"
           style={{ background: "#000" }}
         />
 
@@ -63,21 +63,21 @@ function SpouseContainerNode({ data, id }) {
             type="target"
             position={Position.Top}
             id={`top-left-${spouseId}`}
-            className="!absolute !top-0 !left-1/4 !-translate-x-1/2 opacity-0"
+            className="!absolute !top-[50%] !translate-y-[-50%] !left-[50%] !translate-x-[-50%] opacity-0"
             style={{ background: "#000" }}
           />
           <Handle
             type="target"
             position={Position.Top}
             id={`top-${spouseId}`}
-            className="!absolute !top-0 !left-1/2 !-translate-x-1/2 opacity-0"
+            className="!absolute !top-[50%] !translate-y-[-50%] !left-[50%] !translate-x-[-50%] opacity-0"
             style={{ background: "#000" }}
           />
           <Handle
             type="target"
             position={Position.Top}
             id={`top-right-${spouseId}`}
-            className="!absolute !top-0 !left-3/4 !-translate-x-1/2 opacity-0"
+            className="!absolute !top-[50%] !translate-y-[-50%] !left-[50%] !translate-x-[-50%] opacity-0"
             style={{ background: "#000" }}
           />
 
@@ -99,21 +99,21 @@ function SpouseContainerNode({ data, id }) {
         type="source"
         position={Position.Bottom}
         id="bottom-left"
-        className="!absolute !bottom-0 !left-1/4 !-translate-x-1/2 opacity-0"
+        className="!absolute !top-[50%] !translate-y-[-50%] !left-[50%] !translate-x-[-50%] opacity-0"
         style={{ background: "#000" }}
       />
       <Handle
         type="source"
         position={Position.Bottom}
         id="bottom"
-        className="!absolute !bottom-0 !left-1/2 !-translate-x-1/2 !top-[50%] !translate-y-[-50%] opacity-0"
+        className="!absolute !top-[50%] !translate-y-[-50%] !left-[50%] !translate-x-[-50%] opacity-0"
         style={{ background: "#000" }}
       />
       <Handle
         type="source"
         position={Position.Bottom}
         id="bottom-right"
-        className="!absolute !bottom-0 !left-3/4 !-translate-x-1/2 opacity-0"
+        className="!absolute !top-[50%] !translate-y-[-50%] !left-[50%] !translate-x-[-50%] opacity-0"
         style={{ background: "#000" }}
       />
 
@@ -127,7 +127,7 @@ function SpouseContainerNode({ data, id }) {
             type="source"
             position={Position.Bottom}
             id={`bottom-child-${index}`}
-            className="opacity-0 !top-[50%] !translate-y-[-50%]"
+            className="!absolute !top-[50%] !translate-y-[-50%] !left-[50%] !translate-x-[-50%] opacity-0"
             style={{
               left: `${(index + 1) * 9}%`,
               bottom: 0,
