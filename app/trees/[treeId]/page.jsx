@@ -15,11 +15,9 @@ import { useRef } from "react";
 
 export const SidePanelContext = createContext();
 export const AddPersonModalContext = createContext();
-export const FileInputContext = createContext();
 
 function Home() {
   const router = useRouter();
-  const fileInputRef = useRef(null);
   const [sidePanelContent, setSidePanelContent] = useState({
     trigger: false,
     firstname: "",
@@ -56,54 +54,28 @@ function Home() {
     }
   };
 
-  const handleGedcomUpload = async (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    const text = await file.text();
-
-    const res = await fetch(`/api/trees/${treeId}/import`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ gedcomContent: text }),
-    });
-
-    const json = await res.json();
-    toast.success(json.message || "Import successful!");
-    setVersion((v) => v + 1); // ✅ Triggers tree refresh
-  };
-
   return (
-    <FileInputContext.Provider value={fileInputRef}>
-      <PersonProvider treeId={treeId}>
-        <AddPersonModalContext.Provider
-          value={[addPersonModal, setAddPersonModal]}
+    <PersonProvider treeId={treeId}>
+      <AddPersonModalContext.Provider
+        value={[addPersonModal, setAddPersonModal]}
+      >
+        <SidePanelContext.Provider
+          value={[sidePanelContent, setSidePanelContent]}
         >
-          <SidePanelContext.Provider
-            value={[sidePanelContent, setSidePanelContent]}
-          >
-            <div className="w-screen max-h-screen">
-              <div className="flex justify-center items-center p-5 gap-10 rounded-2xl shadow-md w-fit absolute z-50 bg-white left-[50%] translate-x-[-50%]">
-                {/* <Link href={"#"}>Logo</Link> */}
-                <Navbar />
-              </div>
-
-              <AddPersonModal trigger={<AddPersonButton />} />
-
-              <SidePanel />
-              <FlowSpace refreshTrigger={version} />
+          <div className="w-screen max-h-screen">
+            <div className="flex justify-center items-center p-5 gap-10 rounded-2xl shadow-md w-fit absolute z-50 bg-white left-[50%] translate-x-[-50%]">
+              {/* <Link href={"#"}>Logo</Link> */}
+              <Navbar />
             </div>
-          </SidePanelContext.Provider>
-        </AddPersonModalContext.Provider>
-      </PersonProvider>
-      <input
-        type="file"
-        accept=".ged"
-        ref={fileInputRef}
-        className="hidden" // hide the real file input
-        onChange={handleGedcomUpload}
-      />
-    </FileInputContext.Provider>
+
+            <AddPersonModal trigger={<AddPersonButton />} />
+
+            <SidePanel />
+            <FlowSpace refreshTrigger={version} />
+          </div>
+        </SidePanelContext.Provider>
+      </AddPersonModalContext.Provider>
+    </PersonProvider>
   );
 }
 

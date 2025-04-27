@@ -37,6 +37,7 @@ const GetStartedModal = ({ treeId }) => {
   const [loading, setLoading] = useState(false);
   const [file, setFile] = useState(null);
   const [startMethod, setStartMethod] = useState("");
+  const [gedcomFile, setGedcomFile] = useState(null);
 
   const [newPerson, setNewPerson] = useState({
     firstname: "",
@@ -48,7 +49,7 @@ const GetStartedModal = ({ treeId }) => {
     img: null,
   });
 
-  const fileInputRef = useContext(FileInputContext);
+  const fileInputRef = React.useRef();
 
   useEffect(() => {
     setNewPerson((prev) => ({
@@ -57,6 +58,29 @@ const GetStartedModal = ({ treeId }) => {
       dod: dodDate ? format(dodDate, "yyyy-MM-dd") : null,
     }));
   }, [dobDate, dodDate]);
+
+  const handleGedcomUpload = async (e) => {
+    toast.loading("Uploading GEDCOM file");
+    if (!gedcomFile) return;
+
+    try {
+      const text = await gedcomFile.text();
+      const res = await fetch(`/api/trees/${treeId}/import`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ gedcomContent: text }),
+      });
+      const json = await res.json();
+      toast.success(json.message || "Import successful!");
+      // You can refresh tree or page here if you want
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to upload GEDCOM file.");
+    } finally {
+      toast.dismiss();
+      window.location.reload();
+    }
+  };
 
   const handleSubmitForm = async (e) => {
     e.preventDefault();
@@ -147,7 +171,7 @@ const GetStartedModal = ({ treeId }) => {
         </AlertDialog>
       )}
 
-      {startMethod === "blank" ? (
+      {startMethod === "blank" && (
         <AlertDialog open={formOpen} onOpenChange={setFormOpen}>
           <AlertDialogContent className="w-[430px] h-fit">
             <AlertDialogHeader className="flex h-full flex-col justify-between items-start">
@@ -269,9 +293,43 @@ const GetStartedModal = ({ treeId }) => {
             </form>
           </AlertDialogContent>
         </AlertDialog>
-      ) : (
-        // Viveks gedcom file upload feature
-        ""
+      )}
+      {startMethod === "gedcom" && (
+        <AlertDialog open={formOpen} onOpenChange={setFormOpen}>
+          <AlertDialogContent className="w-[430px] h-fit">
+            <AlertDialogHeader className="flex h-full flex-col justify-between items-start">
+              <AlertDialogTitle className="flex justify-between items-center w-full">
+                Upload a GEDCOM file! 🎉
+                <Button variant="secondary" onClick={() => setStartMethod("")}>
+                  <ChevronLeft />
+                </Button>
+              </AlertDialogTitle>
+              <AlertDialogDescription>
+                Let&apos;s Get Started
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+
+            <Input
+              type="file"
+              accept=".ged"
+              onChange={(e) => setGedcomFile(e.target.files[0])}
+              ref={fileInputRef}
+            />
+            <AlertDialogAction
+              onClick={handleGedcomUpload}
+              className="flex w-full"
+            >
+              {loading ? (
+                <div className="loader"></div>
+              ) : (
+                <>
+                  Upload your file! 🚀
+                  <UserPlus className="" size={24} />
+                </>
+              )}
+            </AlertDialogAction>
+          </AlertDialogContent>
+        </AlertDialog>
       )}
     </div>
   );
