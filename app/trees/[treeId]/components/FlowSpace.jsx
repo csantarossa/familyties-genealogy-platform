@@ -25,7 +25,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
 
 // Adjusted dimensions and spacing for better layout
 const NODE_W = 360; // Reduced from 720 to match TreeNode's actual width
@@ -718,7 +717,6 @@ function createEdges(relationships, nodeMap, nodeToContainerMap) {
 export default function FlowSpace({ refreshTrigger }) {
   const { treeId } = useParams();
   const { people, loading: peopleLoading } = useContext(PersonContext);
-  const [progress, setProgress] = useState(0);
   const [nodes, setNodes] = useNodesState([]);
   const [edges, setEdges] = useEdgesState([]);
   const [loading, setLoading] = useState(true);
@@ -730,15 +728,13 @@ export default function FlowSpace({ refreshTrigger }) {
 
   // Fetch relationships and layout once people are ready
   useEffect(() => {
-    setProgress(10);
+    toast.loading("Setting up tree...");
+
     if (peopleLoading) {
-      setProgress(30);
       return;
     }
 
-    setProgress(40); // Raw nodes created
     setLoading(true);
-    const toastId = toast.loading("Setting up the tree…");
 
     // Build nodes from context
     const rawNodes = people.map((p) => ({
@@ -751,14 +747,11 @@ export default function FlowSpace({ refreshTrigger }) {
     // Fetch and render edges
     getRelationships(treeId)
       .then((rels) => {
-        setProgress(50);
         // Ensure each relationship has a unique identifier
         const enhancedRelationships = rels.map((rel, index) => ({
           ...rel,
           relationship_id: rel.relationship_id || `rel-${index}`,
         }));
-
-        setProgress(65);
 
         // Create the layout with spouse containers
         const { nodes: layoutedNodes, nodeToContainerMap } = hybridLayout(
@@ -766,12 +759,8 @@ export default function FlowSpace({ refreshTrigger }) {
           enhancedRelationships
         );
 
-        setProgress(75); // Layouting nodes
-
         // Create the people map for edge creation
         const peopleMap = Object.fromEntries(people.map((p) => [p.id, p]));
-
-        setProgress(90);
 
         // Create edges with the container mapping
         const layoutedEdges = createEdges(
@@ -780,15 +769,12 @@ export default function FlowSpace({ refreshTrigger }) {
           nodeToContainerMap
         );
 
-        setProgress(85);
-
         setNodes(layoutedNodes);
         setEdges(layoutedEdges);
       })
       .catch((err) => console.error("Error loading relationships:", err))
       .finally(() => {
-        setProgress(100);
-        toast.dismiss(toastId);
+        toast.dismiss();
         setLoading(false);
       });
   }, [peopleLoading, people, treeId, refreshTrigger]);
@@ -810,25 +796,6 @@ export default function FlowSpace({ refreshTrigger }) {
         fitView
         style={{ backgroundColor: "#F7F9FB" }}
       >
-        {loading === true && (
-          <Card className="w-80 h-fit absolute top-[50%] translate-y-[-50%] left-[50%] translate-x-[-50%] p-5 flex flex-col gap-5">
-            <CardHeader className="">
-              <CardTitle>Loading Tree</CardTitle>
-              <CardDescription>Your tree is being loaded...</CardDescription>
-            </CardHeader>
-            <CardContent className="flex flex-col justify-center items-center w-full h-full">
-              <Progress value={progress} />
-              {progress <= 10 && <p>Starting tree...</p>}
-              {progress > 10 && progress <= 30 && <p>Fetching people...</p>}
-              {progress === 40 && <p>Fetching relationships...</p>}
-              {progress === 50 && <p>Initialising layout...</p>}
-              {progress === 65 && <p>Initialising layout...</p>}
-              {progress === 75 && <p>Initialising layout...</p>}
-              {progress === 85 && <p>Initialising layout...</p>}
-              {progress === 100 && <p>Complete</p>}
-            </CardContent>
-          </Card>
-        )}
         {loading ? null : nodes.length === 0 ? (
           <GetStartedModal treeId={treeId} />
         ) : (
