@@ -69,6 +69,7 @@ export async function POST(req, { params }) {
       birthCountry: null,
       gallery: null,
       additionalInfo: null,
+      notes: body.notes || null,
       treeId: id,
     };
 
@@ -76,11 +77,11 @@ export async function POST(req, { params }) {
       INSERT INTO person (
         person_firstname, person_middlename, person_lastname, person_gender,
         person_dob, person_dod, person_tags, person_main_img, birth_town, birth_city, birth_state, birth_country,
-        gallery, additional_information, fk_tree_id
+        gallery, notes, additional_information, fk_tree_id
       ) VALUES (
         ${newPerson.firstname}, ${newPerson.middlename}, ${newPerson.lastname}, ${newPerson.gender},
         ${newPerson.dob}, ${newPerson.dod}, ${newPerson.tags}, ${newPerson.img}, ${newPerson.birthTown}, ${newPerson.birthCity},
-        ${newPerson.birthState}, ${newPerson.birthCountry}, ${newPerson.gallery},
+        ${newPerson.birthState}, ${newPerson.birthCountry}, ${newPerson.gallery}, ${newPerson.notes},
         ${newPerson.additionalInfo}, ${newPerson.treeId}
       )
       RETURNING person_id
