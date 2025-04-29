@@ -157,8 +157,11 @@ export function Navbar() {
           <MenubarTrigger>Resources</MenubarTrigger>
           <MenubarContent>
             <MenubarItem>Tutorials</MenubarItem>
-            <MenubarItem>User Guides</MenubarItem>
-            <MenubarSeparator />
+            <Link href="/userguides" passHref>
+              <MenubarItem asChild>
+                <span>User Guides</span>
+              </MenubarItem>
+            </Link>
             <MenubarItem>About the Team</MenubarItem>
             <MenubarItem>Contact Us</MenubarItem>
           </MenubarContent>
