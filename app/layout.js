@@ -13,6 +13,22 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+                (function() {
+                  try {
+                    const theme = localStorage.getItem('theme') || 'light';
+                    if (theme === 'dark') {
+                      document.documentElement.classList.add('dark');
+                    }
+                  } catch (e) {}
+                })();
+              `,
+          }}
+        />
+      </head>
       <body className={`${plusJakarta.className} antialiased`}>
         <UserProvider>
           <Toaster position="bottom-right" />

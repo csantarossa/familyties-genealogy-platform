@@ -105,13 +105,13 @@ const TreeNode = ({ data, isInSpouseContainer = false }) => {
       />
       <Card
         onClick={openPanel}
-        className="w-[360px] flex flex-row justify-between items-center p-3 gap-4"
+        className="w-[360px] flex flex-row justify-between items-center p-3 gap-4 bg-white dark:bg-gray-800"
       >
         <div className="h-24 flex justify-center items-center w-full">
           {data.tags.length > 0 && (
-            <div className="flex items-center justify-end gap-2 h-4 absolute -top-3 p-2 -right-3 bg-white border py-3 px- rounded-lg">
+            <div className="flex items-center justify-end gap-2 h-4 absolute -top-3 p-2 -right-3 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 py-3 px-2 rounded-lg">
               {data.tags.map((tag, index) => (
-                <p className="text-xs" key={index}>
+                <p className="text-xs text-gray-800 dark:text-gray-100" key={index}>
                   {tag}
                 </p>
               ))}
@@ -127,15 +127,15 @@ const TreeNode = ({ data, isInSpouseContainer = false }) => {
           />
 
           <CardHeader className="h-fit flex-col flex justify-start relative w-full">
-            <CardTitle className="text-sm font-medium capitalize max-w-56 truncate ">
+            <CardTitle className="text-sm font-medium capitalize max-w-56 truncate text-gray-900 dark:text-white">
               {data.firstname} {data.middlename}
             </CardTitle>
 
-            <CardTitle className="uppercase text-xl font-semibold  max-w-56 truncate">
+            <CardTitle className="uppercase text-xl font-semibold  max-w-56 truncate text-gray-800 dark:text-white">
               {data.lastname}
             </CardTitle>
             <div className="flex flex-col justify-between gap-1">
-              <CardDescription className="capitalize text-xs mt-1 flex justify-between items-center">
+              <CardDescription className="capitalize text-xs mt-1 flex justify-between items-center text-gray-700 dark:text-gray-300">
                 {data.gender || <div></div>}
                 {data.confidence === "Unverified" ? (
                   <CircleMinus color="orange" size={14} />
@@ -143,7 +143,7 @@ const TreeNode = ({ data, isInSpouseContainer = false }) => {
                   <CircleCheck color="green" size={14} />
                 )}
               </CardDescription>
-              <CardDescription className="capitalize text-[11px] mt-1">
+              <CardDescription className="capitalize text-[11px] mt-1 text-gray-600 dark:text-gray-400">
                 {formatDisplayDate(data.dob)} -{" "}
                 {formatDisplayDate(data.dod, true)}
               </CardDescription>

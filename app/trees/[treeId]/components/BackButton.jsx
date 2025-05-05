@@ -5,7 +5,7 @@ import React from "react";
 const BackButton = () => {
   return (
     <Link href={"/trees"}>
-      <div className="absolute top-5 left-12 z-50 bg-white p-3 rounded-lg shadow-md ">
+      <div className="absolute top-5 left-12 z-50 bg-white dark:bg-zinc-900 dark:text-white p-3 rounded-lg shadow-md">
         <ChevronLeft size={18} />
       </div>
     </Link>

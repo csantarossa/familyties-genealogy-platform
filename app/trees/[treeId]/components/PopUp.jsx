@@ -24,7 +24,7 @@ const PopUp = ({ img, index }) => {
         className="modal-toggle"
       />
       <div className="modal" role="dialog">
-        <div className="modal-box w-fit h-fit p-0 relative rounded-none">
+        <div className="modal-box w-fit h-fit p-0 relative rounded-none bg-white dark:bg-gray-900 text-gray-900 dark:text-white">
           <img
             alt="Person's main image"
             // layout="fill" // Makes the image cover the container
@@ -34,7 +34,10 @@ const PopUp = ({ img, index }) => {
           />
         </div>
 
-        <label className="modal-backdrop" htmlFor={`my_modal_${index}`}>
+        <label
+          className="modal-backdrop bg-black bg-opacity-30 dark:bg-opacity-50"
+          htmlFor={`my_modal_${index}`}
+        >
           Close
         </label>
       </div>
