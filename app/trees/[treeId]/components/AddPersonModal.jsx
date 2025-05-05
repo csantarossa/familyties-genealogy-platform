@@ -65,6 +65,7 @@ const AddPersonModal = ({ trigger }) => {
     img: null,
     relation: null,
     relationType: null,
+    notes: "",
   });
 
   useEffect(() => {
@@ -391,10 +392,15 @@ const AddPersonModal = ({ trigger }) => {
               </div>
               <div className={`flex gap-4`}>
                 <div className="grid w-full items-center gap-1.5">
-                  <Label htmlFor="email" className="text-sm font-medium">
+                  <Label htmlFor="notes" className="text-sm font-medium">
                     Notes
                   </Label>
-                  <Input id="notes" type="text" />
+                  <Input id="notes" type="text" 
+                  value={newPerson.notes}
+                  onChange={(e) =>
+                    setNewPerson({ ...newPerson, notes: e.target.value})
+                  }
+                  />
                 </div>
               </div>
               <div className="w-full flex justify-between items-center pt-3">
