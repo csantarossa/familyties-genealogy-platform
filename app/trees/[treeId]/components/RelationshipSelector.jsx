@@ -33,7 +33,7 @@ export default function RelationshipSelector({
         value={value.otherPersonId?.toString() || ""}
         onValueChange={(v) => onChange({ ...value, otherPersonId: Number(v) })}
       >
-        <SelectTrigger className="flex-1">
+        <SelectTrigger className="flex-1 bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600">
           {value.otherPersonId ? (
             <div>
               {
@@ -48,11 +48,15 @@ export default function RelationshipSelector({
             <SelectValue placeholder="Select person" />
           )}
         </SelectTrigger>
-        <SelectContent>
+        <SelectContent className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
           {people
             .filter((p) => p.person_id !== excludeId)
             .map((p) => (
-              <SelectItem key={p.person_id} value={p.person_id.toString()}>
+              <SelectItem
+                key={p.person_id}
+                value={p.person_id.toString()}
+                className="hover:bg-gray-100 dark:hover:bg-gray-700"
+              >
                 {p.person_firstname} {p.person_lastname}
               </SelectItem>
             ))}
@@ -64,12 +68,16 @@ export default function RelationshipSelector({
         value={value.typeId?.toString() || ""}
         onValueChange={(v) => onChange({ ...value, typeId: Number(v) })}
       >
-        <SelectTrigger className="flex-1">
+        <SelectTrigger className="flex-1 bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600">
           <SelectValue placeholder="Relation" />
         </SelectTrigger>
-        <SelectContent>
+        <SelectContent className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
           {types.map((t) => (
-            <SelectItem key={t.type_id} value={t.type_id.toString()}>
+            <SelectItem
+              key={t.type_id}
+              value={t.type_id.toString()}
+              className="hover:bg-gray-100 dark:hover:bg-gray-700"
+            >
               {t.type_name}
             </SelectItem>
           ))}

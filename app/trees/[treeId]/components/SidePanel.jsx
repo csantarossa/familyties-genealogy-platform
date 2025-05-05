@@ -138,7 +138,7 @@ const SidePanel = () => {
     >
       <SheetContent
         side="left"
-        className="min-w-[520px] py-16 flex justify-center items-start"
+        className="min-w-[520px] py-16 flex justify-center items-start bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
       >
         <div className="flex flex-col gap-6 h-full">
           <SheetHeader className="flex-row justify-start items-center gap-10 relative">
@@ -199,10 +199,10 @@ const SidePanel = () => {
                 ) : (
                   <div className="flex items-center gap-4">
                     <div className="w-full">
-                      <h3 className="capitalize font-medium text-xl w-64 truncate">
+                      <h3 className="capitalize font-medium text-xl w-64 truncate text-gray-900 dark:text-white">
                         {selected.firstname} {selected.middlename}
                       </h3>
-                      <SheetTitle className="uppercase text-3xl w-64 truncate">
+                      <SheetTitle className="uppercase text-3xl w-64 truncate text-gray-800 dark:text-white">
                         {selected.lastname}
                       </SheetTitle>
                     </div>
@@ -268,7 +268,7 @@ const SidePanel = () => {
                     }
                   }}
                 >
-                  <SelectTrigger className="w-36 h-fit py-1" tabIndex={-1}>
+                  <SelectTrigger className="w-36 h-fit py-1 bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600" tabIndex={-1}>
                     <SelectValue>
                       <div className="flex flex-row gap-2 items-center">
                         {selected.confidence === "Verified" ? (
@@ -280,7 +280,7 @@ const SidePanel = () => {
                       </div>
                     </SelectValue>
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
                     <SelectItem value="Verified">
                       <div className="flex flex-row gap-2 items-center">
                         <CircleCheck color="green" size={16} />

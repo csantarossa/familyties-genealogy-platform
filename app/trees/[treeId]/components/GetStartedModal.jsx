@@ -72,7 +72,6 @@ const GetStartedModal = ({ treeId }) => {
       });
       const json = await res.json();
       toast.success(json.message || "Import successful!");
-      // You can refresh tree or page here if you want
     } catch (err) {
       console.error(err);
       toast.error("Failed to upload GEDCOM file.");
@@ -108,12 +107,9 @@ const GetStartedModal = ({ treeId }) => {
         uploadedImageUrl = uploadData.url;
       }
 
-      // 📨 Send new person data
       const response = await fetch(`/api/trees/${treeId}`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...newPerson,
           img: uploadedImageUrl,
@@ -138,12 +134,12 @@ const GetStartedModal = ({ treeId }) => {
     <div>
       {startMethod === "" && (
         <AlertDialog open={formOpen} onOpenChange={setFormOpen}>
-          <AlertDialogContent className="w-[500px] h-fit">
+          <AlertDialogContent className="w-[500px] h-fit dark:bg-zinc-900 dark:text-white">
             <AlertDialogHeader className="flex h-full flex-col justify-between items-start">
               <AlertDialogTitle className="">
                 Welcome to your new tree! 🎉
               </AlertDialogTitle>
-              <AlertDialogDescription>
+              <AlertDialogDescription className="dark:text-zinc-400">
                 How would you like to begin?
               </AlertDialogDescription>
             </AlertDialogHeader>
@@ -152,17 +148,17 @@ const GetStartedModal = ({ treeId }) => {
                 onClick={() => {
                   setStartMethod("blank");
                 }}
-                className="h-32 w-48 shadow-md rounded-xl flex flex-col justify-center items-center border p-4 hover:shadow-xl duration-200 cursor-pointer"
+                className="h-32 w-48 shadow-md rounded-xl flex flex-col justify-center items-center border p-4 hover:shadow-xl duration-200 cursor-pointer dark:bg-zinc-800 dark:border-zinc-700"
               >
                 <h1 className="text-center font-medium">Start from scratch</h1>
               </div>
-              <p>or</p>
+              <p className="text-zinc-400">or</p>
               <div
                 onClick={() => {
                   setStartMethod("gedcom");
                   fileInputRef?.current?.click();
                 }}
-                className="h-32 w-48 shadow-md rounded-xl flex flex-col justify-center items-center border p-4 hover:shadow-xl duration-200 cursor-pointer"
+                className="h-32 w-48 shadow-md rounded-xl flex flex-col justify-center items-center border p-4 hover:shadow-xl duration-200 cursor-pointer dark:bg-zinc-800 dark:border-zinc-700"
               >
                 <h1 className="text-center font-medium">Import GEDCOM file</h1>
               </div>
@@ -173,7 +169,7 @@ const GetStartedModal = ({ treeId }) => {
 
       {startMethod === "blank" && (
         <AlertDialog open={formOpen} onOpenChange={setFormOpen}>
-          <AlertDialogContent className="w-[430px] h-fit">
+          <AlertDialogContent className="w-[430px] h-fit dark:bg-zinc-900 dark:text-white">
             <AlertDialogHeader className="flex h-full flex-col justify-between items-start">
               <AlertDialogTitle className="flex justify-between items-center w-full">
                 Welcome to your new tree! 🎉
@@ -181,7 +177,7 @@ const GetStartedModal = ({ treeId }) => {
                   <ChevronLeft />
                 </Button>
               </AlertDialogTitle>
-              <AlertDialogDescription>
+              <AlertDialogDescription className="dark:text-zinc-400">
                 Let&apos;s Get Started
               </AlertDialogDescription>
             </AlertDialogHeader>
@@ -189,7 +185,8 @@ const GetStartedModal = ({ treeId }) => {
               onSubmit={handleSubmitForm}
               className="w-full h-full flex flex-col justify-center items-center gap-3"
             >
-              <div className={`flex gap-4 w-full`}>
+              {/* First and Middle Name */}
+              <div className="flex gap-4 w-full">
                 <div className="grid w-full items-center gap-1.5">
                   <Label htmlFor="email" className="text-sm font-medium">
                     Firstname *
@@ -218,6 +215,7 @@ const GetStartedModal = ({ treeId }) => {
                 </div>
               </div>
 
+              {/* Last Name */}
               <div className="grid w-full items-center gap-1.5">
                 <Label htmlFor="email" className="text-sm font-medium">
                   Lastname *
@@ -231,6 +229,8 @@ const GetStartedModal = ({ treeId }) => {
                   }
                 />
               </div>
+
+              {/* Gender */}
               <div className="grid w-full items-center gap-1.5">
                 <Label htmlFor="gender" className="text-sm font-medium">
                   Gender
@@ -252,24 +252,24 @@ const GetStartedModal = ({ treeId }) => {
                   </SelectContent>
                 </Select>
               </div>
+
+              {/* DOB & DOD */}
               <div className="flex gap-4 w-full">
                 <div className="grid w-full items-center gap-1.5">
                   <Label htmlFor="dob" className="text-sm font-medium">
                     Date of Birth *
                   </Label>
-
                   <DatePickerInput date={dobDate} setDate={setDobDate} />
                 </div>
                 <div className="grid w-full items-center gap-1.5">
-                  <div>
-                    <Label htmlFor="dod" className="text-sm font-medium">
-                      Date of Death
-                    </Label>
-                  </div>
+                  <Label htmlFor="dod" className="text-sm font-medium">
+                    Date of Death
+                  </Label>
                   <DatePickerInput setDate={setDodDate} />
                 </div>
               </div>
 
+              {/* Profile Image */}
               <div className="grid w-full items-center gap-1.5">
                 <Label className="text-sm font-medium">Profile Image</Label>
                 <Input
@@ -294,9 +294,10 @@ const GetStartedModal = ({ treeId }) => {
           </AlertDialogContent>
         </AlertDialog>
       )}
+
       {startMethod === "gedcom" && (
         <AlertDialog open={formOpen} onOpenChange={setFormOpen}>
-          <AlertDialogContent className="w-[430px] h-fit">
+          <AlertDialogContent className="w-[430px] h-fit dark:bg-zinc-900 dark:text-white">
             <AlertDialogHeader className="flex h-full flex-col justify-between items-start">
               <AlertDialogTitle className="flex justify-between items-center w-full">
                 Upload a GEDCOM file! 🎉
@@ -304,11 +305,10 @@ const GetStartedModal = ({ treeId }) => {
                   <ChevronLeft />
                 </Button>
               </AlertDialogTitle>
-              <AlertDialogDescription>
+              <AlertDialogDescription className="dark:text-zinc-400">
                 Let&apos;s Get Started
               </AlertDialogDescription>
             </AlertDialogHeader>
-
             <Input
               type="file"
               accept=".ged"

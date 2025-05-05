@@ -676,9 +676,8 @@ function createEdges(relationships, nodeMap, nodeToContainerMap) {
     uniqueEdgeKeys.add(edgeKey);
 
     // Generate a unique ID that includes the relationship ID to guarantee uniqueness
-    const edgeId = `${fk_type_id}-${effectiveSrc}-${effectiveTgt}-${
-      r.relationship_id || Math.random().toString(36).substr(2, 9)
-    }`;
+    const edgeId = `${fk_type_id}-${effectiveSrc}-${effectiveTgt}-${r.relationship_id || Math.random().toString(36).substr(2, 9)
+      }`;
 
     // Determine source and target handles based on relationship type and container status
     let sourceHandle = fk_type_id === 3 ? "right" : "bottom";
@@ -788,13 +787,13 @@ export default function FlowSpace({ refreshTrigger }) {
   );
 
   return (
-    <div className="w-screen h-screen bg-zinc-200/50 relative">
+    <div className="w-screen h-screen bg-zinc-200/50 dark:bg-zinc-900 relative">
       <ReactFlow
         nodes={nodes}
         edges={edges}
         nodeTypes={nodeTypes}
         fitView
-        style={{ backgroundColor: "#F7F9FB" }}
+        style={{ backgroundColor: "var(--rf-background-color)" }}
       >
         {loading ? null : nodes.length === 0 ? (
           <GetStartedModal treeId={treeId} />
