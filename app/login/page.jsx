@@ -55,7 +55,7 @@ export default function Home() {
   };
 
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
+    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)] dark:bg-zinc-900 dark:text-white">
       <div className="flex justify-center items-center gap-2">
         <div className="h-10 w-10 relative">
           <Image objectFit="fit" layout="fill" alt="logo" src="/logo.png" />
@@ -69,16 +69,18 @@ export default function Home() {
       </div>
       <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start shadow-md">
         <form onSubmit={handleLogin}>
-          <Card className="w-[350px]">
+          <Card className="w-[350px] dark:bg-zinc-800 dark:border-zinc-700">
             <CardHeader>
-              <CardTitle>Login</CardTitle>
+              <CardTitle className="dark:text-white">Login</CardTitle>
 
-              <CardDescription>Welcome back to FamilyTies.</CardDescription>
+              <CardDescription className="dark:text-zinc-300">
+                Welcome back to FamilyTies.
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid w-full items-center gap-4">
                 <div className="flex flex-col space-y-1.5">
-                  <Label htmlFor="name">Email</Label>
+                  <Label htmlFor="name" className="dark:text-zinc-200">Email</Label>
                   <Input
                     id="email"
                     required
@@ -87,10 +89,11 @@ export default function Home() {
                     onChange={(e) =>
                       setLoginUser({ ...loginUser, email: e.target.value })
                     }
+                    className="dark:bg-zinc-700 dark:text-white dark:border-zinc-600"
                   />
                 </div>
                 <div className="flex flex-col space-y-1.5">
-                  <Label htmlFor="framework">Password</Label>
+                  <Label htmlFor="framework" className="dark:text-zinc-200">Password</Label>
                   <Input
                     type="password"
                     required
@@ -99,6 +102,7 @@ export default function Home() {
                     onChange={(e) =>
                       setLoginUser({ ...loginUser, password: e.target.value })
                     }
+                    className="dark:bg-zinc-700 dark:text-white dark:border-zinc-600"
                   />
                 </div>
               </div>
@@ -113,11 +117,11 @@ export default function Home() {
 
             <CardFooter className="flex justify-between">
               <Link href="/signup">
-                <Button variant="outline" type="button">
+                <Button variant="outline" type="button" className="dark:bg-zinc-700 dark:text-white dark:hover:bg-zinc-600">
                   Create Account
                 </Button>
               </Link>
-              <Button>Login</Button>
+              <Button className="dark:bg-blue-600 dark:text-white dark:hover:bg-blue-500">Login</Button>
             </CardFooter>
           </Card>
         </form>

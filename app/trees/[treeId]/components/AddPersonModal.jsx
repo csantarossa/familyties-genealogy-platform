@@ -168,21 +168,20 @@ const AddPersonModal = ({ trigger }) => {
     <div className="absolute bottom-16 right-16 z-50">
       <AlertDialog open={addPersonModal} onOpenChange={setAddPersonModal}>
         <AlertDialogTrigger>{trigger}</AlertDialogTrigger>
-        <AlertDialogContent className="w-[430px] max-h-[90vh] flex flex-col overflow-hidden">
+        <AlertDialogContent className="w-[430px] max-h-[90vh] flex flex-col overflow-hidden dark:bg-zinc-900 dark:text-white">
           <AlertDialogHeader className="flex h-full flex-row justify-between items-start">
             <AlertDialogTitle className="">Add a Person</AlertDialogTitle>
-            <Progress className="h-2 w-[50%]" value={progress.progressBar} />
+            <Progress className="h-2 w-[50%] dark:bg-zinc-800 dark:fill-white" value={progress.progressBar} />
           </AlertDialogHeader>
           <form
             onSubmit={handleSubmitForm}
             className="flex flex-col flex-1 overflow-hidden"
           >
             <div
-              className={`duration-500 h-full w-full flex flex-col gap-4 ${
-                progress.page === 1
-                  ? "translate-x-0"
-                  : "translate-x-[150%] opacity-0 hidden"
-              }`}
+              className={`duration-500 h-full w-full flex flex-col gap-4 ${progress.page === 1
+                ? "translate-x-0"
+                : "translate-x-[150%] opacity-0 hidden"
+                }`}
             >
               <div className={`flex gap-4 `}>
                 <div className="grid w-full items-center gap-1.5">
@@ -196,6 +195,7 @@ const AddPersonModal = ({ trigger }) => {
                     onChange={(e) =>
                       setNewPerson({ ...newPerson, firstname: e.target.value })
                     }
+                    className="dark:bg-zinc-800 dark:text-white"
                   />
                 </div>
                 <div className="grid w-full max-w-sm items-center gap-1.5">
@@ -209,6 +209,7 @@ const AddPersonModal = ({ trigger }) => {
                     onChange={(e) =>
                       setNewPerson({ ...newPerson, middlename: e.target.value })
                     }
+                    className="dark:bg-zinc-800 dark:text-white"
                   />
                 </div>
               </div>
@@ -223,6 +224,7 @@ const AddPersonModal = ({ trigger }) => {
                   onChange={(e) =>
                     setNewPerson({ ...newPerson, lastname: e.target.value })
                   }
+                  className="dark:bg-zinc-800 dark:text-white"
                 />
               </div>
               <div className="grid w-full items-center gap-1.5">
@@ -234,8 +236,8 @@ const AddPersonModal = ({ trigger }) => {
                     setNewPerson({ ...newPerson, gender: value })
                   }
                 >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select gender" />
+                  <SelectTrigger className="dark:bg-zinc-800 dark:text-white">
+                    <SelectValue placeholder="Select gender" className="dark:bg-zinc-800 dark:text-white" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectGroup>
@@ -281,24 +283,31 @@ const AddPersonModal = ({ trigger }) => {
 
             {/* SECOND PAGE */}
             <div
-              className={`duration-200 h-[327px] w-full flex flex-col justify-between gap-4 ${
-                progress.page === 2
-                  ? "translate-x-0"
-                  : "translate-x-[-150%] opacity-0 hidden"
-              }`}
+              className={`duration-200 h-[327px] w-full flex flex-col justify-between gap-4 ${progress.page === 2
+                ? "translate-x-0"
+                : "translate-x-[-150%] opacity-0 hidden"
+                }`}
             >
               <div className={`flex gap-4`}>
                 <div className="grid w-full items-center gap-1.5">
-                  <Label htmlFor="email" className="text-sm font-medium">
+                  <Label htmlFor="picture" className="text-sm font-medium">
                     Profile Image
                   </Label>
-                  <Input
-                    id="picture"
-                    type="file"
-                    onChange={(e) => {
-                      setImageFile(e.target.files[0]);
-                    }}
-                  />
+                  <div className="relative">
+                    <input
+                      id="picture"
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => setImageFile(e.target.files[0])}
+                      className="absolute inset-0 opacity-0 cursor-pointer"
+                    />
+                    <label
+                      htmlFor="picture"
+                      className="block w-full bg-white text-black dark:bg-zinc-800 dark:text-white border border-gray-300 dark:border-zinc-600 rounded-md px-4 py-2 text-sm cursor-pointer text-center"
+                    >
+                      {imageFile ? imageFile.name : "Choose File"}
+                    </label>
+                  </div>
                 </div>
               </div>
               <div className="flex flex-row justify-center gap-4 items-center">
@@ -313,7 +322,7 @@ const AddPersonModal = ({ trigger }) => {
                     }}
                   >
                     <SelectTrigger
-                      className="w-[180px]"
+                      className="w-[180px] dark:bg-zinc-800 dark:text-white dark:border-zinc-700"
                       onClick={() => getNodes()}
                     >
                       {relation.relationId ? (
@@ -330,7 +339,7 @@ const AddPersonModal = ({ trigger }) => {
                       <SelectGroup className="flex flex-col gap-1">
                         {nodes.map((node) => (
                           <SelectItem
-                            className="cursor-pointer hover:bg-slate-50 capitalize"
+                            className="cursor-pointer hover:bg-slate-50 dark:hover:bg-zinc-800 capitalize"
                             key={node.person_id}
                             value={node.person_id.toString()}
                           >
@@ -352,7 +361,7 @@ const AddPersonModal = ({ trigger }) => {
                         <TooltipTrigger asChild>
                           <InfoIcon size={17} className="opacity-80" />
                         </TooltipTrigger>
-                        <TooltipContent>
+                        <TooltipContent className="dark:bg-zinc-800 dark:text-white">
                           <p className="w-52 text-center">
                             How is this new person related to the selected
                             person?
@@ -368,7 +377,7 @@ const AddPersonModal = ({ trigger }) => {
                     }
                   >
                     <SelectTrigger
-                      className="w-[180px]"
+                      className="w-[180px] dark:bg-zinc-800 dark:text-white"
                       onClick={() => loadRelationshipTypes()}
                     >
                       <SelectValue placeholder="Relationship" />
@@ -379,7 +388,7 @@ const AddPersonModal = ({ trigger }) => {
                           <SelectItem
                             key={type.type_id}
                             value={type.type_id.toString()}
-                            className="cursor-pointer hover:bg-slate-50 capitalize"
+                            className="cursor-pointer hover:bg-slate-50 dark:hover:bg-zinc-800 capitalize"
                           >
                             {type.type_name}
                           </SelectItem>
@@ -394,7 +403,7 @@ const AddPersonModal = ({ trigger }) => {
                   <Label htmlFor="email" className="text-sm font-medium">
                     Notes
                   </Label>
-                  <Input id="notes" type="text" />
+                  <Input id="notes" type="text" className="dark:bg-zinc-800 dark:text-white" />
                 </div>
               </div>
               <div className="w-full flex justify-between items-center pt-3">
@@ -410,7 +419,7 @@ const AddPersonModal = ({ trigger }) => {
                 </Button>
                 <AlertDialogAction
                   type="submit"
-                  className="flex"
+                  className="flex dark:bg-zinc-700 dark:hover:bg-zinc-600 dark:text-white"
                   onClick={handleSubmitForm}
                 >
                   Add

@@ -45,7 +45,7 @@ const EditTreeModal = ({
       >
         <EditIcon className="z-50" size={17} />
       </AlertDialogTrigger>
-      <AlertDialogContent className="w-[360px] h-fit">
+      <AlertDialogContent className="w-[360px] h-fit dark:bg-zinc-900 dark:text-white">
         <AlertDialogHeader className="flex h-full flex-row justify-start items-start">
           <AlertDialogTitle className="">Edit Tree</AlertDialogTitle>
         </AlertDialogHeader>
@@ -54,7 +54,7 @@ const EditTreeModal = ({
           className="w-full h-full flex justify-center items-center flex-col gap-4"
         >
           <div className="grid w-full items-center gap-1.5">
-            <Label htmlFor="email" className="text-sm font-medium">
+            <Label htmlFor="email" className="text-sm font-medium dark:text-gray-200">
               Title *
             </Label>
             <Input
@@ -63,11 +63,12 @@ const EditTreeModal = ({
               placeholder="Edit Title"
               value={editedTitle}
               onChange={(e) => setEditedTitle(e.target.value)}
+              className="dark:bg-zinc-800 dark:text-white dark:border-zinc-700"
             />
           </div>
 
           <div className="grid w-full items-center gap-1.5">
-            <Label htmlFor="email" className="text-sm font-medium">
+            <Label htmlFor="email" className="text-sm font-medium dark:text-gray-200">
               Description
             </Label>
             <Input
@@ -76,6 +77,7 @@ const EditTreeModal = ({
               value={editedDesc}
               placeholder="Edit Description"
               onChange={(e) => setEditedDesc(e.target.value)}
+              className="dark:bg-zinc-800 dark:text-white dark:border-zinc-700"
             />
           </div>
 
@@ -86,6 +88,7 @@ const EditTreeModal = ({
                 e.stopPropagation();
                 setOpenModal(false);
               }}
+              className="dark:bg-zinc-700 dark:text-white dark:hover:bg-zinc-600"
             >
               Cancel
             </AlertDialogCancel>
@@ -95,7 +98,7 @@ const EditTreeModal = ({
                 e.stopPropagation();
                 setOpenModal(false);
               }}
-              className="flex justify-center items-center gap-1"
+              className="flex justify-center items-center gap-1 dark:bg-blue-600 dark:text-white dark:hover:bg-blue-500"
             >
               Update
               <ChevronRight className="w-fit" size={20} />

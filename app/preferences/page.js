@@ -64,7 +64,7 @@ export default function PreferencesPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 dark:bg-[#111827] p-6 sm:p-10 transition-colors duration-300">
+    <div className="min-h-screen bg-zinc-200 dark:bg-zinc-900 p-6 sm:p-10 transition-colors duration-300">
       <div className="max-w-2xl mx-auto bg-white dark:bg-gray-900 shadow-lg rounded-2xl p-8 border border-gray-200 dark:border-gray-700 transition-all">
         <h1 className="text-3xl font-extrabold text-[#4877c3] dark:text-white mb-6">
           Preferences

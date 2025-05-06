@@ -77,7 +77,7 @@ export default function Home() {
   };
 
   return (
-    <div className="flex flex-col justify-center items-center h-screen p-10 py-20 gap-4 font-[family-name:var(--font-geist-sans)]">
+    <div className="flex flex-col justify-center items-center h-screen p-10 py-20 gap-4 font-[family-name:var(--font-geist-sans)] bg-white dark:bg-zinc-900 text-black dark:text-white transition-colors duration-300">
       <div className="flex justify-center items-center gap-2">
         <div className="h-10 w-10 relative">
           <Image objectFit="fit" layout="fill" alt="logo" src="/logo.png" />
@@ -107,7 +107,13 @@ export default function Home() {
               className="h-fit w-fit"
               href={`/trees/${tree.tree_id}`}
             >
-              <div className="w-48 h-40 flex flex-col justify-start p-6 bg-gray-100 hover:bg-gray-50 rounded-lg cursor-pointer border-4 border-gray-100 duration-150 relative">
+              <div className="w-48 h-40 flex flex-col justify-start p-6 
+                bg-gray-100 dark:bg-zinc-800 
+                hover:bg-gray-50 dark:hover:bg-zinc-700 
+                rounded-lg cursor-pointer border-4 
+                border-gray-100 dark:border-zinc-700 
+                duration-150 relative transition-colors"
+              >
                 <div className="flex flex-col justify-start items-start overflow-hidden gap-1">
                   <div className="flex justify-between w-full items-start gap-1">
                     <h1 className="font-semibold text-start w-full leading-none">
@@ -115,7 +121,7 @@ export default function Home() {
                     </h1>
                   </div>
 
-                  <p className="text-sm text-gray-700 text-start">
+                  <p className="text-sm text-gray-700 dark:text-gray-300 text-start">
                     {tree.tree_desc}
                   </p>
                 </div>
