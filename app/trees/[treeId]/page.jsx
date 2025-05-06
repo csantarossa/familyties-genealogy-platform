@@ -62,8 +62,8 @@ function Home() {
         <SidePanelContext.Provider
           value={[sidePanelContent, setSidePanelContent]}
         >
-          <div className="w-screen max-h-screen">
-            <div className="flex justify-center items-center p-5 gap-10 rounded-2xl shadow-md w-fit absolute z-50 bg-white left-[50%] translate-x-[-50%]">
+          <div className="w-screen max-h-screen bg-white dark:bg-zinc-900">
+            <div className="flex justify-center items-center p-5 gap-10 rounded-2xl shadow-md dark:shadow-zinc-700/50 w-fit absolute z-50 bg-white dark:bg-zinc-900 left-[50%] translate-x-[-50%]">
               {/* <Link href={"#"}>Logo</Link> */}
               <Navbar />
             </div>

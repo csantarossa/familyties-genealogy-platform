@@ -89,7 +89,7 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-[#111827] p-6 md:p-10 transition-colors relative">
+    <div className="min-h-screen bg-zinc-200 dark:bg-zinc-900 p-6 md:p-10 transition-colors relative">
       <div className="max-w-3xl mx-auto bg-white dark:bg-gray-900 shadow-lg rounded-xl p-8 border border-gray-200 dark:border-gray-700 transition-all">
         <h1 className="text-3xl font-bold text-[#4877c3] dark:text-white mb-6">Account Settings</h1>
 
@@ -114,9 +114,8 @@ export default function SettingsPage() {
       </div>
 
       {toast && (
-        <div className={`fixed bottom-6 left-1/2 transform -translate-x-1/2 px-4 py-2 rounded-md shadow-md text-white transition-all duration-300 ${
-          toast.type === 'error' ? 'bg-red-500' : 'bg-green-600'
-        }`}>
+        <div className={`fixed bottom-6 left-1/2 transform -translate-x-1/2 px-4 py-2 rounded-md shadow-md text-white transition-all duration-300 ${toast.type === 'error' ? 'bg-red-500' : 'bg-green-600'
+          }`}>
           {toast.msg}
         </div>
       )}
@@ -133,9 +132,8 @@ function Input({ label, name, value, type = 'text', onChange, error }) {
         type={type}
         value={value}
         onChange={onChange}
-        className={`w-full px-4 py-2 rounded-md border ${
-          error ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
-        } bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#4877c3] transition-all`}
+        className={`w-full px-4 py-2 rounded-md border ${error ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
+          } bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#4877c3] transition-all`}
       />
     </div>
   );

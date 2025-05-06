@@ -73,7 +73,7 @@ export function Navbar() {
   };
 
   return (
-    <div className="bg-white dark:bg-zinc-900 dark:border dark:border-zinc-800 dark:shadow-none">
+    <div className="bg-transparent dark:bg-transparent border-none shadow-none">
       <Menubar className="border-none shadow-none bg-transparent dark:bg-transparent">
         <Link
           href={"/trees"}
