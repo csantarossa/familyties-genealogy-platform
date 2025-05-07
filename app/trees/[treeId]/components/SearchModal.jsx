@@ -19,6 +19,12 @@ const SearchModal = ({open, setOpen}) => {
       }, [open]);
 
     const handleSearch = () => {
+        // Prevent empty input
+        if (firstName.trim() === "" && lastName.trim() === "") {
+            toast.error("Please enter at least a first or last name.");
+            return;
+        }
+
         const nodes = document.querySelectorAll(`[id^="node-"]`);
         let matchFound = false;
 
@@ -28,23 +34,25 @@ const SearchModal = ({open, setOpen}) => {
                 el.textContent.toLowerCase()
               );
               
-              const [firstNameText, lastNameText] = nameTexts;
+              const [firstNameText = "", lastNameText = ""] = nameTexts;
+
+              //True match when there is no input on either field
+              const firstMatch = firstName.trim() == "" || firstNameText.includes(firstName.toLowerCase());
+              const lastMatch = lastName.trim() == "" || lastNameText.includes(lastName.toLowerCase());
               
-              if (
-                firstNameText.includes(firstName.toLowerCase()) &&
-                lastNameText.includes(lastName.toLowerCase())
-              ){
+              if (firstMatch && lastMatch){
                 matchFound = true;
                 node.scrollIntoView({behavior: "smooth", block: "center"}); //Render screen into the node(s) found
                 node.classList.add("ring-4", "ring-green-400");
 
-                //Remove the highlight after 5 secods
+                //Remove the highlight after 5 seconds
                 setTimeout(() =>{
                     node.classList.remove("ring-4", "ring-green-400");
                 }, 5000);
             }
         });
 
+        //Toast error when no person found
         if (!matchFound){
             toast.error("Person not found!");
         }
@@ -69,13 +77,11 @@ const SearchModal = ({open, setOpen}) => {
                     placeholder="First Name"
                     value={firstName}
                     onChange={(e) => setFirstName(e.target.value)}
-                    required
                 />
                 <Input
                     placeholder="Last Name"
                     value={lastName}
                     onChange={(e) => setLastName(e.target.value)}
-                    required
                 />
                 <div className="flex justify-end gap-2">
                     <Button type="button" variant="ghost" onClick={() => setOpen(false)}>
