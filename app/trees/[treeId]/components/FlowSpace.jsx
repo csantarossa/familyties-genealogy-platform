@@ -25,13 +25,37 @@ import {
   postProcess,
 } from "@/app/utils/layout";
 
-/** Create only parent→child edges for the layout */
-function createEdges(rels, containerMap) {
+// 🧠 Create edges intelligently, based on whether both spouses share children
+function createSmartEdges(rels, containerMap, parentToChildren) {
   return rels
     .filter((r) => r.fk_type_id === 4)
     .map((r) => {
-      const src = containerMap[String(r.person_2)] || String(r.person_2);
-      const tgt = containerMap[String(r.person_1)] || String(r.person_1);
+      const parentId = String(r.person_2);
+      const childId = String(r.person_1);
+
+      const parentContainer = containerMap[parentId];
+      const childContainer = containerMap[childId];
+
+      let useContainer = false;
+      if (parentContainer) {
+        const [_, id1, id2] = parentContainer.split("-");
+        const spouseId = id1 === parentId ? id2 : id1;
+
+        const spouseChildren = parentToChildren[spouseId] || [];
+        const thisChildren = parentToChildren[parentId] || [];
+
+        if (
+          spouseChildren.length &&
+          thisChildren.length &&
+          arraysEqual(spouseChildren, thisChildren)
+        ) {
+          useContainer = true;
+        }
+      }
+
+      const src = useContainer ? parentContainer : parentId;
+      const tgt = childContainer || childId;
+
       return {
         id: `4-${src}-${tgt}-${r.relationship_id}`,
         source: src,
@@ -44,6 +68,11 @@ function createEdges(rels, containerMap) {
     });
 }
 
+function arraysEqual(a, b) {
+  if (a.length !== b.length) return false;
+  return [...a].sort().every((val, i) => val === [...b].sort()[i]);
+}
+
 export default function FlowSpace({ refreshTrigger }) {
   const { treeId } = useParams();
   const { people, loading: peopleLoading } = useContext(PersonContext);
@@ -52,7 +81,6 @@ export default function FlowSpace({ refreshTrigger }) {
   const [edges, setEdges] = useEdgesState([]);
   const [loading, setLoading] = useState(true);
 
-  // Remove a node when its “delete” button is clicked
   const handleDeleteNode = (id) => {
     setNodes((nds) => nds.filter((n) => n.id !== id));
   };
@@ -61,7 +89,6 @@ export default function FlowSpace({ refreshTrigger }) {
     if (peopleLoading) return;
     setLoading(true);
 
-    // 1️⃣ Build raw nodes
     const rawNodes = people.map((p) => ({
       id: String(p.id),
       type: "treeCard",
@@ -74,27 +101,45 @@ export default function FlowSpace({ refreshTrigger }) {
 
     getRelationships(treeId)
       .then((rels) => {
-        // 2️⃣ Build relationship maps
-        const maps = buildRelationshipMaps(rels);
+        const { spouseMap, childToParents, parentToChildren } = buildRelationshipMaps(rels);
 
-        // 3️⃣ Pack spouses into containers
         const { containers, singles, containerMap } = makeSpouseContainers(
           rawNodes,
-          maps
+          { spouseMap, childToParents }
         );
 
-        // 4️⃣ Layout with Dagre
         const laidOut = applyDagreLayout(
           [...containers, ...singles],
           rels,
           containerMap
         );
 
-        // 5️⃣ Minor post-processing
-        const finalNodes = postProcess(laidOut, rels, containerMap);
+        let finalNodes = postProcess(laidOut, rels, containerMap);
+
+        // 🔧 Ensure all edge-referenced containers are included
+        const requiredIds = new Set();
+        rels.forEach((r) => {
+          if (r.fk_type_id !== 4) return;
+          const parentId = String(r.person_2);
+          const childId = String(r.person_1);
+          requiredIds.add(containerMap[parentId] || parentId);
+          requiredIds.add(containerMap[childId] || childId);
+        });
+
+        requiredIds.forEach((id) => {
+          if (!finalNodes.some((n) => n.id === id)) {
+            const fallback = [...containers, ...singles].find((n) => n.id === id);
+            if (fallback) finalNodes.push(fallback);
+          }
+        });
+
+        const allNodeIds = new Set(finalNodes.map((n) => n.id));
+
+        const filteredEdges = createSmartEdges(rels, containerMap, parentToChildren)
+          .filter((e) => allNodeIds.has(e.source) && allNodeIds.has(e.target));
 
         setNodes(finalNodes);
-        setEdges(createEdges(rels, containerMap));
+        setEdges(filteredEdges);
       })
       .catch((err) => console.error("Error loading relationships:", err))
       .finally(() => {
