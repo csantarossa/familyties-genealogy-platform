@@ -104,6 +104,7 @@ const TreeNode = ({ data, isInSpouseContainer = false }) => {
         style={{ background: "#000" }}
       />
       <Card
+        id={`node-${data.id}`}
         onClick={openPanel}
         className="w-[360px] flex flex-row justify-between items-center p-3 gap-4"
       >
@@ -127,11 +128,11 @@ const TreeNode = ({ data, isInSpouseContainer = false }) => {
           />
 
           <CardHeader className="h-fit flex-col flex justify-start relative w-full">
-            <CardTitle className="text-sm font-medium capitalize max-w-56 truncate ">
+            <CardTitle data-fullname className="text-sm font-medium capitalize max-w-56 truncate ">
               {data.firstname} {data.middlename}
             </CardTitle>
 
-            <CardTitle className="uppercase text-xl font-semibold  max-w-56 truncate">
+            <CardTitle data-fullname className="uppercase text-xl font-semibold  max-w-56 truncate">
               {data.lastname}
             </CardTitle>
             <div className="flex flex-col justify-between gap-1">

@@ -31,6 +31,7 @@ import { AddPersonModalContext } from "../page";
 import { useUser, logout } from "@/app/contexts/UserContext";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import SearchModal from "./SearchModal";
 
 const dancingScript = Dancing_Script({ subsets: ["latin"] });
 
@@ -44,6 +45,7 @@ export function Navbar() {
   const [loading, setLoading] = useState(false);
   const [openModal, setOpenModal] = useState(false);
   const [gedcomFile, setGedcomFile] = useState(null);
+  const [openSearchModal, setOpenSearchModal] = useState(false);
 
   const handleGedcomUpload = async (e) => {
     setLoading(true);
@@ -93,7 +95,7 @@ export function Navbar() {
               Add a Person
             </MenubarItem>
             <MenubarSeparator />
-            <MenubarItem className="flex items-center gap-1">
+            <MenubarItem className="flex items-center gap-1" onClick={() => setOpenSearchModal(true)}>
               <Search size={18} strokeWidth={2} className="opacity-70" />
               Search
             </MenubarItem>
@@ -193,6 +195,7 @@ export function Navbar() {
           </MenubarContent>
         </MenubarMenu>
       </Menubar>
+      <SearchModal open={openSearchModal} setOpen={setOpenSearchModal} />
     </>
   );
 }
