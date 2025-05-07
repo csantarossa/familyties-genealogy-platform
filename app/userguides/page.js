@@ -1,11 +1,6 @@
 "use client";
 
-import {
-  Accordion,
-  AccordionItem,
-  AccordionTrigger,
-  AccordionContent,
-} from "@/components/ui/accordion";
+import {Accordion, AccordionItem, AccordionTrigger, AccordionContent} from "@/components/ui/accordion";
 import { useState } from "react";
 
 export default function UserGuidesPage() {
@@ -13,10 +8,10 @@ export default function UserGuidesPage() {
 
   return (
     <div className="max-w-3xl mx-auto py-8 px-4">
-      <h1 className="text-3xl font-bold mb-6">📘 User Guides</h1>
+      <h1 className="text-3xl font-bold mb-6">User Guides</h1> 
       <Accordion>
         <AccordionItem value="sidepanel" openItem={openItem} setOpenItem={setOpenItem}>
-          <AccordionTrigger>📋 Using the Sidepanel</AccordionTrigger>
+          <AccordionTrigger>Using the Sidepanel</AccordionTrigger>
           <AccordionContent>
             <ul className="list-disc list-inside space-y-1">
               <li><strong>Update Info:</strong> Click on a person node in the Family tree, then use the left-side panel to edit name, gender, birth/death info, and tags.</li>
@@ -27,7 +22,7 @@ export default function UserGuidesPage() {
         </AccordionItem>
 
         <AccordionItem value="manage" openItem={openItem} setOpenItem={setOpenItem}>
-          <AccordionTrigger>👤 Managing People</AccordionTrigger>
+          <AccordionTrigger>Managing People</AccordionTrigger>
           <AccordionContent>
             <ul className="list-disc list-inside space-y-1">
               <li><strong>Add People:</strong> Click the <b>"Add Person +"</b> button in the tree view. Fill in the person's details in the popup form. Click <b>"Next"</b> to continue filling. Click <b>"Add"</b> to add them to the tree.</li>
@@ -39,7 +34,7 @@ export default function UserGuidesPage() {
         </AccordionItem>
 
         <AccordionItem value="trees" openItem={openItem} setOpenItem={setOpenItem}>
-          <AccordionTrigger>🌳 Working with Trees</AccordionTrigger>
+          <AccordionTrigger>Working with Trees</AccordionTrigger>
           <AccordionContent>
             <ul className="list-disc list-inside space-y-1">
               <li><strong>Create Tree:</strong> From the <b>"Trees Dashboard"</b>, click <b>"New Tree"</b>. Fill in relevant information in custom fields and click <b>"Create"</b> - <b>"Start from scratch"</b>. Fill in relevant information and click <b>"Add your first person!"</b>.</li>
@@ -49,7 +44,7 @@ export default function UserGuidesPage() {
         </AccordionItem>
 
         <AccordionItem value="gedcom" openItem={openItem} setOpenItem={setOpenItem}>
-          <AccordionTrigger>📂 Import/Export</AccordionTrigger>
+          <AccordionTrigger>Import/Export</AccordionTrigger>
           <AccordionContent>
             <ul className="list-disc list-inside space-y-1">
               <li><strong>Import GEDCOM:</strong> From the <b>"Trees Dashboard"</b>, click <b>"New Tree"</b>. Fill in relevant information in custom fields and click <b>"Create"</b> - <b>"Import GEDCOM file"</b> - <b>"Choose File"</b> - <b>Select your file</b> - <b>"Upload your file!"</b>.</li>
