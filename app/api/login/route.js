@@ -4,9 +4,20 @@ import bcrypt from "bcrypt";
 
 const sql = neon(process.env.DATABASE_URL);
 
+// sanitization function
+function escapeQuotes(str) {
+  return String(str)
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 export async function POST(req) {
   try {
     const { email, password } = await req.json();
+
+    // sanitize input (used only for logging or frontend rendering)
+    const sanitizedEmail = escapeQuotes(email);
+    const sanitizedPassword = escapeQuotes(password);
 
     // Query user by email
     const result = await sql`SELECT * FROM users WHERE user_email = ${email}`;
@@ -29,9 +40,9 @@ export async function POST(req) {
       success: true,
       user: {
         id: user.user_id,
-        firstname: user.user_firstname,
-        lastname: user.user_lastname,
-        email: user.user_email,
+        firstname: escapeQuotes(user.user_firstname),
+        lastname: escapeQuotes(user.user_lastname),
+        email: escapeQuotes(user.user_email),
       },
     });
   } catch (error) {
