@@ -103,6 +103,7 @@ export default function Home() {
 
           {trees.map((tree) => (
             <Link
+              onClick={() => toast.loading("Opening Tree...")}
               key={tree.tree_id}
               className="h-fit w-fit"
               href={`/trees/${tree.tree_id}`}
