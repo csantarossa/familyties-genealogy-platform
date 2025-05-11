@@ -42,7 +42,7 @@ const PersonTabs = () => {
   const [isEditingCareer, setIsEditingCareer] = useState(false);
   const [isEditingEducation, setIsEditingEducation] = useState(false);
   const [imageFile, setImageFile] = useState(null);
-
+  const [addRelationLoading, setAddRelationLoading] = useState(false);
   const [editedGender, setEditedGender] = useState(selected.gender);
   const [notes, setNotes] = useState(selected.notes);
   const [editedDob, setEditedDob] = useState(parseDate(selected.dob));
@@ -562,23 +562,29 @@ const PersonTabs = () => {
                       onChange={setNewRelation}
                     />
                     <Button
-                      className="w-max"
+                      className="w-full"
                       disabled={
                         !newRelation.otherPersonId || !newRelation.typeId
                       }
                       onClick={async () => {
+                        setAddRelationLoading(true);
                         await createRelationship(
                           personId,
                           newRelation.otherPersonId,
                           newRelation.typeId
                         );
+                        setAddRelationLoading(false);
                         await handleGetRelationships();
                         setNewRelation({ otherPersonId: "", typeId: "" });
                         setShowAddRelation(false);
                         toast.success("Relation added successfully!");
                       }}
                     >
-                      Add Relation
+                      {addRelationLoading ? (
+                        <div className="loading"></div>
+                      ) : (
+                        "Add Relation"
+                      )}
                     </Button>
                   </div>
                 )}
@@ -835,7 +841,7 @@ const PersonTabs = () => {
                   </div>
                 ))}
 
-                {isEditingCareer && (
+                {isEditingCareer && editedCareer.length !== 0 && (
                   <div className="flex justify-end gap-2">
                     <Button onClick={handleSave}>Save</Button>
                     <Button
@@ -1000,7 +1006,7 @@ const PersonTabs = () => {
                   </div>
                 ))}
 
-                {isEditingEducation && (
+                {isEditingEducation && editedEducation.length !== 0 && (
                   <div className="flex justify-end gap-2">
                     <Button onClick={handleSave}>Save</Button>
                     <Button
