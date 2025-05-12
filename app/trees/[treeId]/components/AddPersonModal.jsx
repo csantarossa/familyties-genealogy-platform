@@ -6,8 +6,6 @@ import {
   AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
@@ -395,11 +393,13 @@ const AddPersonModal = ({ trigger }) => {
                   <Label htmlFor="notes" className="text-sm font-medium">
                     Notes
                   </Label>
-                  <Input id="notes" type="text" 
-                  value={newPerson.notes}
-                  onChange={(e) =>
-                    setNewPerson({ ...newPerson, notes: e.target.value})
-                  }
+                  <Input
+                    id="notes"
+                    type="text"
+                    value={newPerson.notes}
+                    onChange={(e) =>
+                      setNewPerson({ ...newPerson, notes: e.target.value })
+                    }
                   />
                 </div>
               </div>
