@@ -92,10 +92,8 @@ export default function Home() {
               key={tree.tree_id}
               className="w-48 h-40 flex flex-col justify-start p-6 bg-gray-100 hover:bg-gray-50 rounded-lg border-4 border-gray-100 duration-150 relative cursor-pointer"
               onClick={() => {
-                const openTreeToast = toast.loading("Opening Tree...");
-                openTreeToast;
+                toast.loading("Loading Tree...");
                 router.push(`/trees/${tree.tree_id}`);
-                toast.dismiss(openTreeToast);
               }}
             >
               <div className="flex flex-col justify-start items-start overflow-hidden gap-1">
