@@ -89,6 +89,8 @@ export async function POST(req, { params }) {
 
     const newPersonId = result[0].person_id;
 
+    await sql`INSERT INTO images (fk_person_id, image_url) VALUES (${newPersonId}, ${newPerson.img});`;
+
     if (body.relation && body.relationType) {
       const isChildRelation = Number(body.relationType) === 1;
       const isParentRelation = Number(body.relationType) === 4;
@@ -241,4 +243,3 @@ export async function GET(req, { params }) {
     );
   }
 }
-

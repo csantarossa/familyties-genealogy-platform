@@ -16,7 +16,16 @@ import { SidePanelContext } from "../page";
 import PopUp from "./PopUp";
 import { Plus } from "@geist-ui/icons";
 import UploadImage from "./UploadImage";
-import { Edit2, RotateCcw, Save, Upload, Trash } from "lucide-react";
+import {
+  Edit2,
+  RotateCcw,
+  Save,
+  Upload,
+  Trash,
+  Image,
+  ImageIcon,
+  X,
+} from "lucide-react";
 import { getImmediateFamily, getSiblingsBySharedParents } from "@/app/actions";
 import toast from "react-hot-toast";
 import DatePickerInput from "./DatePickerInput";
@@ -1079,33 +1088,34 @@ const PersonTabs = () => {
                 }}
               />
 
-                {Array.isArray(selected.gallery) &&
-                  selected.gallery.map((img, index) => (
-                    <div key={index} className="w-28 h-28 relative group">
-                      <PopUp img={img.image_url} index={index} />
+              {Array.isArray(selected.gallery) &&
+                selected.gallery.map((img, index) => (
+                  <div key={index} className="w-28 h-28 relative group">
+                    <PopUp img={img.image_url} index={index} />
 
-                      {/* ✅ Add this new "Set as Profile" button here */}
+                    {img.image_url !== selected.profileImage && (
                       <button
-                        className="absolute bottom-1 left-1 bg-white text-blue-600 rounded p-1 text-xs shadow hover:bg-blue-100 z-10 opacity-0 group-hover:opacity-100 transition"
-                        onClick={() => promoteGalleryImageToProfile(img.image_url)}
-                      >
-                        Set as Profile
-                      </button>
-
-                      {/* Your existing delete modal stays as-is */}
-                      <ConfirmModal
-                        title="Delete this image?"
-                        description="This action cannot be undone. The image will be permanently removed from the gallery."
-                        onConfirm={() => handleDeleteImage(img.image_url)}
-                        trigger={
-                          <span className="absolute top-1 right-1 bg-white text-red-600 rounded-full p-1 shadow hover:bg-red-100 z-10 opacity-0 group-hover:opacity-100 transition cursor-pointer">
-                            ✖
-                          </span>
+                        className="bg-white absolute top-7 right-1 rounded p-1 text-xs shadow hover:bg-blue-100 z-10 opacity-0 group-hover:opacity-100 transition"
+                        onClick={() =>
+                          promoteGalleryImageToProfile(img.image_url)
                         }
-                      />
-                    </div>
-                ))}
+                      >
+                        <ImageIcon size={16} />
+                      </button>
+                    )}
 
+                    <ConfirmModal
+                      title="Delete this image?"
+                      description="This action cannot be undone. The image will be permanently removed from the gallery."
+                      onConfirm={() => handleDeleteImage(img.image_url)}
+                      trigger={
+                        <span className="bg-white absolute top-0 right-1 rounded p-1 shadow hover:bg-red-100 z-10 opacity-0 group-hover:opacity-100 transition cursor-pointer">
+                          <X size={16} />
+                        </span>
+                      }
+                    />
+                  </div>
+                ))}
             </CardContent>
           </Card>
         </TabsContent>

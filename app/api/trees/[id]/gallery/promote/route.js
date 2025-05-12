@@ -4,18 +4,17 @@ import { neon } from "@neondatabase/serverless";
 const sql = neon(process.env.DATABASE_URL);
 
 export async function PUT(req, context) {
-const  { id:treeId } =  context.params;
-const { person_id, image_url } = await req.json();
+  const { id: treeId } = context.params;
+  const { person_id, image_url } = await req.json();
 
-if (!person_id || !image_url) {
+  if (!person_id || !image_url) {
     return NextResponse.json(
-    { success: false, message: "Missing person_id or image_url" },
-    { status: 400 }
+      { success: false, message: "Missing person_id or image_url" },
+      { status: 400 }
     );
-}
+  }
 
-try {
-
+  try {
     // ✅ Corrected UPDATE query
     await sql`
     UPDATE person
@@ -24,14 +23,14 @@ try {
     `;
 
     return NextResponse.json({
-    success: true,
-    message: "Profile image updated and removed from gallery.",
+      success: true,
+      message: "Profile image updated.",
     });
-} catch (err) {
+  } catch (err) {
     console.error("Error updating profile image:", err);
     return NextResponse.json(
-    { success: false, message: "Internal server error" },
-    { status: 500 }
+      { success: false, message: "Internal server error" },
+      { status: 500 }
     );
-}
+  }
 }
