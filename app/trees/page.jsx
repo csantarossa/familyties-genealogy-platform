@@ -35,32 +35,32 @@ export default function Home() {
   };
 
   const handleDeleteTree = async (tree) => {
-  const approval = confirm(`Do you want to delete tree: ${tree.tree_name}?`);
-  if (!approval) return;
+    const approval = confirm(`Do you want to delete tree: ${tree.tree_name}?`);
+    if (!approval) return;
 
-  const deleteTreeToast = toast.loading("Deleting the tree");
+    const deleteTreeToast = toast.loading("Deleting the tree");
 
-  try {
-    const response = await fetch(`/api/trees/${tree.tree_id}`, {
-      method: "DELETE",
-    });
-    const data = await response.json();
+    try {
+      const response = await fetch(`/api/trees/${tree.tree_id}`, {
+        method: "DELETE",
+      });
+      const data = await response.json();
 
-    if (data.success) {
+      if (data.success) {
+        toast.dismiss(deleteTreeToast);
+        toast.success("Tree deleted successfully");
+        setTrees((prevTrees) =>
+          prevTrees.filter((t) => t.tree_id !== tree.tree_id)
+        );
+      } else {
+        toast.dismiss(deleteTreeToast);
+        toast.error("Failed to delete tree");
+      }
+    } catch (error) {
       toast.dismiss(deleteTreeToast);
-      toast.success("Tree deleted successfully");
-      setTrees((prevTrees) =>
-        prevTrees.filter((t) => t.tree_id !== tree.tree_id)
-      );
-    } else {
-      toast.dismiss(deleteTreeToast);
-      toast.error("Failed to delete tree");
+      toast.error("An error occurred while deleting the tree.");
     }
-  } catch (error) {
-    toast.dismiss(deleteTreeToast);
-    toast.error("An error occurred while deleting the tree.");
-  }
-};
+  };
 
   return (
     <div className="flex flex-col justify-center items-center h-screen p-10 py-20 gap-4 font-[family-name:var(--font-geist-sans)]">
@@ -92,15 +92,19 @@ export default function Home() {
               key={tree.tree_id}
               className="w-48 h-40 flex flex-col justify-start p-6 bg-gray-100 hover:bg-gray-50 rounded-lg border-4 border-gray-100 duration-150 relative cursor-pointer"
               onClick={() => {
-                toast.loading("Opening Tree...");
+                const openTreeToast = toast.loading("Opening Tree...");
+                openTreeToast;
                 router.push(`/trees/${tree.tree_id}`);
+                toast.dismiss(openTreeToast);
               }}
             >
               <div className="flex flex-col justify-start items-start overflow-hidden gap-1">
                 <h1 className="font-semibold text-start w-full leading-none">
                   {tree.tree_name}
                 </h1>
-                <p className="text-sm text-gray-700 text-start">{tree.tree_desc}</p>
+                <p className="text-sm text-gray-700 text-start">
+                  {tree.tree_desc}
+                </p>
               </div>
 
               <div
@@ -124,7 +128,6 @@ export default function Home() {
                 />
               </div>
             </div>
-
           ))}
         </div>
       </main>
