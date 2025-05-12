@@ -74,7 +74,7 @@ const SidePanel = () => {
               width={120}
               height={120}
               className="rounded-lg"
-              src={selected.img || "/placeholder.jpg"}
+            src={selected.profileImage || "/person_placeholder.png"}
             />
 
             <div className="flex flex-col justify-start gap-4 h-fit w-full">

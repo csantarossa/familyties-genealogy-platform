@@ -120,7 +120,7 @@ const TreeNode = ({ data, isInSpouseContainer = false }) => {
           )}
 
           <Image
-            src={data.img}
+            src={data.profileImage || "/person_placeholder.png"}
             alt="Person's main image"
             width={100}
             height={100}

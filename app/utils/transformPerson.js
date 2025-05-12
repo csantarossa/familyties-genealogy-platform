@@ -25,6 +25,7 @@ export const transformPeople = async (peopleList) => {
       dod: person.person_dod || null,
       gender: person.person_gender || "",
       img: person.person_main_img || "/person_placeholder.png",
+      profileImage: person.person_main_img || "/person_placeholder.png",
       tags: person.person_tags || [],
       birthTown: person.birth_town || "",
       birthCity: person.birth_city || "",
