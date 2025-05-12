@@ -131,6 +131,7 @@ const TreeNode = ({ data, isInSpouseContainer = false }) => {
             <CardTitle
               data-fullname
               className="text-sm font-medium capitalize max-w-40 truncate "
+
             >
               {data.firstname} {data.middlename}
             </CardTitle>
@@ -138,6 +139,7 @@ const TreeNode = ({ data, isInSpouseContainer = false }) => {
             <CardTitle
               data-fullname
               className="uppercase text-xl font-semibold  max-w-40 truncate"
+
             >
               {data.lastname}
             </CardTitle>
