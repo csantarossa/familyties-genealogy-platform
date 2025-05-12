@@ -130,14 +130,16 @@ const TreeNode = ({ data, isInSpouseContainer = false }) => {
           <CardHeader className="h-fit flex-col flex justify-start relative w-full">
             <CardTitle
               data-fullname
-              className="text-sm font-medium capitalize max-w-56 truncate "
+              className="text-sm font-medium capitalize max-w-40 truncate "
+
             >
               {data.firstname} {data.middlename}
             </CardTitle>
 
             <CardTitle
               data-fullname
-              className="uppercase text-xl font-semibold  max-w-56 truncate"
+              className="uppercase text-xl font-semibold  max-w-40 truncate"
+
             >
               {data.lastname}
             </CardTitle>
