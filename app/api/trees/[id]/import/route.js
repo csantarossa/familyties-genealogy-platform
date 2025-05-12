@@ -29,7 +29,7 @@ function toISO(dateString) {
 }
 
 export async function POST(req, context) {
-  const treeId = await parseInt(context.params.id);
+  const treeId = parseInt((await context.params).id);
   const { gedcomContent } = await req.json();
   const { individuals, families } = parseGedcom(gedcomContent);
   const gedcomToDbId = {};

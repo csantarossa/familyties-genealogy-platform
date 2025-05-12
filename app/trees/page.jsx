@@ -34,47 +34,33 @@ export default function Home() {
     toast.dismiss();
   };
 
-  const handleTreeRename = async (tree_id) => {
-    console.log("Begun");
-    try {
-      const response = await fetch("/api/trees", {
-        method: "PUT",
-        headers: {
-          "Content-type": "application/json",
-        },
-        body: JSON.stringify({ tree_id, editedDesc, editedTitle }),
-      });
-      console.log(await response.json());
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
   const handleDeleteTree = async (tree) => {
-    const deleteTreeToast = toast.loading("Deleting the tree");
-    const approval = confirm(`Do you want to delete tree: ${tree.tree_name}?`);
-    if (!approval) return;
+  const approval = confirm(`Do you want to delete tree: ${tree.tree_name}?`);
+  if (!approval) return;
 
-    try {
-      const response = await fetch(`/api/trees/${tree.tree_id}`, {
-        method: "DELETE",
-      });
-      const data = await response.json();
+  const deleteTreeToast = toast.loading("Deleting the tree");
 
-      if (data.success) {
-        toast.dismiss(deleteTreeToast);
-        toast.success("Tree deleted successfully");
-        setTrees((prevTrees) =>
-          prevTrees.filter((t) => t.tree_id !== tree.tree_id)
-        );
-      } else {
-        toast.error("Failed to delete tree");
-      }
-    } catch (error) {
-      toast.error("An error occurred while deleting the tree.");
+  try {
+    const response = await fetch(`/api/trees/${tree.tree_id}`, {
+      method: "DELETE",
+    });
+    const data = await response.json();
+
+    if (data.success) {
+      toast.dismiss(deleteTreeToast);
+      toast.success("Tree deleted successfully");
+      setTrees((prevTrees) =>
+        prevTrees.filter((t) => t.tree_id !== tree.tree_id)
+      );
+    } else {
+      toast.dismiss(deleteTreeToast);
+      toast.error("Failed to delete tree");
     }
+  } catch (error) {
     toast.dismiss(deleteTreeToast);
-  };
+    toast.error("An error occurred while deleting the tree.");
+  }
+};
 
   return (
     <div className="flex flex-col justify-center items-center h-screen p-10 py-20 gap-4 font-[family-name:var(--font-geist-sans)]">
@@ -102,52 +88,43 @@ export default function Home() {
           <NewTreeModal onTreeCreated={handleGetTrees} />
 
           {trees.map((tree) => (
-            <Link
-              onClick={() => toast.loading("Opening Tree...")}
+            <div
               key={tree.tree_id}
-              className="h-fit w-fit"
-              href={`/trees/${tree.tree_id}`}
+              className="w-48 h-40 flex flex-col justify-start p-6 bg-gray-100 hover:bg-gray-50 rounded-lg border-4 border-gray-100 duration-150 relative cursor-pointer"
+              onClick={() => {
+                toast.loading("Opening Tree...");
+                router.push(`/trees/${tree.tree_id}`);
+              }}
             >
-              <div className="w-48 h-40 flex flex-col justify-start p-6 bg-gray-100 hover:bg-gray-50 rounded-lg cursor-pointer border-4 border-gray-100 duration-150 relative">
-                <div className="flex flex-col justify-start items-start overflow-hidden gap-1">
-                  <div className="flex justify-between w-full items-start gap-1">
-                    <h1 className="font-semibold text-start w-full leading-none">
-                      {tree.tree_name}
-                    </h1>
-                  </div>
-
-                  <p className="text-sm text-gray-700 text-start">
-                    {tree.tree_desc}
-                  </p>
-                </div>
-                <div className="flex gap-3 absolute right-2 bottom-2">
-                  {/* <div
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      handleTreeRename(tree.tree_id);
-                    }}
-                  > */}
-                  <EditTreeModal
-                    editedTitle={tree.tree_name}
-                    editedDesc={tree.tree_desc}
-                    id={tree.tree_id}
-                    setEditedTitle={setEditedTitle}
-                    setEditedDesc={setEditedDesc}
-                  />
-                  {/* </div> */}
-
-                  <Trash
-                    size={17}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      handleDeleteTree(tree);
-                    }}
-                  />
-                </div>
+              <div className="flex flex-col justify-start items-start overflow-hidden gap-1">
+                <h1 className="font-semibold text-start w-full leading-none">
+                  {tree.tree_name}
+                </h1>
+                <p className="text-sm text-gray-700 text-start">{tree.tree_desc}</p>
               </div>
-            </Link>
+
+              <div
+                className="flex gap-3 absolute right-2 bottom-2 z-50"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <EditTreeModal
+                  editedTitle={tree.tree_name}
+                  editedDesc={tree.tree_desc}
+                  id={tree.tree_id}
+                  onUpdate={handleGetTrees}
+                />
+                <Trash
+                  className="cursor-pointer"
+                  size={17}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleDeleteTree(tree);
+                  }}
+                />
+              </div>
+            </div>
+
           ))}
         </div>
       </main>

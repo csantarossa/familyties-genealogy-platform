@@ -1,37 +1,73 @@
 "use client";
 import {
   AlertDialog,
+  AlertDialogTrigger,
   AlertDialogContent,
   AlertDialogHeader,
-  AlertDialogTrigger,
   AlertDialogTitle,
   AlertDialogCancel,
   AlertDialogAction,
 } from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Progress } from "@/components/ui/progress";
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import {
-  ArrowRightCircle,
-  ChevronRight,
-  EditIcon,
-  Sprout,
-  WaypointsIcon,
-} from "lucide-react";
-import { useUser } from "@/app/contexts/UserContext";
+import { ChevronRight, EditIcon } from "lucide-react";
 import toast from "react-hot-toast";
-import { useRouter } from "next/navigation";
 
 const EditTreeModal = ({
   editedTitle,
   editedDesc,
-  setEditedDesc,
-  setEditedTitle,
+  id,
+  onUpdate,
 }) => {
   const [loading, setLoading] = useState(false);
   const [openModal, setOpenModal] = useState(false);
+  const [localTitle, setLocalTitle] = useState(editedTitle);
+  const [localDesc, setLocalDesc] = useState(editedDesc);
+
+  const handleOpen = () => {
+    setLocalTitle(editedTitle);
+    setLocalDesc(editedDesc);
+    setOpenModal(true);
+  };
+
+  const handleUpdate = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    setLoading(true);
+    try {
+      const response = await fetch("/api/trees", {
+        method: "PUT",
+        headers: {
+          "Content-type": "application/json",
+        },
+        body: JSON.stringify({ tree_id: id, editedTitle: localTitle, editedDesc: localDesc }),
+      });
+
+      const json = await response.json();
+      if (json.success) {
+        toast.success("Tree updated!");
+        onUpdate();
+      } else {
+        toast.error("Failed to update tree");
+      }
+    } catch (error) {
+      toast.error("Error updating tree");
+    } finally {
+      setLoading(false);
+      setOpenModal(false);
+    }
+  };
+
+  const handleOpenChange = (open) => {
+    if (open) {
+      setLocalTitle(editedTitle);
+      setLocalDesc(editedDesc);
+    }
+    setOpenModal(open);
+  };
 
   return (
     <AlertDialog open={openModal}>
@@ -39,43 +75,39 @@ const EditTreeModal = ({
         className="z-50"
         onClick={(e) => {
           e.preventDefault();
-          //   e.stopPropagation();
-          setOpenModal(true);
+          e.stopPropagation();
+          handleOpen();
         }}
       >
-        <EditIcon className="z-50" size={17} />
+        <EditIcon className="cursor-pointer" size={17} />
       </AlertDialogTrigger>
+
       <AlertDialogContent className="w-[360px] h-fit">
-        <AlertDialogHeader className="flex h-full flex-row justify-start items-start">
-          <AlertDialogTitle className="">Edit Tree</AlertDialogTitle>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Edit Tree</AlertDialogTitle>
         </AlertDialogHeader>
+
         <form
-          onSubmit={() => console.log("Submitted")}
-          className="w-full h-full flex justify-center items-center flex-col gap-4"
+          onSubmit={handleUpdate}
+          className="w-full flex flex-col gap-4 pt-2"
         >
           <div className="grid w-full items-center gap-1.5">
-            <Label htmlFor="email" className="text-sm font-medium">
-              Title *
-            </Label>
+            <Label htmlFor="treeTitle">Title *</Label>
             <Input
-              type="text"
               id="treeTitle"
+              value={localTitle}
+              onChange={(e) => setLocalTitle(e.target.value)}
               placeholder="Edit Title"
-              value={editedTitle}
-              onChange={(e) => setEditedTitle(e.target.value)}
             />
           </div>
 
           <div className="grid w-full items-center gap-1.5">
-            <Label htmlFor="email" className="text-sm font-medium">
-              Description
-            </Label>
+            <Label htmlFor="treeDesc">Description</Label>
             <Input
-              type="text"
               id="treeDesc"
-              value={editedDesc}
+              value={localDesc}
+              onChange={(e) => setLocalDesc(e.target.value)}
               placeholder="Edit Description"
-              onChange={(e) => setEditedDesc(e.target.value)}
             />
           </div>
 
@@ -90,15 +122,12 @@ const EditTreeModal = ({
               Cancel
             </AlertDialogCancel>
             <AlertDialogAction
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                setOpenModal(false);
-              }}
+              type="submit"
+              disabled={loading}
               className="flex justify-center items-center gap-1"
             >
-              Update
-              <ChevronRight className="w-fit" size={20} />
+              {loading ? "Updating..." : "Update"}
+              <ChevronRight size={20} />
             </AlertDialogAction>
           </div>
         </form>
