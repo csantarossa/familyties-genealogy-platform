@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/select";
 import { format } from "date-fns";
 import { PersonContext } from "@/app/contexts/PersonContext";
+import PopUp from "./PopUp";
 
 const SidePanel = () => {
   const { selected, selectPerson, setSelected, setPeople, clearSelection } =
@@ -68,14 +69,8 @@ const SidePanel = () => {
         className="min-w-[520px] py-16 flex justify-center items-start"
       >
         <div className="flex flex-col gap-6 h-full">
-          <SheetHeader className="flex-row justify-start items-start gap-10 relative">
-            <Image
-              alt="Person's main image"
-              width={120}
-              height={120}
-              className="rounded-lg"
-              src={selected.profileImage || "/person_placeholder.png"}
-            />
+          <SheetHeader className="flex-row justify-start items-center gap-10 relative">
+            <PopUp img={selected.profileImage || "/person_placeholder.png"} />
 
             <div className="flex flex-col justify-start gap-4 h-fit w-full">
               <div>
