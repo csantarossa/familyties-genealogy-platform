@@ -13,8 +13,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { useState } from "react";
-import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
+
+import { useSafeToast } from "../lib/toast";
 
 export default function SignupPage() {
   const [newUser, setNewUser] = useState({
@@ -26,6 +27,7 @@ export default function SignupPage() {
   });
 
   const router = useRouter();
+  const toast = useSafeToast();
 
   const handleSignup = async (e) => {
     e.preventDefault();

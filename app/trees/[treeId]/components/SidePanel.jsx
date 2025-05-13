@@ -10,7 +10,7 @@ import { useParams } from "next/navigation";
 import Image from "next/image";
 import ConfirmModal from "./ConfirmModal";
 import { CircleCheck, CircleMinus, Trash } from "lucide-react";
-import toast from "react-hot-toast";
+import { useSafeToast } from "../../../lib/toast";
 import PersonTabs from "./PersonTabs";
 import {
   Select,
@@ -28,6 +28,8 @@ const SidePanel = () => {
 
   const [trigger, setTrigger] = useState(false);
   const { treeId } = useParams();
+
+  const toast = useSafeToast();
 
   // Open panel when selected changes
   React.useEffect(() => {

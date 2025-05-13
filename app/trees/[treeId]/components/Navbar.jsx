@@ -4,7 +4,6 @@ import React, { useContext, useRef, useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { Dancing_Script } from "next/font/google";
-import { toast } from "react-hot-toast";
 import { Search } from "@geist-ui/icons";
 import Image from "next/image";
 import { ChevronLeft, CircleAlert, Import, UserPlus } from "lucide-react";
@@ -32,6 +31,8 @@ import { useUser, logout } from "@/app/contexts/UserContext";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
+import { useSafeToast } from "../../../lib/toast";
+
 const dancingScript = Dancing_Script({ subsets: ["latin"] });
 
 export function Navbar() {
@@ -44,6 +45,7 @@ export function Navbar() {
   const [loading, setLoading] = useState(false);
   const [openModal, setOpenModal] = useState(false);
   const [gedcomFile, setGedcomFile] = useState(null);
+  const toast = useSafeToast();
 
   const handleGedcomUpload = async (e) => {
     setLoading(true);
@@ -167,7 +169,7 @@ export function Navbar() {
         <MenubarMenu>
           <MenubarTrigger>Account</MenubarTrigger>
           <MenubarContent className="dark:bg-zinc-800 dark:text-white">
-            <Link href="/preferences" passHref>
+            <Link href={`/preferences?treeId=${treeId}`} passHref>
               <MenubarItem asChild>
                 <span>Preferences</span>
               </MenubarItem>

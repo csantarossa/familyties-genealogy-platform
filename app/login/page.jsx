@@ -16,7 +16,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useUser } from "../contexts/UserContext";
-import toast from "react-hot-toast";
+import { useSafeToast } from "../lib/toast";
 
 const dancingScript = Dancing_Script({ subsets: ["latin"] });
 
@@ -27,10 +27,12 @@ export default function Home() {
   });
 
   const router = useRouter();
-  const { user, login } = useUser();
+  const { user, login, notificationsEnabled } = useUser();
+  const toast = useSafeToast();
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    console.log("Notifications enabled?", notificationsEnabled);
     toast.loading("Logging in");
 
     const response = await fetch("/api/login", {
@@ -46,11 +48,14 @@ export default function Home() {
 
     if (data.success) {
       login(data.user);
+      console.log("Notifications enabled?", notificationsEnabled);
       toast.success("Welcome back!");
       router.push("/trees");
     } else {
+      console.log("Notifications enabled?", notificationsEnabled);
       toast.error(data.message);
     }
+    console.log("Notifications enabled?", notificationsEnabled);
     toast.dismiss();
   };
 

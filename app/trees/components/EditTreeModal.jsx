@@ -21,8 +21,9 @@ import {
   WaypointsIcon,
 } from "lucide-react";
 import { useUser } from "@/app/contexts/UserContext";
-import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
+
+import { useSafeToast } from "../../lib/toast";
 
 const EditTreeModal = ({
   editedTitle,
@@ -30,6 +31,7 @@ const EditTreeModal = ({
   setEditedDesc,
   setEditedTitle,
 }) => {
+  const toast = useSafeToast();
   const [loading, setLoading] = useState(false);
   const [openModal, setOpenModal] = useState(false);
 

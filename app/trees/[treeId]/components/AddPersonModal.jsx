@@ -27,7 +27,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import UserPlus from "@geist-ui/icons/userPlus";
-import toast from "react-hot-toast";
 import { AddPersonModalContext } from "../page";
 import { ChevronLeft, InfoIcon } from "lucide-react";
 import DatePickerInput from "./DatePickerInput";
@@ -41,7 +40,10 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
+import { useSafeToast } from "../../../lib/toast";
+
 const AddPersonModal = ({ trigger }) => {
+  const { toast } = useSafeToast();
   const params = useParams();
   const treeId = params?.treeId;
   const [addPersonModal, setAddPersonModal] = useContext(AddPersonModalContext);
