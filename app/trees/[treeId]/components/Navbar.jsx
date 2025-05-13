@@ -159,7 +159,9 @@ export function Navbar() {
           <MenubarTrigger>Resources</MenubarTrigger>
           <MenubarContent>
             <MenubarItem>Tutorials</MenubarItem>
-            <MenubarItem>User Guides</MenubarItem>
+            <MenubarItem>
+              <Link href = "/userguides">User Guides</Link>
+            </MenubarItem>
             <MenubarSeparator />
             <MenubarItem>
               <Link href ="/team">About the Team</Link>
