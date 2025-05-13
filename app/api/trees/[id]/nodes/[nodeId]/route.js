@@ -73,6 +73,10 @@ export async function POST(req, context) {
       birthCity: null,
       birthState: null,
       birthCountry: null,
+      deathTown: null,
+      deathCity: null,
+      deathState: null,
+      deathCountry: null,
       gallery: null,
       additionalInfo: null,
       treeId: treeId,
@@ -83,12 +87,14 @@ export async function POST(req, context) {
         person_firstname, person_middlename, person_lastname, person_gender,
         person_dob, person_dod, person_tags, person_main_img,
         confidence, birth_town, birth_city, birth_state, birth_country,
+        death_town, death_city, death_state, death_country,
         gallery, additional_information, fk_tree_id
     ) VALUES (
         ${newPerson.firstname}, ${newPerson.middlename}, ${newPerson.lastname}, ${newPerson.gender},
         ${newPerson.dob}, ${newPerson.dod}, ${newPerson.tags}, ${newPerson.img},
         ${newPerson.confidence}, ${newPerson.birthTown}, ${newPerson.birthCity},
-        ${newPerson.birthState}, ${newPerson.birthCountry}, ${newPerson.gallery},
+        ${newPerson.birthState}, ${newPerson.birthCountry}, ${newPerson.deathTown}, ${newPerson.deathCity},
+        ${newPerson.deathState}, ${newPerson.deathCountry}, ${newPerson.gallery},
         ${newPerson.additionalInfo}, ${newPerson.treeId}
     )
     RETURNING person_id

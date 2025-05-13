@@ -31,6 +31,10 @@ export const transformPeople = async (peopleList) => {
       birthCity: person.birth_city || "",
       birthState: person.birth_state || "",
       birthCountry: person.birth_country || "",
+      deathTown: person.death_town || "",
+      deathCity: person.death_city || "",
+      deathState: person.death_state || "",
+      deathCountry: person.death_country || "",
       gallery: galleryByPerson[personId] || [],
       confidence: person.confidence,
       additionalInfo: {
