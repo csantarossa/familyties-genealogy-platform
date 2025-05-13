@@ -2,7 +2,6 @@
 
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
 import { useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ChevronLeft } from "lucide-react";
 
@@ -13,14 +12,13 @@ export default function UserGuidesPage() {
   return (
     <div className="relative min-h-screen flex flex-col justify-center items-center bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-gray-900 dark:via-gray-950 dark:to-gray-900 py-16 px-4 sm:px-6 lg:px-8">
       
-      {/* Back Button */}
-      <Link href="#" onClick={() => router.back()}>
-        <div className="absolute top-10 left-16 z-50 p-3 rounded-lg bg-white dark:bg-zinc-800 dark:text-white transition-colors duration-200 shadow-md hover:scale-105">
-          <ChevronLeft size={18} />
-        </div>
-      </Link>
+      <div
+        onClick={() => router.back()}
+        className="absolute top-10 left-16 z-50 p-3 rounded-lg bg-white dark:bg-zinc-800 dark:text-white transition-colors duration-200 shadow-md hover:scale-105 cursor-pointer"
+      >
+        <ChevronLeft size={18} />
+      </div>
 
-      {/* Main Content */}
       <div className="w-full max-w-4xl mx-auto">
         <h1 className="text-3xl font-bold mb-6 text-center text-gray-900 dark:text-white">User Guides</h1>
 
