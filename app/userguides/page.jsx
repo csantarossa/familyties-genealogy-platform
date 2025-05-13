@@ -28,7 +28,7 @@ export default function UserGuidesPage() {
             <AccordionContent>
               <ul className="list-disc list-inside space-y-1">
                 <li>
-                  <strong>Search Bar:</strong> Open the MyTree pane in the navbar, and select <b>&quot;Search&quot;</b>. Enter the person's first and/or last name and click <b>&quot;Search&quot;</b>. The matched nodes will glow green for 5 seconds.
+                  <strong>Search Bar:</strong> Open the MyTree pane in the navbar, and select <b>&quot;Search&quot;</b>. Enter the person&apos;s first and/or last name and click <b>&quot;Search&quot;</b>. The matched nodes will glow green for 5 seconds.
                 </li>
               </ul>
             </AccordionContent>
