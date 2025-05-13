@@ -28,7 +28,7 @@ export default function UserGuidesPage() {
             <AccordionContent>
               <ul className="list-disc list-inside space-y-1">
                 <li>
-                  <strong>Search Bar:</strong> Open the MyTree pane in the navbar, and select <b>"Search"</b>. Enter the person's first and/or last name and click <b>"Search"</b>. The matched nodes will glow green for 5 seconds.
+                  <strong>Search Bar:</strong> Open the MyTree pane in the navbar, and select <b>&quot;Search&quot;</b>. Enter the person's first and/or last name and click <b>&quot;Search&quot;</b>. The matched nodes will glow green for 5 seconds.
                 </li>
               </ul>
             </AccordionContent>
@@ -39,10 +39,10 @@ export default function UserGuidesPage() {
             <AccordionContent>
               <ul className="list-disc list-inside space-y-1">
                 <li><strong>Update Info:</strong> Click on a person node and use the side panel to edit their info.</li>
-                <li><strong>Add to Gallery:</strong> Use the <b>"Gallery"</b> tab to upload or view media.</li>
-                <li><strong>Update Notes:</strong> Use the <b>"Notes"</b> tab to jot down personal notes.</li>
-                <li><strong>Verification:</strong> You can mark a person as <b>"Verified"</b>.</li>
-                <li><strong>Delete Person:</strong> Use the <b>"bin"</b> button and confirm deletion.</li>
+                <li><strong>Add to Gallery:</strong> Use the <b>&quot;Gallery&quot;</b> tab to upload or view media.</li>
+                <li><strong>Update Notes:</strong> Use the <b>&quot;Notes&quot;</b> tab to jot down personal notes.</li>
+                <li><strong>Verification:</strong> You can mark a person as <b>&quot;Verified&quot;</b>.</li>
+                <li><strong>Delete Person:</strong> Use the <b>&quot;bin&quot;</b> button and confirm deletion.</li>
               </ul>
             </AccordionContent>
           </AccordionItem>
@@ -51,9 +51,9 @@ export default function UserGuidesPage() {
             <AccordionTrigger>Managing People</AccordionTrigger>
             <AccordionContent>
               <ul className="list-disc list-inside space-y-1">
-                <li><strong>Add People:</strong> Click <b>"Add Person+"</b> and complete the form.</li>
+                <li><strong>Add People:</strong> Click <b>&quot;Add Person+&quot;</b> and complete the form.</li>
                 <li><strong>General Info:</strong> Edit gender, birth/death info, and tags.</li>
-                <li><strong>Update Relationships:</strong> Use the <b>"Relationships"</b> section in the side panel.</li>
+                <li><strong>Update Relationships:</strong> Use the <b>&quot;Relationships&quot;</b> section in the side panel.</li>
                 <li><strong>Update Career:</strong> Fill in career fields in the side panel.</li>
                 <li><strong>Update Education:</strong> Fill in education fields in the side panel.</li>
               </ul>
@@ -64,8 +64,8 @@ export default function UserGuidesPage() {
             <AccordionTrigger>Working with Trees</AccordionTrigger>
             <AccordionContent>
               <ul className="list-disc list-inside space-y-1">
-                <li><strong>Create Tree:</strong> Use the <b>"New Tree"</b> button on the dashboard.</li>
-                <li><strong>Navigate Between Trees:</strong> Use the <b>"Trees Dashboard"</b> to switch trees.</li>
+                <li><strong>Create Tree:</strong> Use the <b>&quot;New Tree&quot;</b> button on the dashboard.</li>
+                <li><strong>Navigate Between Trees:</strong> Use the <b>&quot;Trees Dashboard&quot;</b> to switch trees.</li>
               </ul>
             </AccordionContent>
           </AccordionItem>
@@ -74,7 +74,7 @@ export default function UserGuidesPage() {
             <AccordionTrigger>Import/Export</AccordionTrigger>
             <AccordionContent>
               <ul className="list-disc list-inside space-y-1">
-                <li><strong>Import GEDCOM:</strong> Use <b>"Import GEDCOM file"</b> when creating a new tree.</li>
+                <li><strong>Import GEDCOM:</strong> Use <b>&quot;Import GEDCOM file&quot;</b> when creating a new tree.</li>
                 <li><strong>Export Tree:</strong> This feature may be available or coming soon.</li>
               </ul>
             </AccordionContent>
