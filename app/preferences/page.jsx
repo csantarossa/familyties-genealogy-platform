@@ -1,35 +1,36 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
+import { ChevronLeft } from 'lucide-react';
+import { useUser } from '@/app/contexts/UserContext';
+
+import { useSafeToast } from '../lib/toast';
 
 export default function PreferencesPage() {
-  const [theme, setTheme] = useState(null);
+  const [theme, setTheme] = useState(null); // Dropdown selection
+  const [savedTheme, setSavedTheme] = useState(null); // Actually applied theme
   const [prefs, setPrefs] = useState(null);
   const [saving, setSaving] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
 
-  // Apply theme as soon as it's known
-  useEffect(() => {
-    if (theme) {
-      const root = document.documentElement;
-      if (theme === 'dark') {
-        root.classList.add('dark');
-      } else {
-        root.classList.remove('dark');
-      }
-      localStorage.setItem('theme', theme);
-    }
-  }, [theme]);
+  const { notificationsEnabled, setNotificationsEnabled } = useUser(); // Access global toast state
 
-  // Load preferences (simulate API) and theme from localStorage
+  const toast = useSafeToast();
+
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const treeId = searchParams.get('treeId');
+
+  // Load preferences and current theme
   useEffect(() => {
     const storedTheme = localStorage.getItem('theme') || 'light';
     setTheme(storedTheme);
+    setSavedTheme(storedTheme);
 
     const fetchPreferences = async () => {
       await new Promise((r) => setTimeout(r, 100));
       setPrefs({
-        notifications: true,
         language: 'english',
       });
     };
@@ -37,13 +38,27 @@ export default function PreferencesPage() {
     fetchPreferences();
   }, []);
 
-  if (!prefs || !theme) return null; // Wait until both are loaded
+  // Apply the saved theme on mount and after saving
+  useEffect(() => {
+    if (savedTheme) {
+      const root = document.documentElement;
+      if (savedTheme === 'dark') {
+        root.classList.add('dark');
+      } else {
+        root.classList.remove('dark');
+      }
+    }
+  }, [savedTheme]);
+
+  if (!prefs || theme === null) return null; // Show nothing until loaded
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
 
     if (name === 'theme') {
       setTheme(value);
+    } else if (name === 'notifications') {
+      setNotificationsEnabled(checked); // Save to context
     } else {
       setPrefs((prev) => ({
         ...prev,
@@ -58,14 +73,29 @@ export default function PreferencesPage() {
     e.preventDefault();
     setSaving(true);
     await new Promise((r) => setTimeout(r, 1000));
+
+    // Save preferences and theme
+    localStorage.setItem('theme', theme);
+    setSavedTheme(theme);
     setSaving(false);
     setIsDirty(false);
-    alert('Preferences updated successfully!');
+
+    if (notificationsEnabled) {
+      toast.success('Preferences updated successfully!');
+    }
   };
 
   return (
-    <div className="min-h-screen bg-zinc-200 dark:bg-zinc-900 p-6 sm:p-10 transition-colors duration-300">
-      <div className="max-w-2xl mx-auto bg-white dark:bg-gray-900 shadow-lg rounded-2xl p-8 border border-gray-200 dark:border-gray-700 transition-all">
+    <div className="min-h-screen bg-zinc-200 dark:bg-zinc-900 p-6 sm:p-10 transition-colors duration-300 relative">
+      {/* Back button */}
+      <button
+        onClick={() => router.push(`/trees/${treeId || ''}`)}
+        className="absolute top-6 left-6 z-50 bg-white dark:bg-zinc-800 text-black dark:text-white p-2 px-[10px] rounded-md shadow-xl hover:bg-gray-100 dark:hover:bg-zinc-700 transition"
+      >
+        <ChevronLeft size={18} />
+      </button>
+
+      <div className="max-w-2xl mx-auto bg-white dark:bg-black shadow-2xl rounded-2xl p-8 border border-gray-200 dark:border-gray-700 transition-all animate-fade-in-up">
         <h1 className="text-3xl font-extrabold text-[#4877c3] dark:text-white mb-6">
           Preferences
         </h1>
@@ -92,7 +122,7 @@ export default function PreferencesPage() {
             <Toggle
               label="Enable Notifications"
               name="notifications"
-              checked={prefs.notifications}
+              checked={notificationsEnabled} // Bound to context
               onChange={handleChange}
             />
           </section>
@@ -122,6 +152,26 @@ export default function PreferencesPage() {
           </button>
         </form>
       </div>
+
+      {/* Global styles */}
+      <style jsx global>{`
+        input[type='checkbox'] {
+          accent-color: black !important;
+        }
+        @keyframes fadeInUp {
+          0% {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          100% {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        .animate-fade-in-up {
+          animation: fadeInUp 0.6s ease-out both;
+        }
+      `}</style>
     </div>
   );
 }
@@ -137,7 +187,8 @@ function Select({ label, name, value, options, onChange }) {
         name={name}
         value={value}
         onChange={onChange}
-        className="w-full rounded-md bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white px-4 py-2"
+        className="w-full rounded-md bg-white dark:bg-black border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-200 px-4 py-2 pr-10"
+        style={{ backgroundPosition: 'calc(100% - 1.25rem) center' }}
       >
         {options.map((opt) => (
           <option key={opt.value} value={opt.value}>
@@ -149,6 +200,7 @@ function Select({ label, name, value, options, onChange }) {
   );
 }
 
+// Reusable Toggle Component
 function Toggle({ label, name, checked, onChange }) {
   return (
     <div className="flex items-center justify-between mb-3">
@@ -158,7 +210,7 @@ function Toggle({ label, name, checked, onChange }) {
         name={name}
         checked={checked}
         onChange={onChange}
-        className="w-5 h-5 accent-[#4877c3]"
+        className="w-5 h-5"
       />
     </div>
   );

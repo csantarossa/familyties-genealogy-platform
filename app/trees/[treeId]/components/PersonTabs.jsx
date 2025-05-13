@@ -34,7 +34,7 @@ import {
   X,
 } from "lucide-react";
 import { getImmediateFamily, getSiblingsBySharedParents } from "@/app/actions";
-import toast from "react-hot-toast";
+import { useSafeToast } from "../../../lib/toast";
 import DatePickerInput from "./DatePickerInput";
 import { Textarea } from "@/components/ui/textarea";
 import { useParams } from "next/navigation";
@@ -50,6 +50,8 @@ import { createRelationship, deleteRelationship } from "@/app/actions";
 import { PersonContext } from "@/app/contexts/PersonContext";
 
 const PersonTabs = () => {
+  const toast = useSafeToast();
+
   const { treeId } = useParams();
   const { selected, setPeople, setSelected } = useContext(PersonContext);
 

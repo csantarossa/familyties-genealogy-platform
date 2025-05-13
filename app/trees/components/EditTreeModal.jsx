@@ -13,7 +13,8 @@ import { Label } from "@/components/ui/label";
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ChevronRight, EditIcon } from "lucide-react";
-import toast from "react-hot-toast";
+
+import { useSafeToast } from "../../lib/toast";
 
 const EditTreeModal = ({
   editedTitle,
@@ -21,6 +22,7 @@ const EditTreeModal = ({
   id,
   onUpdate,
 }) => {
+  const toast = useSafeToast();
   const [loading, setLoading] = useState(false);
   const [openModal, setOpenModal] = useState(false);
   const [localTitle, setLocalTitle] = useState(editedTitle);

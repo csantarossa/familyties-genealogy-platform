@@ -5,13 +5,14 @@ import AddPersonButton from "./components/AddPersonButton";
 import SidePanel from "./components/SidePanel";
 import { createContext, useEffect, useState } from "react";
 import AddPersonModal from "./components/AddPersonModal";
-import toast, { Toaster } from "react-hot-toast";
 import { Navbar } from "./components/Navbar";
 import { useParams, useRouter } from "next/navigation";
 import { useUser } from "@/app/contexts/UserContext";
 import { getTrees } from "@/app/actions";
 import { PersonProvider } from "@/app/contexts/PersonContext";
 import { useRef } from "react";
+
+import { useSafeToast } from "../../lib/toast";
 
 export const SidePanelContext = createContext();
 export const AddPersonModalContext = createContext();
@@ -33,6 +34,8 @@ function Home() {
   const { treeId } = useParams();
 
   const [addPersonModal, setAddPersonModal] = useState(false);
+
+  const toast = useSafeToast();
 
   useEffect(() => {
     checkUserOwnsTree();

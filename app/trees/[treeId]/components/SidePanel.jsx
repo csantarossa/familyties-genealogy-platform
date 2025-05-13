@@ -9,7 +9,7 @@ import {
 import { useParams } from "next/navigation";
 import ConfirmModal from "./ConfirmModal";
 import { CircleCheck, CircleMinus, Trash, Edit2 } from "lucide-react";
-import toast from "react-hot-toast";
+import { useSafeToast } from "../../../lib/toast";
 import PersonTabs from "./PersonTabs";
 import {
   Select,
@@ -32,6 +32,8 @@ const SidePanel = () => {
   const { treeId } = useParams();
   const [trigger, setTrigger] = useState(false);
   const [isEditingName, setIsEditingName] = useState(false);
+
+  const toast = useSafeToast();
 
   const [editedFirstname, setEditedFirstname] = useState("");
   const [editedMiddlename, setEditedMiddlename] = useState("");

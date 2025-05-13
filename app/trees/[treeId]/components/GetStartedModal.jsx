@@ -18,7 +18,6 @@ import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, UserPlus } from "lucide-react";
 import { format } from "date-fns";
 import DatePickerInput from "./DatePickerInput";
-import toast from "react-hot-toast";
 import BackButton from "./BackButton";
 import {
   Select,
@@ -30,7 +29,10 @@ import {
 } from "@/components/ui/select";
 import { FileInputContext } from "../page";
 
+import { useSafeToast } from "../../../lib/toast";
+
 const GetStartedModal = ({ treeId }) => {
+  const toast = useSafeToast();
   const [dobDate, setDobDate] = useState(null);
   const [dodDate, setDodDate] = useState(null);
   const [formOpen, setFormOpen] = useState(true);
@@ -271,13 +273,24 @@ const GetStartedModal = ({ treeId }) => {
 
               {/* Profile Image */}
               <div className="grid w-full items-center gap-1.5">
-                <Label className="text-sm font-medium">Profile Image</Label>
-                <Input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => setFile(e.target.files[0])}
-                  className="text-sm"
-                />
+                <Label htmlFor="profile-image" className="text-sm font-medium">
+                  Profile Image
+                </Label>
+                <div className="relative">
+                  <input
+                    id="profile-image"
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => setFile(e.target.files[0])}
+                    className="absolute inset-0 opacity-0 cursor-pointer"
+                  />
+                  <label
+                    htmlFor="profile-image"
+                    className="block w-full bg-white text-black dark:bg-zinc-800 dark:text-white border border-gray-300 dark:border-zinc-600 rounded-md px-4 py-2 text-sm cursor-pointer text-center"
+                  >
+                    {file ? file.name : "Choose File"}
+                  </label>
+                </div>
               </div>
 
               <AlertDialogAction type="submit" className="flex w-full">
@@ -309,12 +322,24 @@ const GetStartedModal = ({ treeId }) => {
                 Let&apos;s Get Started
               </AlertDialogDescription>
             </AlertDialogHeader>
-            <Input
-              type="file"
-              accept=".ged"
-              onChange={(e) => setGedcomFile(e.target.files[0])}
-              ref={fileInputRef}
-            />
+            <div className="grid w-full items-center gap-1.5">
+              <div className="relative">
+                <input
+                  id="gedcom-file"
+                  type="file"
+                  accept=".ged"
+                  onChange={(e) => setGedcomFile(e.target.files[0])}
+                  ref={fileInputRef}
+                  className="absolute inset-0 opacity-0 cursor-pointer"
+                />
+                <label
+                  htmlFor="gedcom-file"
+                  className="block w-full bg-white text-black dark:bg-zinc-800 dark:text-white border border-gray-300 dark:border-zinc-600 rounded-md px-4 py-2 text-sm cursor-pointer text-center"
+                >
+                  {gedcomFile ? gedcomFile.name : "Choose File"}
+                </label>
+              </div>
+            </div>
             <AlertDialogAction
               onClick={handleGedcomUpload}
               className="flex w-full"

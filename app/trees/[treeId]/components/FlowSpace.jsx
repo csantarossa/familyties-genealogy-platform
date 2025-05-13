@@ -10,7 +10,6 @@ import {
 } from "@xyflow/react";
 import dagre from "@dagrejs/dagre";
 import "@xyflow/react/dist/style.css";
-import toast from "react-hot-toast";
 
 import TreeNode from "./TreeNode";
 import SpouseContainerNode from "./SpouseContainerNode";
@@ -25,6 +24,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+
+import { useSafeToast } from "../../../lib/toast";
 
 // Adjusted dimensions and spacing for better layout
 const NODE_W = 360; // Reduced from 720 to match TreeNode's actual width
@@ -720,6 +721,20 @@ export default function FlowSpace({ refreshTrigger }) {
   const [edges, setEdges] = useEdgesState([]);
   const [loading, setLoading] = useState(true);
 
+  const [mounted, setMounted] = useState(false);
+  const [isDark, setIsDark] = useState(false);
+
+  const toast = useSafeToast();
+
+  useEffect(() => {
+    setMounted(true);
+    // read the actual class on <html> once we've hydrated
+    setIsDark(
+      typeof window !== 'undefined' &&
+      document.documentElement.classList.contains('dark')
+    );
+  }, []);
+
   // Remove node from UI
   const handleDeleteNode = (id) => {
     setNodes((prev) => prev.filter((n) => n.id !== id.toString()));
@@ -788,6 +803,48 @@ export default function FlowSpace({ refreshTrigger }) {
 
   return (
     <div className="w-screen h-screen bg-zinc-200/50 dark:bg-zinc-900 relative">
+      {/* Global overrides so edges, controls & watermark invert in dark mode */}
+      {mounted && (
+        <style jsx global>{`
+          /* ---------- Light mode (defaults) ---------- */
+          .react-flow__edge-path {
+            stroke: #000 !important;
+          }
+          .react-flow__controls button svg {
+            stroke: #000 !important;
+          }
+          .react-flow__attribution {
+            filter: none !important;
+          }
+      
+          /* ---------- Dark mode overrides ---------- */
+          .dark .react-flow__edge-path {
+            stroke: #fff !important;
+          }
+          .dark .react-flow__controls button svg {
+            stroke: #fff !important;
+          }
+          .dark .react-flow__attribution {
+            filter: invert(1) !important;
+          }
+          .dark .react-flow__controls {
+            background: rgba(0, 0, 0, 0.6) !important;
+            border-radius: 4px !important;
+            padding: 4px !important;
+          }
+          .dark .react-flow__controls-button {
+            background: transparent !important;
+            border: 1px solid rgba(255, 255, 255, 0.3) !important;
+            margin: 2px !important;
+          }
+          .dark .react-flow__controls-button:hover {
+            background: rgba(255, 255, 255, 0.1) !important;
+          }
+          .dark .react-flow__controls-button svg {
+            stroke: #fff !important;
+          }
+        `}</style>
+      )}
       <ReactFlow
         nodes={nodes}
         edges={edges}

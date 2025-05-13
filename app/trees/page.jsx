@@ -7,14 +7,16 @@ import { useEffect, useState } from "react";
 import { getTrees } from "../actions";
 import { useUser } from "../contexts/UserContext";
 import { Edit, Trash } from "lucide-react";
-import toast from "react-hot-toast";
 import NewTreeModal from "./components/NewTreeModal";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import EditTreeModal from "./components/EditTreeModal";
 const dancingScript = Dancing_Script({ subsets: ["latin"] });
 
+import { useSafeToast } from "../lib/toast";
+
 export default function Home() {
+  const toast = useSafeToast();
   const [trees, setTrees] = useState([]);
   const router = useRouter();
   const { user, logout } = useUser();

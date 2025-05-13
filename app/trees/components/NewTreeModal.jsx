@@ -19,10 +19,12 @@ import {
   WaypointsIcon,
 } from "lucide-react";
 import { useUser } from "@/app/contexts/UserContext";
-import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 
+import { useSafeToast } from "../../lib/toast";
+
 const NewTreeModal = ({ onTreeCreated }) => {
+  const toast = useSafeToast();
   const { user } = useUser();
   const [loading, setLoading] = useState(false);
   const [newTree, setNewTree] = useState({
