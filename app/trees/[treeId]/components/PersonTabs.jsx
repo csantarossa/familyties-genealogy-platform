@@ -16,7 +16,16 @@ import { SidePanelContext } from "../page";
 import PopUp from "./PopUp";
 import { Plus } from "@geist-ui/icons";
 import UploadImage from "./UploadImage";
-import { Edit2, RotateCcw, Save, Upload, Trash } from "lucide-react";
+import {
+  Edit2,
+  RotateCcw,
+  Save,
+  Upload,
+  Trash,
+  Image,
+  ImageIcon,
+  X,
+} from "lucide-react";
 import { getImmediateFamily, getSiblingsBySharedParents } from "@/app/actions";
 import { useSafeToast } from "../../../lib/toast";
 import DatePickerInput from "./DatePickerInput";
@@ -44,7 +53,7 @@ const PersonTabs = () => {
   const [isEditingCareer, setIsEditingCareer] = useState(false);
   const [isEditingEducation, setIsEditingEducation] = useState(false);
   const [imageFile, setImageFile] = useState(null);
-
+  const [addRelationLoading, setAddRelationLoading] = useState(false);
   const [editedGender, setEditedGender] = useState(selected.gender);
   const [notes, setNotes] = useState(selected.notes);
   const [editedDob, setEditedDob] = useState(parseDate(selected.dob));
@@ -221,7 +230,32 @@ const PersonTabs = () => {
       toast.dismiss();
     }
   };
+  const promoteGalleryImageToProfile = async (imgUrl) => {
+    const res = await fetch(`/api/trees/${treeId}/gallery/promote`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        person_id: selected.id,
+        image_url: imgUrl,
+      }),
+    });
 
+    if (res.ok) {
+      setSelected((prev) => ({
+        ...prev,
+        profileImage: imgUrl,
+        gallery: prev.gallery,
+      }));
+      setPeople((prev) =>
+        prev.map((p) =>
+          p.id === selected.id ? { ...p, profileImage: imgUrl } : p
+        )
+      );
+      toast.success("Set as profile picture");
+    } else {
+      toast.error("Failed to update profile image");
+    }
+  };
   const handleSave = async (e) => {
     toast.loading("Saving changes...");
     try {
@@ -564,23 +598,29 @@ const PersonTabs = () => {
                       onChange={setNewRelation}
                     />
                     <Button
-                      className="w-max"
+                      className="w-full"
                       disabled={
                         !newRelation.otherPersonId || !newRelation.typeId
                       }
                       onClick={async () => {
+                        setAddRelationLoading(true);
                         await createRelationship(
                           personId,
                           newRelation.otherPersonId,
                           newRelation.typeId
                         );
+                        setAddRelationLoading(false);
                         await handleGetRelationships();
                         setNewRelation({ otherPersonId: "", typeId: "" });
                         setShowAddRelation(false);
                         toast.success("Relation added successfully!");
                       }}
                     >
-                      Add Relation
+                      {addRelationLoading ? (
+                        <div className="loading"></div>
+                      ) : (
+                        "Add Relation"
+                      )}
                     </Button>
                   </div>
                 )}
@@ -837,7 +877,7 @@ const PersonTabs = () => {
                   </div>
                 ))}
 
-                {isEditingCareer && (
+                {isEditingCareer && editedCareer.length !== 0 && (
                   <div className="flex justify-end gap-2">
                     <Button onClick={handleSave}>Save</Button>
                     <Button
@@ -1002,7 +1042,7 @@ const PersonTabs = () => {
                   </div>
                 ))}
 
-                {isEditingEducation && (
+                {isEditingEducation && editedEducation.length !== 0 && (
                   <div className="flex justify-end gap-2">
                     <Button onClick={handleSave}>Save</Button>
                     <Button
@@ -1055,13 +1095,24 @@ const PersonTabs = () => {
                   <div key={index} className="w-28 h-28 relative group">
                     <PopUp img={img.image_url} index={index} />
 
+                    {img.image_url !== selected.profileImage && (
+                      <button
+                        className="bg-white absolute top-7 right-1 rounded p-1 text-xs shadow hover:bg-blue-100 z-10 opacity-0 group-hover:opacity-100 transition"
+                        onClick={() =>
+                          promoteGalleryImageToProfile(img.image_url)
+                        }
+                      >
+                        <ImageIcon size={16} />
+                      </button>
+                    )}
+
                     <ConfirmModal
                       title="Delete this image?"
                       description="This action cannot be undone. The image will be permanently removed from the gallery."
                       onConfirm={() => handleDeleteImage(img.image_url)}
                       trigger={
-                        <span className="absolute top-1 right-1 bg-white text-red-600 rounded-full p-1 shadow hover:bg-red-100 z-10 opacity-0 group-hover:opacity-100 transition cursor-pointer">
-                          ✖
+                        <span className="bg-white absolute top-0 right-1 rounded p-1 shadow hover:bg-red-100 z-10 opacity-0 group-hover:opacity-100 transition cursor-pointer">
+                          <X size={16} />
                         </span>
                       }
                     />

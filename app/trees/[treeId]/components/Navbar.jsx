@@ -30,6 +30,7 @@ import { AddPersonModalContext } from "../page";
 import { useUser, logout } from "@/app/contexts/UserContext";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import SearchModal from "./SearchModal";
 
 import { useSafeToast } from "../../../lib/toast";
 
@@ -45,6 +46,7 @@ export function Navbar() {
   const [loading, setLoading] = useState(false);
   const [openModal, setOpenModal] = useState(false);
   const [gedcomFile, setGedcomFile] = useState(null);
+  const [openSearchModal, setOpenSearchModal] = useState(false);
   const toast = useSafeToast();
 
   const handleGedcomUpload = async (e) => {
@@ -95,7 +97,7 @@ export function Navbar() {
               Add a Person
             </MenubarItem>
             <MenubarSeparator />
-            <MenubarItem className="flex items-center gap-1">
+            <MenubarItem className="flex items-center gap-1" onClick={() => setOpenSearchModal(true)}>
               <Search size={18} strokeWidth={2} className="opacity-70" />
               Search
             </MenubarItem>
@@ -159,10 +161,16 @@ export function Navbar() {
           <MenubarTrigger>Resources</MenubarTrigger>
           <MenubarContent className="dark:bg-zinc-800 dark:text-white">
             <MenubarItem>Tutorials</MenubarItem>
-            <MenubarItem>User Guides</MenubarItem>
+            <MenubarItem>
+              <Link href="/userguides">User Guides</Link>
+            </MenubarItem>
             <MenubarSeparator />
-            <MenubarItem>About the Team</MenubarItem>
-            <MenubarItem>Contact Us</MenubarItem>
+            <MenubarItem>
+              <Link href="/team">About the Team</Link>
+            </MenubarItem>
+            <MenubarItem>
+              <Link href="/contact">Contact Us</Link>
+            </MenubarItem>
           </MenubarContent>
         </MenubarMenu>
 
@@ -191,6 +199,7 @@ export function Navbar() {
           </MenubarContent>
         </MenubarMenu>
       </Menubar>
+      <SearchModal open={openSearchModal} setOpen={setOpenSearchModal} />
     </div>
   );
 }

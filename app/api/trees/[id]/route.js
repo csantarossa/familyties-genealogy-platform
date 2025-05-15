@@ -69,6 +69,7 @@ export async function POST(req, { params }) {
       birthCountry: null,
       gallery: null,
       additionalInfo: null,
+      notes: body.notes || null,
       treeId: id,
     };
 
@@ -76,17 +77,19 @@ export async function POST(req, { params }) {
       INSERT INTO person (
         person_firstname, person_middlename, person_lastname, person_gender,
         person_dob, person_dod, person_tags, person_main_img, birth_town, birth_city, birth_state, birth_country,
-        gallery, additional_information, fk_tree_id
+        gallery, notes, additional_information, fk_tree_id
       ) VALUES (
         ${newPerson.firstname}, ${newPerson.middlename}, ${newPerson.lastname}, ${newPerson.gender},
         ${newPerson.dob}, ${newPerson.dod}, ${newPerson.tags}, ${newPerson.img}, ${newPerson.birthTown}, ${newPerson.birthCity},
-        ${newPerson.birthState}, ${newPerson.birthCountry}, ${newPerson.gallery},
+        ${newPerson.birthState}, ${newPerson.birthCountry}, ${newPerson.gallery}, ${newPerson.notes},
         ${newPerson.additionalInfo}, ${newPerson.treeId}
       )
       RETURNING person_id
     `;
 
     const newPersonId = result[0].person_id;
+
+    await sql`INSERT INTO images (fk_person_id, image_url) VALUES (${newPersonId}, ${newPerson.img});`;
 
     if (body.relation && body.relationType) {
       const isChildRelation = Number(body.relationType) === 1;
@@ -183,4 +186,60 @@ export async function PUT(req, { params }) {
     success: true,
     message: "Person updated successfully",
   });
+}
+export async function GET(req, { params }) {
+  const { id } = params;
+
+  try {
+    const rows = await sql`
+      SELECT
+        person_id,
+        person_firstname,
+        person_middlename,
+        person_lastname,
+        person_gender,
+        person_dob,
+        person_dod,
+        person_main_img,
+        person_tags,
+        birth_town,
+        birth_city,
+        birth_state,
+        birth_country,
+        notes,
+        additional_information,
+        gallery,
+        confidence
+      FROM person
+      WHERE fk_tree_id = ${id};
+    `;
+
+    const people = rows.map((row) => ({
+      id: row.person_id,
+      firstname: row.person_firstname,
+      middlename: row.person_middlename,
+      lastname: row.person_lastname,
+      gender: row.person_gender,
+      dob: row.person_dob,
+      dod: row.person_dod,
+      profileImage: row.person_main_img, // ✅ critical
+      person_tags: row.person_tags,
+      birthTown: row.birth_town,
+      birthCity: row.birth_city,
+      birthState: row.birth_state,
+      birthCountry: row.birth_country,
+      notes: row.notes,
+      additionalInfo: row.additional_information,
+      gallery: row.gallery,
+      confidence: row.confidence,
+    }));
+
+    return NextResponse.json({ success: true, people });
+  } catch (error) {
+    console.error("Failed to fetch people:", error);
+    return NextResponse.json(
+      { success: false, message: "Failed to fetch people" },
+      { status: 500 }
+    );
+  }
 }

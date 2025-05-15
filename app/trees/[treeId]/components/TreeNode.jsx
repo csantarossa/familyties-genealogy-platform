@@ -104,8 +104,9 @@ const TreeNode = ({ data, isInSpouseContainer = false }) => {
         style={{ background: "#000" }}
       />
       <Card
+        id={`node-${data.id}`}
         onClick={openPanel}
-        className="w-[360px] flex flex-row justify-between items-center p-3 gap-4 bg-white dark:bg-gray-800"
+        className="w-[310px] flex flex-row justify-between items-center p-3 gap-4 bg-white dark:bg-gray-800"
       >
         <div className="h-24 flex justify-center items-center w-full">
           {data.tags.length > 0 && (
@@ -119,7 +120,7 @@ const TreeNode = ({ data, isInSpouseContainer = false }) => {
           )}
 
           <Image
-            src={data.img}
+            src={data.profileImage || "/person_placeholder.png"}
             alt="Person's main image"
             width={100}
             height={100}
@@ -127,11 +128,17 @@ const TreeNode = ({ data, isInSpouseContainer = false }) => {
           />
 
           <CardHeader className="h-fit flex-col flex justify-start relative w-full">
-            <CardTitle className="text-sm font-medium capitalize max-w-56 truncate text-gray-900 dark:text-white">
+            <CardTitle
+              data-fullname
+              className="text-sm font-medium capitalize max-w-40 truncate text-gray-900 dark:text-white"
+            >
               {data.firstname} {data.middlename}
             </CardTitle>
 
-            <CardTitle className="uppercase text-xl font-semibold  max-w-56 truncate text-gray-800 dark:text-white">
+            <CardTitle
+              data-fullname
+              className="uppercase text-xl font-semibold  max-w-40 truncate text-gray-800 dark:text-white"
+            >
               {data.lastname}
             </CardTitle>
             <div className="flex flex-col justify-between gap-1">

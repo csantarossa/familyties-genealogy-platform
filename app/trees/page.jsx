@@ -36,26 +36,11 @@ export default function Home() {
     toast.dismiss();
   };
 
-  const handleTreeRename = async (tree_id) => {
-    console.log("Begun");
-    try {
-      const response = await fetch("/api/trees", {
-        method: "PUT",
-        headers: {
-          "Content-type": "application/json",
-        },
-        body: JSON.stringify({ tree_id, editedDesc, editedTitle }),
-      });
-      console.log(await response.json());
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
   const handleDeleteTree = async (tree) => {
-    const deleteTreeToast = toast.loading("Deleting the tree");
     const approval = confirm(`Do you want to delete tree: ${tree.tree_name}?`);
     if (!approval) return;
+
+    const deleteTreeToast = toast.loading("Deleting the tree");
 
     try {
       const response = await fetch(`/api/trees/${tree.tree_id}`, {
@@ -70,12 +55,13 @@ export default function Home() {
           prevTrees.filter((t) => t.tree_id !== tree.tree_id)
         );
       } else {
+        toast.dismiss(deleteTreeToast);
         toast.error("Failed to delete tree");
       }
     } catch (error) {
+      toast.dismiss(deleteTreeToast);
       toast.error("An error occurred while deleting the tree.");
     }
-    toast.dismiss(deleteTreeToast);
   };
 
   return (
@@ -104,57 +90,44 @@ export default function Home() {
           <NewTreeModal onTreeCreated={handleGetTrees} />
 
           {trees.map((tree) => (
-            <Link
+            <div
               key={tree.tree_id}
-              className="h-fit w-fit"
-              href={`/trees/${tree.tree_id}`}
+              className="w-48 h-40 flex flex-col justify-start p-6 bg-gray-100 hover:bg-gray-50 rounded-lg border-4 border-gray-100 duration-150 relative cursor-pointer"
+              onClick={() => {
+                toast.loading("Loading Tree...");
+                router.push(`/trees/${tree.tree_id}`);
+              }}
             >
-              <div className="w-48 h-40 flex flex-col justify-start p-6 
-                bg-gray-100 dark:bg-zinc-800 
-                hover:bg-gray-50 dark:hover:bg-zinc-700 
-                rounded-lg cursor-pointer border-4 
-                border-gray-100 dark:border-zinc-700 
-                duration-150 relative transition-colors"
-              >
-                <div className="flex flex-col justify-start items-start overflow-hidden gap-1">
-                  <div className="flex justify-between w-full items-start gap-1">
-                    <h1 className="font-semibold text-start w-full leading-none">
-                      {tree.tree_name}
-                    </h1>
-                  </div>
-
-                  <p className="text-sm text-gray-700 dark:text-gray-300 text-start">
-                    {tree.tree_desc}
-                  </p>
-                </div>
-                <div className="flex gap-3 absolute right-2 bottom-2">
-                  {/* <div
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      handleTreeRename(tree.tree_id);
-                    }}
-                  > */}
-                  <EditTreeModal
-                    editedTitle={tree.tree_name}
-                    editedDesc={tree.tree_desc}
-                    id={tree.tree_id}
-                    setEditedTitle={setEditedTitle}
-                    setEditedDesc={setEditedDesc}
-                  />
-                  {/* </div> */}
-
-                  <Trash
-                    size={17}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      handleDeleteTree(tree);
-                    }}
-                  />
-                </div>
+              <div className="flex flex-col justify-start items-start overflow-hidden gap-1">
+                <h1 className="font-semibold text-start w-full leading-none">
+                  {tree.tree_name}
+                </h1>
+                <p className="text-sm text-gray-700 text-start">
+                  {tree.tree_desc}
+                </p>
               </div>
-            </Link>
+
+              <div
+                className="flex gap-3 absolute right-2 bottom-2 z-50"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <EditTreeModal
+                  editedTitle={tree.tree_name}
+                  editedDesc={tree.tree_desc}
+                  id={tree.tree_id}
+                  onUpdate={handleGetTrees}
+                />
+                <Trash
+                  className="cursor-pointer"
+                  size={17}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleDeleteTree(tree);
+                  }}
+                />
+              </div>
+            </div>
           ))}
         </div>
       </main>

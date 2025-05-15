@@ -1,5 +1,7 @@
 # FamilyTies: Genealogy Project
 
+**REFER TO familyties-technical-documentation.md for tech notes**
+
 ## To Download
 
 1. Make a directory in a designated folder for your projects (e.g. `/software-projects`)
@@ -12,18 +14,6 @@
 Type `npm run dev`, and checkout these URLs to make sure its all good:
 http://localhost:3000/login
 http://localhost:3000/signup
-
----
-
-## Version Control Process
-
-1. `git branch <name your branch something relevant>`
-2. `git branch` (make sure you are in the right branch - `git checkout <branch-name>` to swap branches if not in the new one)
-3. `git pull --rebase origin main` to get the latest updates 
-4. As you progress, make sure you `git add .` and `git commit -m "description here"` to save updates. This is useful if you mess things up so much you need to just go back to a commit when everything worked fine and start again.
-5. When you are ready to make a Pull Request (PR), `git push origin main` then go to GitHub and it will prompt you to submit a PR. Follow the steps and get it submitted for review.
-
-Once reviewed it will either be merged to main, or you will need to clean things up so that there are no conflicts.
 
 ---
 
