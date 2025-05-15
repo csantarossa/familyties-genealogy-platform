@@ -1,5 +1,4 @@
 "use client";
-import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -29,33 +28,46 @@ export default function Home() {
 
   const handleSignup = async (e) => {
     e.preventDefault();
-    toast.loading("Creating user");
+    const toastId = toast.loading("Creating user...");
+
     try {
-      if (newUser.password === newUser.confirmedPassword) {
-        const response = await fetch("/api/signup", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            firstname: newUser.firstname,
-            lastname: newUser.lastname,
-            email: newUser.email,
-            password: newUser.password,
-          }),
+      if (newUser.password !== newUser.confirmedPassword) {
+        toast.dismiss(toastId);
+        return toast.error("Passwords don't match");
+      }
+
+      const response = await fetch("/api/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          firstname: newUser.firstname,
+          lastname: newUser.lastname,
+          email: newUser.email,
+          password: newUser.password,
+        }),
+      });
+
+      const data = await response.json();
+      toast.dismiss(toastId);
+
+      if (data.success) {
+        toast.success("Account created! Please log in.");
+        router.replace("/login");
+        setNewUser({
+          firstname: "",
+          lastname: "",
+          email: "",
+          password: "",
+          confirmedPassword: "",
         });
-        const data = await response.json();
-        if (data.success) {
-          toast("Account created! Please log in");
-          router.replace("/login");
-        } else {
-          toast.error(data.message);
-        }
       } else {
-        toast.error("Passwords don't match");
+        toast.error(data.message); // e.g., "Account already exists"
       }
     } catch (error) {
+      toast.dismiss(toastId);
       console.error(error);
+      toast.error("Something went wrong. Please try again.");
     }
-    toast.dismiss();
   };
 
   return (
@@ -74,9 +86,9 @@ export default function Home() {
               <div className="grid w-full items-center gap-4">
                 <div className="flex gap-3">
                   <div className="flex flex-col space-y-1.5 w-[40%]">
-                    <Label htmlFor="name">Firstname</Label>
+                    <Label htmlFor="firstname">Firstname</Label>
                     <Input
-                      id="email"
+                      id="firstname"
                       placeholder="Firstname"
                       value={newUser.firstname}
                       onChange={(e) =>
@@ -85,9 +97,9 @@ export default function Home() {
                     />
                   </div>
                   <div className="flex flex-col space-y-1.5">
-                    <Label htmlFor="name">Lastname</Label>
+                    <Label htmlFor="lastname">Lastname</Label>
                     <Input
-                      id="email"
+                      id="lastname"
                       placeholder="Lastname"
                       value={newUser.lastname}
                       onChange={(e) =>
@@ -98,7 +110,7 @@ export default function Home() {
                 </div>
 
                 <div className="flex flex-col space-y-1.5">
-                  <Label htmlFor="name">Email</Label>
+                  <Label htmlFor="email">Email</Label>
                   <Input
                     id="email"
                     placeholder="Email Address"
@@ -108,8 +120,9 @@ export default function Home() {
                     }
                   />
                 </div>
+
                 <div className="flex flex-col space-y-1.5">
-                  <Label htmlFor="framework">Password</Label>
+                  <Label htmlFor="password">Password</Label>
                   <Input
                     type="password"
                     id="password"
@@ -120,11 +133,12 @@ export default function Home() {
                     }
                   />
                 </div>
+
                 <div className="flex flex-col space-y-1.5">
-                  <Label htmlFor="framework">Confirm Password</Label>
+                  <Label htmlFor="confirmPassword">Confirm Password</Label>
                   <Input
                     type="password"
-                    id="password"
+                    id="confirmPassword"
                     placeholder="Confirm Password"
                     value={newUser.confirmedPassword}
                     onChange={(e) =>
@@ -137,6 +151,7 @@ export default function Home() {
                 </div>
               </div>
             </CardContent>
+
             <CardFooter className="flex justify-between">
               <Link href="/login">
                 <Button variant="outline" type="button">
