@@ -7,14 +7,16 @@ import { useEffect, useState } from "react";
 import { getTrees } from "../actions";
 import { useUser } from "../contexts/UserContext";
 import { Edit, Trash } from "lucide-react";
-import toast from "react-hot-toast";
 import NewTreeModal from "./components/NewTreeModal";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import EditTreeModal from "./components/EditTreeModal";
 const dancingScript = Dancing_Script({ subsets: ["latin"] });
 
+import { useSafeToast } from "../lib/toast";
+
 export default function Home() {
+  const toast = useSafeToast();
   const [trees, setTrees] = useState([]);
   const router = useRouter();
   const { user, logout } = useUser();
@@ -63,7 +65,7 @@ export default function Home() {
   };
 
   return (
-    <div className="flex flex-col justify-center items-center h-screen p-10 py-20 gap-4 font-[family-name:var(--font-geist-sans)]">
+    <div className="flex flex-col justify-center items-center h-screen p-10 py-20 gap-4 font-[family-name:var(--font-geist-sans)] bg-white dark:bg-zinc-900 text-black dark:text-white transition-colors duration-300">
       <div className="flex justify-center items-center gap-2">
         <div className="h-10 w-10 relative">
           <Image objectFit="fit" layout="fill" alt="logo" src="/logo.png" />

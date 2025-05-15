@@ -12,7 +12,7 @@ function SpouseContainerNode({ data, id }) {
 
   return (
     <div
-      className="flex flex-row items-center rounded-md relative"
+      className="flex flex-row items-center rounded-md relative bg-transparent dark:bg-transparent"
       style={{ backgroundColor: "transparent" }}
     >
       {/* Left person */}
@@ -53,7 +53,7 @@ function SpouseContainerNode({ data, id }) {
       </div>
 
       {/* Connector between spouses */}
-      {spouse && <div className="h-[3.5px] w-20 bg-[#000]"></div>}
+      {spouse && <div className="h-[3.5px] w-20 bg-black dark:bg-gray-300"></div>}
 
       {/* Right spouse */}
       {spouse && (
