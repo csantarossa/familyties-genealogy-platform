@@ -144,7 +144,7 @@ export function Navbar() {
                       <div className="loader"></div>
                     ) : (
                       <>
-                        Upload GEDCOM File
+                        Upload GEDCOM File 
                         <UserPlus className="" size={24} />
                       </>
                     )}

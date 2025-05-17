@@ -279,6 +279,9 @@ const PersonTabs = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           personId: selected.id,
+          firstname: selected.firstname,
+          middlename: selected.middlename,
+          lastname: selected.lastname,
           gender: editedGender,
           dob: formatForBackend(editedDob),
           dod: formatForBackend(editedDod),

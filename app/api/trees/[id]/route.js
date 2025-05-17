@@ -181,6 +181,9 @@ export async function PUT(req, { params }) {
 
   const {
     personId,
+    firstname,
+    middlename,
+    lastname,
     gender,
     dob,
     dod,
@@ -208,6 +211,9 @@ export async function PUT(req, { params }) {
   await sql`
   UPDATE person
   SET
+    person_firstname = ${firstname},
+    person_middlename = ${middlename},
+    person_lastname = ${lastname},
     person_gender = ${gender},
     person_dob = ${safeDob},
     person_dod = ${safeDod},
