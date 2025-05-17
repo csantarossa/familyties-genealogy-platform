@@ -438,7 +438,10 @@ const PersonTabs = () => {
                 <div className="space-y-0">
                   <Label className="font-semibold text-sm">Gender</Label>
                   {isEditingGeneral ? (
-                    <Select value={editedGender} onValueChange={setEditedGender}>
+                    <Select
+                      value={editedGender}
+                      onValueChange={setEditedGender}
+                    >
                       <SelectTrigger className="w-full">
                         <SelectValue placeholder="Select gender" />
                       </SelectTrigger>
@@ -507,50 +510,55 @@ const PersonTabs = () => {
 
                 {/* DOD */}
                 <div className="space-y-0">
-                <Label className="font-semibold text-sm">Death</Label>
-                {isEditingGeneral ? (
-                  <>
-                    <DatePickerInput date={editedDod} setDate={setEditedDod} />
-                    <div className="grid grid-cols-2 gap-4 mt-2">
-                      <div className="space-y-2 mt-2">
-                        <Input
-                          value={deathTown}
-                          onChange={(e) => setDeathTown(e.target.value)}
-                          placeholder="Town"
-                        />
-                        <Input
-                          value={deathCity}
-                          onChange={(e) => setDeathCity(e.target.value)}
-                          placeholder="City"
-                        />
+                  <Label className="font-semibold text-sm">Death</Label>
+                  {isEditingGeneral ? (
+                    <>
+                      <DatePickerInput
+                        date={editedDod}
+                        setDate={setEditedDod}
+                      />
+                      <div className="grid grid-cols-2 gap-4 mt-2">
+                        <div className="space-y-2 mt-2">
+                          <Input
+                            value={deathTown}
+                            onChange={(e) => setDeathTown(e.target.value)}
+                            placeholder="Town"
+                          />
+                          <Input
+                            value={deathCity}
+                            onChange={(e) => setDeathCity(e.target.value)}
+                            placeholder="City"
+                          />
+                        </div>
+                        <div className="space-y-2 mt-2">
+                          <Input
+                            value={deathState}
+                            onChange={(e) => setDeathState(e.target.value)}
+                            placeholder="State"
+                          />
+                          <Input
+                            value={deathCountry}
+                            onChange={(e) => setDeathCountry(e.target.value)}
+                            placeholder="Country"
+                          />
+                        </div>
                       </div>
-                      <div className="space-y-2 mt-2">
-                        <Input
-                          value={deathState}
-                          onChange={(e) => setDeathState(e.target.value)}
-                          placeholder="State"
-                        />
-                        <Input
-                          value={deathCountry}
-                          onChange={(e) => setDeathCountry(e.target.value)}
-                          placeholder="Country"
-                        />
-                      </div>
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <p className="text-sm">{formatDisplayDate(editedDod, true)}</p>
-                    {editedDod && (
+                    </>
+                  ) : (
+                    <>
                       <p className="text-sm">
-                        {[deathTown, deathCity, deathState, deathCountry]
-                          .filter(Boolean)
-                          .join(", ")}
+                        {formatDisplayDate(editedDod, true)}
                       </p>
-                    )}
-                  </>
-                )}
-              </div>
+                      {editedDod && (
+                        <p className="text-sm">
+                          {[deathTown, deathCity, deathState, deathCountry]
+                            .filter(Boolean)
+                            .join(", ")}
+                        </p>
+                      )}
+                    </>
+                  )}
+                </div>
 
                 {/* Tags */}
                 <div className="space-y-0">
@@ -1148,7 +1156,7 @@ const PersonTabs = () => {
             <CardHeader>
               <CardTitle>Gallery</CardTitle>
             </CardHeader>
-            <CardContent className="grid grid-cols-4 justify-center w-full items-start p-0 m-0 gap-3">
+            <CardContent className="grid grid-cols-3 justify-center w-full items-start p-0 m-0 gap-3">
               <label htmlFor="uploadFile">
                 <UploadImage />
               </label>
@@ -1169,7 +1177,7 @@ const PersonTabs = () => {
 
                     {img.image_url !== selected.profileImage && (
                       <button
-                        className="bg-white absolute top-7 right-1 rounded p-1 text-xs shadow hover:bg-blue-100 z-10 opacity-0 group-hover:opacity-100 transition"
+                        className="bg-white absolute top-7 -right-2 rounded p-1 text-xs shadow hover:bg-blue-100 z-10 opacity-0 group-hover:opacity-100 transition"
                         onClick={() =>
                           promoteGalleryImageToProfile(img.image_url)
                         }
@@ -1183,7 +1191,7 @@ const PersonTabs = () => {
                       description="This action cannot be undone. The image will be permanently removed from the gallery."
                       onConfirm={() => handleDeleteImage(img.image_url)}
                       trigger={
-                        <span className="bg-white absolute top-0 right-1 rounded p-1 shadow hover:bg-red-100 z-10 opacity-0 group-hover:opacity-100 transition cursor-pointer">
+                        <span className="bg-white absolute top-0 -right-2 rounded p-1 shadow hover:bg-red-100 z-10 opacity-0 group-hover:opacity-100 transition cursor-pointer">
                           <X size={16} />
                         </span>
                       }

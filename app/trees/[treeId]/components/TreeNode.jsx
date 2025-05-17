@@ -119,13 +119,15 @@ const TreeNode = ({ data, isInSpouseContainer = false }) => {
             </div>
           )}
 
-          <Image
-            src={data.profileImage || "/person_placeholder.png"}
-            alt="Person's main image"
-            width={100}
-            height={100}
-            className="rounded-lg w-30 "
-          />
+          <div className="h-full w-36 relative rounded-lg">
+            <Image
+              src={data.profileImage || "/person_placeholder.png"}
+              alt="Person's main image"
+              fill
+              objectFit="cover"
+              className="rounded-lg"
+            />
+          </div>
 
           <CardHeader className="h-fit flex-col flex justify-start relative w-full">
             <CardTitle
@@ -134,7 +136,7 @@ const TreeNode = ({ data, isInSpouseContainer = false }) => {
             >
               {data.firstname} {data.middlename}
             </CardTitle>
- 
+
             <CardTitle
               data-fullname
               className="uppercase text-xl font-semibold  max-w-40 truncate"
