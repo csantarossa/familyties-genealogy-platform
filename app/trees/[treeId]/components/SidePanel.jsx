@@ -23,6 +23,7 @@ import { PersonContext } from "@/app/contexts/PersonContext";
 import PopUp from "./PopUp";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 
 const SidePanel = () => {
   const { selected, setSelected, setPeople, clearSelection } =
@@ -146,27 +147,48 @@ const SidePanel = () => {
             <div className="flex flex-col justify-start gap-4 h-fit w-full">
               <div>
                 {isEditingName ? (
-                  <div className="flex flex-col gap-2 w-full">
-                    <div className="grid grid-cols-3 gap-2">
-                      <Input
-                        value={editedFirstname}
-                        onChange={(e) => setEditedFirstname(e.target.value)}
-                        placeholder="First"
-                      />
-                      <Input
-                        value={editedMiddlename}
-                        onChange={(e) => setEditedMiddlename(e.target.value)}
-                        placeholder="Middle"
-                      />
-                      <Input
-                        value={editedLastname}
-                        onChange={(e) => setEditedLastname(e.target.value)}
-                        placeholder="Last"
-                      />
+                  <div className="flex flex-col gap-2 w-72">
+                    <div className="flex gap-2 flex-col w-full">
+                      <div className="w-full flex gap-2">
+                        <div className="flex flex-col gap-1">
+                          <Label className="font-medium text-sm">
+                            Firstname
+                          </Label>
+                          <Input
+                            value={editedFirstname}
+                            onChange={(e) => setEditedFirstname(e.target.value)}
+                            placeholder="First"
+                          />
+                        </div>
+                        <div className="flex flex-col gap-1">
+                          <Label className="font-medium text-sm">
+                            Middlename
+                          </Label>
+                          <Input
+                            value={editedMiddlename}
+                            onChange={(e) =>
+                              setEditedMiddlename(e.target.value)
+                            }
+                            placeholder="Middle"
+                          />
+                        </div>
+                      </div>
+                      <div className="flex flex-col gap-1">
+                        <Label className="font-medium text-sm">Lastname</Label>
+                        <Input
+                          value={editedLastname}
+                          onChange={(e) => setEditedLastname(e.target.value)}
+                          placeholder="Last"
+                          className="w-full"
+                        />
+                      </div>
                     </div>
                     <div className="flex gap-2 mt-2">
-                      <Button onClick={handleSaveName}>Save</Button>
+                      <Button className="w-full" onClick={handleSaveName}>
+                        Save
+                      </Button>
                       <Button
+                        className="w-full"
                         variant="ghost"
                         onClick={() => setIsEditingName(false)}
                       >
@@ -236,9 +258,7 @@ const SidePanel = () => {
                       setSelected((prev) => ({ ...prev, confidence: value }));
                       setPeople((prev) =>
                         prev.map((p) =>
-                          p.id === selected.id
-                            ? { ...p, confidence: value }
-                            : p
+                          p.id === selected.id ? { ...p, confidence: value } : p
                         )
                       );
                     } catch (err) {
