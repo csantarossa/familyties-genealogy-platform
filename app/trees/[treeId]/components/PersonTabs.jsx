@@ -69,6 +69,11 @@ const PersonTabs = () => {
   const [birthState, setBirthState] = useState(selected.birthState || "");
   const [birthCountry, setBirthCountry] = useState(selected.birthCountry || "");
 
+  const [deathTown, setDeathTown] = useState(selected.deathTown || "");
+  const [deathCity, setDeathCity] = useState(selected.deathCity || "");
+  const [deathState, setDeathState] = useState(selected.deathState || "");
+  const [deathCountry, setDeathCountry] = useState(selected.deathCountry || "");
+
   const personId = selected.id;
 
   const [editedTags, setEditedTags] = useState(selected.person_tags || []);
@@ -122,6 +127,10 @@ const PersonTabs = () => {
       setBirthCity(selected.birthCity || "");
       setBirthState(selected.birthState || "");
       setBirthCountry(selected.birthCountry || "");
+      setDeathTown(selected.deathTown || "");
+      setDeathCity(selected.deathCity || "");
+      setDeathState(selected.deathState || "");
+      setDeathCountry(selected.deathCountry || "");
     }
   }, [selected, isEditingGeneral]);
 
@@ -272,6 +281,10 @@ const PersonTabs = () => {
           birthCity,
           birthState,
           birthCountry,
+          deathTown,
+          deathCity,
+          deathState,
+          deathCountry,
           notes: notes,
         }),
       });
@@ -308,6 +321,10 @@ const PersonTabs = () => {
         birthCity,
         birthState,
         birthCountry,
+        deathTown,
+        deathCity,
+        deathState,
+        deathCountry,
         notes,
         additionalInfo: {
           career: editedCareer,
@@ -326,6 +343,10 @@ const PersonTabs = () => {
         birthCity: birthCity,
         birthState: birthState,
         birthCountry: birthCountry,
+        deathTown: deathTown,
+        deathCity: deathCity,
+        deathState: deathState,
+        deathCountry: deathCountry,
         notes: notes,
         additionalInfo: {
           career: editedCareer,
@@ -468,15 +489,50 @@ const PersonTabs = () => {
 
                 {/* DOD */}
                 <div className="space-y-0">
-                  <Label className="font-semibold text-sm">Death</Label>
-                  {isEditingGeneral ? (
+                <Label className="font-semibold text-sm">Death</Label>
+                {isEditingGeneral ? (
+                  <>
                     <DatePickerInput date={editedDod} setDate={setEditedDod} />
-                  ) : (
-                    <p className="text-sm">
-                      {formatDisplayDate(editedDod, true)}
-                    </p>
-                  )}
-                </div>
+                    <div className="grid grid-cols-2 gap-4 mt-2">
+                      <div className="space-y-2 mt-2">
+                        <Input
+                          value={deathTown}
+                          onChange={(e) => setDeathTown(e.target.value)}
+                          placeholder="Town"
+                        />
+                        <Input
+                          value={deathCity}
+                          onChange={(e) => setDeathCity(e.target.value)}
+                          placeholder="City"
+                        />
+                      </div>
+                      <div className="space-y-2 mt-2">
+                        <Input
+                          value={deathState}
+                          onChange={(e) => setDeathState(e.target.value)}
+                          placeholder="State"
+                        />
+                        <Input
+                          value={deathCountry}
+                          onChange={(e) => setDeathCountry(e.target.value)}
+                          placeholder="Country"
+                        />
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-sm">{formatDisplayDate(editedDod, true)}</p>
+                    {editedDod && (
+                      <p className="text-sm">
+                        {[deathTown, deathCity, deathState, deathCountry]
+                          .filter(Boolean)
+                          .join(", ")}
+                      </p>
+                    )}
+                  </>
+                )}
+              </div>
 
                 {/* Tags */}
                 <div className="space-y-0">

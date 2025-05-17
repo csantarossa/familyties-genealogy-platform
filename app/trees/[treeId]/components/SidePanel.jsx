@@ -119,6 +119,10 @@ const SidePanel = () => {
                           birthCity: selected.birthCity,
                           birthState: selected.birthState,
                           birthCountry: selected.birthCountry,
+                          deathTown: selected.deathTown,
+                          deathCity: selected.deathCity,
+                          deathState: selected.deathState,
+                          deathCountry: selected.deathCountry,
                           notes: selected.notes || "",
                         }),
                       });
