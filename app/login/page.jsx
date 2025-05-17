@@ -31,7 +31,7 @@ export default function Home() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    toast.loading("Logging in");
+    const toastId = toast.loading("Logging in...");
 
     const response = await fetch("/api/login", {
       method: "POST",
@@ -44,14 +44,16 @@ export default function Home() {
 
     const data = await response.json();
 
+    toast.dismiss(toastId);
+
     if (data.success) {
       login(data.user);
       toast.success("Welcome back!");
       router.push("/trees");
     } else {
-      toast.error(data.message);
+      toast.error(data.message); // Toast error when invalid credentials
+      setLoginUser({ email: "", password: "" }); // Reset form on error
     }
-    toast.dismiss();
   };
 
   return (
@@ -67,18 +69,18 @@ export default function Home() {
           FamilyTies
         </h1>
       </div>
+
       <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start shadow-md">
         <form onSubmit={handleLogin}>
           <Card className="w-[350px]">
             <CardHeader>
               <CardTitle>Login</CardTitle>
-
               <CardDescription>Welcome back to FamilyTies.</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid w-full items-center gap-4">
                 <div className="flex flex-col space-y-1.5">
-                  <Label htmlFor="name">Email</Label>
+                  <Label htmlFor="email">Email</Label>
                   <Input
                     id="email"
                     required
@@ -90,9 +92,10 @@ export default function Home() {
                   />
                 </div>
                 <div className="flex flex-col space-y-1.5">
-                  <Label htmlFor="framework">Password</Label>
+                  <Label htmlFor="password">Password</Label>
                   <Input
                     type="password"
+                    id="password"
                     required
                     placeholder="Password"
                     value={loginUser.password}
@@ -102,13 +105,6 @@ export default function Home() {
                   />
                 </div>
               </div>
-
-              <br />
-              {/* <CardDescription>
-                <a href="#" className="underline">
-                  Forgot Password?
-                </a>
-              </CardDescription> */}
             </CardContent>
 
             <CardFooter className="flex justify-between">
@@ -117,11 +113,12 @@ export default function Home() {
                   Create Account
                 </Button>
               </Link>
-              <Button>Login</Button>
+              <Button type="submit">Login</Button>
             </CardFooter>
           </Card>
         </form>
       </main>
+
       <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center"></footer>
     </div>
   );
