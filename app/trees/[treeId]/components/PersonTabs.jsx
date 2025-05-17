@@ -12,7 +12,14 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { SidePanelContext } from "../page";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import PopUp from "./PopUp";
 import { Plus } from "@geist-ui/icons";
 import UploadImage from "./UploadImage";
@@ -428,10 +435,18 @@ const PersonTabs = () => {
                 <div className="space-y-0">
                   <Label className="font-semibold text-sm">Gender</Label>
                   {isEditingGeneral ? (
-                    <Input
-                      value={editedGender}
-                      onChange={(e) => setEditedGender(e.target.value)}
-                    />
+                    <Select value={editedGender} onValueChange={setEditedGender}>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select gender" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          <SelectItem value="Male">Male</SelectItem>
+                          <SelectItem value="Female">Female</SelectItem>
+                          <SelectItem value="Other">Other</SelectItem>
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
                   ) : (
                     <p className="text-sm">{selected.gender}</p>
                   )}
