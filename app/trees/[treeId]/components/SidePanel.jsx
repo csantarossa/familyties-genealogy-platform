@@ -18,7 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { format } from "date-fns";
+import { formatForBackend, parseDate } from "@/app/utils/parseDate";
 import { PersonContext } from "@/app/contexts/PersonContext";
 import PopUp from "./PopUp";
 import { Input } from "@/components/ui/input";
@@ -74,8 +74,8 @@ const SidePanel = () => {
           middlename: editedMiddlename,
           lastname: editedLastname,
           gender: selected.gender,
-          dob: selected.dob,
-          dod: selected.dod,
+          dob: formatForBackend(parseDate(selected.dob)),
+          dod: formatForBackend(parseDate(selected.dod)),
           confidence: selected.confidence,
           birthTown: selected.birthTown,
           birthCity: selected.birthCity,
@@ -165,9 +165,7 @@ const SidePanel = () => {
                       />
                     </div>
                     <div className="flex gap-2 mt-2">
-                      <Button onClick={handleSaveName}>
-                        Save
-                      </Button>
+                      <Button onClick={handleSaveName}>Save</Button>
                       <Button
                         variant="ghost"
                         onClick={() => setIsEditingName(false)}
@@ -206,11 +204,14 @@ const SidePanel = () => {
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({
                           personId: selected.id,
+                          firstname: selected.firstname,
+                          middlename: selected.middlename,
+                          lastname: selected.lastname,
                           confidence: value,
-                          person_tags: selected.person_tags || [],
                           gender: selected.gender,
-                          dob: selected.dob,
-                          dod: selected.dod,
+                          dob: formatForBackend(parseDate(selected.dob)),
+                          dod: formatForBackend(parseDate(selected.dod)),
+                          person_tags: selected.person_tags || [],
                           birthTown: selected.birthTown,
                           birthCity: selected.birthCity,
                           birthState: selected.birthState,
