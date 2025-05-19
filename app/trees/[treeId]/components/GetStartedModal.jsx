@@ -139,7 +139,7 @@ const GetStartedModal = ({ treeId }) => {
           <AlertDialogContent className="w-[500px] h-fit dark:bg-zinc-900 dark:text-white">
             <AlertDialogHeader className="flex h-full flex-col justify-between items-start">
               <AlertDialogTitle className="">
-                Welcome to your new tree! 🎉
+                Welcome to your new tree!
               </AlertDialogTitle>
               <AlertDialogDescription className="dark:text-zinc-400">
                 How would you like to begin?
@@ -174,7 +174,7 @@ const GetStartedModal = ({ treeId }) => {
           <AlertDialogContent className="w-[430px] h-fit dark:bg-zinc-900 dark:text-white">
             <AlertDialogHeader className="flex h-full flex-col justify-between items-start">
               <AlertDialogTitle className="flex justify-between items-center w-full">
-                Welcome to your new tree! 🎉
+                Welcome to your new tree!
                 <Button variant="secondary" onClick={() => setStartMethod("")}>
                   <ChevronLeft />
                 </Button>
@@ -313,7 +313,7 @@ const GetStartedModal = ({ treeId }) => {
           <AlertDialogContent className="w-[430px] h-fit dark:bg-zinc-900 dark:text-white">
             <AlertDialogHeader className="flex h-full flex-col justify-between items-start">
               <AlertDialogTitle className="flex justify-between items-center w-full">
-                Upload a GEDCOM file! 🎉
+                Upload a GEDCOM file!
                 <Button variant="secondary" onClick={() => setStartMethod("")}>
                   <ChevronLeft />
                 </Button>
@@ -348,7 +348,7 @@ const GetStartedModal = ({ treeId }) => {
                 <div className="loader"></div>
               ) : (
                 <>
-                  Upload your file! 🚀
+                  Upload your file!
                   <UserPlus className="" size={24} />
                 </>
               )}

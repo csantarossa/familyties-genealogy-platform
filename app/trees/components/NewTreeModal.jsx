@@ -52,7 +52,7 @@ const NewTreeModal = ({ onTreeCreated }) => {
         toast.success("Tree created successfully!");
         setNewTree({ title: "", desc: "" });
 
-        // ✅ Call the parent function to refetch trees
+        // Call the parent function to refetch trees
         onTreeCreated?.();
       } else {
         toast.error(data.message || "Failed to create tree");

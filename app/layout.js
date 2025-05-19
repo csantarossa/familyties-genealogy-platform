@@ -31,7 +31,7 @@ export default function RootLayout({ children }) {
       </head>
       <body className={`${plusJakarta.className} antialiased`}>
         <UserProvider>
-          <SafeToaster /> {/* ✅ Will only render if enabled */}
+          <SafeToaster /> {/* Will only render if enabled */}
           {children}
         </UserProvider>
       </body>

@@ -156,7 +156,7 @@ const PersonTabs = () => {
       const personId = selected.id;
       let uploadedImageUrl = null;
 
-      // ✅ Upload the image first if one was selected
+      // Upload the image first if one was selected
       if (img) {
         const compressedFile = await imageCompression(img, {
           maxSizeMB: 0.3,
@@ -240,7 +240,7 @@ const PersonTabs = () => {
 
       toast.success("Image deleted");
     } catch (err) {
-      console.error("❌ Error deleting image:", err);
+      console.error("Error deleting image:", err);
       toast.error("Error deleting image");
     } finally {
       toast.dismiss();
@@ -420,8 +420,8 @@ const PersonTabs = () => {
                       const dobParsed = parseDate(selected.dob);
                       const dodParsed = parseDate(selected.dod);
 
-                      console.log("🧠 RAW DOB:", selected.dob);
-                      console.log("🧠 PARSED DOB:", dobParsed);
+                      console.log("RAW DOB:", selected.dob);
+                      console.log("PARSED DOB:", dobParsed);
 
                       setEditedDob(dobParsed);
                       setEditedDod(dodParsed);

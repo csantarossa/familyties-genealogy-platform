@@ -40,7 +40,7 @@ export function Navbar() {
   const [addPersonModal, setAddPersonModal] = useContext(AddPersonModalContext);
   const { user, logout } = useUser();
   const router = useRouter();
-  const { treeId } = useParams(); // ✅ Needed for uploading
+  const { treeId } = useParams(); // Needed for uploading
   const [showFileInput, setShowFileInput] = useState(false);
   const fileInputRef = useRef();
   const [loading, setLoading] = useState(false);
@@ -113,7 +113,7 @@ export function Navbar() {
               <AlertDialogContent className="w-[430px] h-fit dark:bg-zinc-900 dark:text-white">
                 <AlertDialogHeader className="flex h-full flex-col justify-between items-start">
                   <AlertDialogTitle className="flex justify-between items-center w-full">
-                    Upload a GEDCOM file! 🎉
+                    Upload a GEDCOM file!
                   </AlertDialogTitle>
                   <div className="flex gap-2">
                     <CircleAlert className="stroke-red-600" />

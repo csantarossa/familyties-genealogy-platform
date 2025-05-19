@@ -27,7 +27,7 @@ function Home() {
     other: "",
     img: "",
   });
-  const [version, setVersion] = useState(0); // ✅ Auto-refresh state
+  const [version, setVersion] = useState(0); // Auto-refresh state
 
   const { user } = useUser();
 
