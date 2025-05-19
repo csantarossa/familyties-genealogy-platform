@@ -1,5 +1,4 @@
 "use client";
-import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -31,33 +30,46 @@ export default function SignupPage() {
 
   const handleSignup = async (e) => {
     e.preventDefault();
-    toast.loading("Creating user");
+    const toastId = toast.loading("Creating user...");
+
     try {
-      if (newUser.password === newUser.confirmedPassword) {
-        const response = await fetch("/api/signup", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            firstname: newUser.firstname,
-            lastname: newUser.lastname,
-            email: newUser.email,
-            password: newUser.password,
-          }),
+      if (newUser.password !== newUser.confirmedPassword) {
+        toast.dismiss(toastId);
+        return toast.error("Passwords don't match");
+      }
+
+      const response = await fetch("/api/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          firstname: newUser.firstname,
+          lastname: newUser.lastname,
+          email: newUser.email,
+          password: newUser.password,
+        }),
+      });
+
+      const data = await response.json();
+      toast.dismiss(toastId);
+
+      if (data.success) {
+        toast.success("Account created! Please log in.");
+        router.replace("/login");
+        setNewUser({
+          firstname: "",
+          lastname: "",
+          email: "",
+          password: "",
+          confirmedPassword: "",
         });
-        const data = await response.json();
-        if (data.success) {
-          toast("Account created! Please log in");
-          router.replace("/login");
-        } else {
-          toast.error(data.message);
-        }
       } else {
-        toast.error("Passwords don't match");
+        toast.error(data.message); // e.g., "Account already exists"
       }
     } catch (error) {
+      toast.dismiss(toastId);
       console.error(error);
+      toast.error("Something went wrong. Please try again.");
     }
-    toast.dismiss();
   };
 
   return (
@@ -79,6 +91,7 @@ export default function SignupPage() {
                     <Label htmlFor="firstname" className="dark:text-zinc-200">Firstname</Label>
                     <Input
                       id="firstname"
+                      id="firstname"
                       placeholder="Firstname"
                       value={newUser.firstname}
                       onChange={(e) =>
@@ -88,7 +101,7 @@ export default function SignupPage() {
                     />
                   </div>
                   <div className="flex flex-col space-y-1.5">
-                    <Label htmlFor="lastname" className="dark:text-zinc-200">Lastname</Label>
+                    <Label htmlFor="lastlastname" className="dark:text-zinc-200">Lastname</Label>
                     <Input
                       id="lastname"
                       placeholder="Lastname"
@@ -113,6 +126,7 @@ export default function SignupPage() {
                     className="dark:bg-zinc-700 dark:text-white dark:border-zinc-600"
                   />
                 </div>
+
                 <div className="flex flex-col space-y-1.5">
                   <Label htmlFor="password" className="dark:text-zinc-200">Password</Label>
                   <Input
@@ -126,10 +140,12 @@ export default function SignupPage() {
                     className="dark:bg-zinc-700 dark:text-white dark:border-zinc-600"
                   />
                 </div>
+
                 <div className="flex flex-col space-y-1.5">
                   <Label htmlFor="confirmPassword" className="dark:text-zinc-200">Confirm Password</Label>
                   <Input
                     type="password"
+                    id="confirmPassword"
                     id="confirmPassword"
                     placeholder="Confirm Password"
                     value={newUser.confirmedPassword}
@@ -144,6 +160,7 @@ export default function SignupPage() {
                 </div>
               </div>
             </CardContent>
+
             <CardFooter className="flex justify-between">
               <Link href="/login">
                 <Button

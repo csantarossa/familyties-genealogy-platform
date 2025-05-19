@@ -1,5 +1,5 @@
 "use client";
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import {
   Sheet,
   SheetContent,
@@ -7,9 +7,8 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { useParams } from "next/navigation";
-import Image from "next/image";
 import ConfirmModal from "./ConfirmModal";
-import { CircleCheck, CircleMinus, Trash } from "lucide-react";
+import { CircleCheck, CircleMinus, Trash, Edit2 } from "lucide-react";
 import { useSafeToast } from "../../../lib/toast";
 import PersonTabs from "./PersonTabs";
 import {
@@ -19,23 +18,33 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { format } from "date-fns";
+import { formatForBackend, parseDate } from "@/app/utils/parseDate";
 import { PersonContext } from "@/app/contexts/PersonContext";
 import PopUp from "./PopUp";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 
 const SidePanel = () => {
-  const { selected, selectPerson, setSelected, setPeople, clearSelection } =
+  const { selected, setSelected, setPeople, clearSelection } =
     useContext(PersonContext);
 
-  const [trigger, setTrigger] = useState(false);
   const { treeId } = useParams();
+  const [trigger, setTrigger] = useState(false);
+  const [isEditingName, setIsEditingName] = useState(false);
 
   const toast = useSafeToast();
 
-  // Open panel when selected changes
-  React.useEffect(() => {
+  const [editedFirstname, setEditedFirstname] = useState("");
+  const [editedMiddlename, setEditedMiddlename] = useState("");
+  const [editedLastname, setEditedLastname] = useState("");
+
+  useEffect(() => {
     if (selected?.id) {
       setTrigger(true);
+      setEditedFirstname(selected.firstname || "");
+      setEditedMiddlename(selected.middlename || "");
+      setEditedLastname(selected.lastname || "");
     }
   }, [selected?.id]);
 
@@ -54,6 +63,69 @@ const SidePanel = () => {
       console.error("Error deleting node:", err);
     }
     toast.dismiss();
+  };
+
+  const handleSaveName = async () => {
+    toast.loading("Saving name...");
+    try {
+      const res = await fetch(`/api/trees/${treeId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          personId: selected.id,
+          firstname: editedFirstname,
+          middlename: editedMiddlename,
+          lastname: editedLastname,
+          gender: selected.gender,
+          dob: formatForBackend(parseDate(selected.dob)),
+          dod: formatForBackend(parseDate(selected.dod)),
+          confidence: selected.confidence,
+          birthTown: selected.birthTown,
+          birthCity: selected.birthCity,
+          birthState: selected.birthState,
+          birthCountry: selected.birthCountry,
+          deathTown: selected.deathTown,
+          deathCity: selected.deathCity,
+          deathState: selected.deathState,
+          deathCountry: selected.deathCountry,
+          person_tags: selected.person_tags || [],
+          notes: selected.notes || "",
+        }),
+      });
+
+      const result = await res.json();
+      toast.dismiss();
+
+      if (!res.ok || !result.success) {
+        toast.error("Failed to save name");
+        return;
+      }
+
+      toast.success("Name updated!");
+      setIsEditingName(false);
+      setSelected((prev) => ({
+        ...prev,
+        firstname: editedFirstname,
+        middlename: editedMiddlename,
+        lastname: editedLastname,
+      }));
+      setPeople((prev) =>
+        prev.map((p) =>
+          p.id === selected.id
+            ? {
+              ...p,
+              firstname: editedFirstname,
+              middlename: editedMiddlename,
+              lastname: editedLastname,
+            }
+            : p
+        )
+      );
+    } catch (err) {
+      toast.dismiss();
+      console.error("Error saving name:", err);
+      toast.error("Something went wrong");
+    }
   };
 
   if (!selected) return null;
@@ -76,12 +148,73 @@ const SidePanel = () => {
 
             <div className="flex flex-col justify-start gap-4 h-fit w-full">
               <div>
-                <h3 className="capitalize font-medium text-xl w-64 truncate text-gray-900 dark:text-white">
-                  {selected.firstname} {selected.middlename}
-                </h3>
-                <SheetTitle className="uppercase text-3xl w-64 truncate text-gray-800 dark:text-white">
-                  {selected.lastname}
-                </SheetTitle>
+                {isEditingName ? (
+                  <div className="flex flex-col gap-2 w-72">
+                    <div className="flex gap-2 flex-col w-full">
+                      <div className="w-full flex gap-2">
+                        <div className="flex flex-col gap-1">
+                          <Label className="font-medium text-sm">
+                            Firstname
+                          </Label>
+                          <Input
+                            value={editedFirstname}
+                            onChange={(e) => setEditedFirstname(e.target.value)}
+                            placeholder="First"
+                          />
+                        </div>
+                        <div className="flex flex-col gap-1">
+                          <Label className="font-medium text-sm">
+                            Middlename
+                          </Label>
+                          <Input
+                            value={editedMiddlename}
+                            onChange={(e) =>
+                              setEditedMiddlename(e.target.value)
+                            }
+                            placeholder="Middle"
+                          />
+                        </div>
+                      </div>
+                      <div className="flex flex-col gap-1">
+                        <Label className="font-medium text-sm">Lastname</Label>
+                        <Input
+                          value={editedLastname}
+                          onChange={(e) => setEditedLastname(e.target.value)}
+                          placeholder="Last"
+                          className="w-full"
+                        />
+                      </div>
+                    </div>
+                    <div className="flex gap-2 mt-2">
+                      <Button className="w-full" onClick={handleSaveName}>
+                        Save
+                      </Button>
+                      <Button
+                        className="w-full"
+                        variant="ghost"
+                        onClick={() => setIsEditingName(false)}
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-4">
+                    <div className="w-full">
+                      <h3 className="capitalize font-medium text-xl w-64 truncate text-gray-900 dark:text-white">
+                        {selected.firstname} {selected.middlename}
+                      </h3>
+                      <SheetTitle className="uppercase text-3xl w-64 truncate text-gray-800 dark:text-white">
+                        {selected.lastname}
+                      </SheetTitle>
+                    </div>
+                    <Edit2
+                      size={16}
+                      className="cursor-pointer text-gray-600 hover:text-black"
+                      onClick={() => setIsEditingName(true)}
+                    />
+                  </div>
+                )}
               </div>
 
               <div className="flex justify-between items-center w-full gap-4">
@@ -89,38 +222,28 @@ const SidePanel = () => {
                   value={selected.confidence || ""}
                   onValueChange={async (value) => {
                     toast.loading("Saving confidence...");
-                    const formatDateSafe = (d) => {
-                      if (!d) return null;
-                      if (
-                        typeof d === "string" &&
-                        /^\d{4}-\d{2}-\d{2}$/.test(d)
-                      )
-                        return d;
-                      try {
-                        const parsed = new Date(d);
-                        return isNaN(parsed)
-                          ? null
-                          : format(parsed, "yyyy-MM-dd");
-                      } catch {
-                        return null;
-                      }
-                    };
-
                     try {
                       const res = await fetch(`/api/trees/${treeId}`, {
                         method: "PUT",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({
                           personId: selected.id,
+                          firstname: selected.firstname,
+                          middlename: selected.middlename,
+                          lastname: selected.lastname,
                           confidence: value,
-                          person_tags: selected.person_tags || [],
                           gender: selected.gender,
-                          dob: formatDateSafe(selected.dob),
-                          dod: formatDateSafe(selected.dod),
+                          dob: formatForBackend(parseDate(selected.dob)),
+                          dod: formatForBackend(parseDate(selected.dod)),
+                          person_tags: selected.person_tags || [],
                           birthTown: selected.birthTown,
                           birthCity: selected.birthCity,
                           birthState: selected.birthState,
                           birthCountry: selected.birthCountry,
+                          deathTown: selected.deathTown,
+                          deathCity: selected.deathCity,
+                          deathState: selected.deathState,
+                          deathCountry: selected.deathCountry,
                           notes: selected.notes || "",
                         }),
                       });

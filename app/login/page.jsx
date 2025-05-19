@@ -32,8 +32,7 @@ export default function Home() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    console.log("Notifications enabled?", notificationsEnabled);
-    toast.loading("Logging in");
+    const toastId = toast.loading("Logging in...");
 
     const response = await fetch("/api/login", {
       method: "POST",
@@ -46,16 +45,17 @@ export default function Home() {
 
     const data = await response.json();
 
+    toast.dismiss(toastId);
+
     if (data.success) {
       login(data.user);
       console.log("Notifications enabled?", notificationsEnabled);
       toast.success("Welcome back!");
       router.push("/trees");
     } else {
-      console.log("Notifications enabled?", notificationsEnabled);
-      toast.error(data.message);
+      toast.error(data.message); // Toast error when invalid credentials
+      setLoginUser({ email: "", password: "" }); // Reset form on error
     }
-    console.log("Notifications enabled?", notificationsEnabled);
     toast.dismiss();
   };
 
@@ -72,12 +72,12 @@ export default function Home() {
           FamilyTies
         </h1>
       </div>
+
       <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start shadow-md">
         <form onSubmit={handleLogin}>
           <Card className="w-[350px] dark:bg-zinc-800 dark:border-zinc-700">
             <CardHeader>
               <CardTitle className="dark:text-white">Login</CardTitle>
-
               <CardDescription className="dark:text-zinc-300">
                 Welcome back to FamilyTies.
               </CardDescription>
@@ -85,7 +85,7 @@ export default function Home() {
             <CardContent>
               <div className="grid w-full items-center gap-4">
                 <div className="flex flex-col space-y-1.5">
-                  <Label htmlFor="name" className="dark:text-zinc-200">Email</Label>
+                  <Label htmlFor="name">Email</Label>
                   <Input
                     id="email"
                     required
@@ -98,9 +98,10 @@ export default function Home() {
                   />
                 </div>
                 <div className="flex flex-col space-y-1.5">
-                  <Label htmlFor="framework" className="dark:text-zinc-200">Password</Label>
+                  <Label htmlFor="password" className="dark:text-zinc-200">Password</Label>
                   <Input
                     type="password"
+                    id="password"
                     required
                     placeholder="Password"
                     value={loginUser.password}
@@ -111,13 +112,6 @@ export default function Home() {
                   />
                 </div>
               </div>
-
-              <br />
-              {/* <CardDescription>
-                <a href="#" className="underline">
-                  Forgot Password?
-                </a>
-              </CardDescription> */}
             </CardContent>
 
             <CardFooter className="flex justify-between">
@@ -126,11 +120,12 @@ export default function Home() {
                   Create Account
                 </Button>
               </Link>
-              <Button className="dark:bg-blue-600 dark:text-white dark:hover:bg-blue-500">Login</Button>
+              <Button type="submit" className="dark:bg-blue-600 dark:text-white dark:hover:bg-blue-500">Login</Button>
             </CardFooter>
           </Card>
         </form>
       </main>
+
       <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center"></footer>
     </div>
   );

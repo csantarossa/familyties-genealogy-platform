@@ -12,7 +12,14 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { SidePanelContext } from "../page";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import PopUp from "./PopUp";
 import { Plus } from "@geist-ui/icons";
 import UploadImage from "./UploadImage";
@@ -71,6 +78,11 @@ const PersonTabs = () => {
   const [birthState, setBirthState] = useState(selected.birthState || "");
   const [birthCountry, setBirthCountry] = useState(selected.birthCountry || "");
 
+  const [deathTown, setDeathTown] = useState(selected.deathTown || "");
+  const [deathCity, setDeathCity] = useState(selected.deathCity || "");
+  const [deathState, setDeathState] = useState(selected.deathState || "");
+  const [deathCountry, setDeathCountry] = useState(selected.deathCountry || "");
+
   const personId = selected.id;
 
   const [editedTags, setEditedTags] = useState(selected.person_tags || []);
@@ -124,6 +136,10 @@ const PersonTabs = () => {
       setBirthCity(selected.birthCity || "");
       setBirthState(selected.birthState || "");
       setBirthCountry(selected.birthCountry || "");
+      setDeathTown(selected.deathTown || "");
+      setDeathCity(selected.deathCity || "");
+      setDeathState(selected.deathState || "");
+      setDeathCountry(selected.deathCountry || "");
     }
   }, [selected, isEditingGeneral]);
 
@@ -265,6 +281,9 @@ const PersonTabs = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           personId: selected.id,
+          firstname: selected.firstname,
+          middlename: selected.middlename,
+          lastname: selected.lastname,
           gender: editedGender,
           dob: formatForBackend(editedDob),
           dod: formatForBackend(editedDod),
@@ -274,6 +293,10 @@ const PersonTabs = () => {
           birthCity,
           birthState,
           birthCountry,
+          deathTown,
+          deathCity,
+          deathState,
+          deathCountry,
           notes: notes,
         }),
       });
@@ -310,6 +333,10 @@ const PersonTabs = () => {
         birthCity,
         birthState,
         birthCountry,
+        deathTown,
+        deathCity,
+        deathState,
+        deathCountry,
         notes,
         additionalInfo: {
           career: editedCareer,
@@ -328,6 +355,10 @@ const PersonTabs = () => {
         birthCity: birthCity,
         birthState: birthState,
         birthCountry: birthCountry,
+        deathTown: deathTown,
+        deathCity: deathCity,
+        deathState: deathState,
+        deathCountry: deathCountry,
         notes: notes,
         additionalInfo: {
           career: editedCareer,
@@ -409,10 +440,21 @@ const PersonTabs = () => {
                 <div className="space-y-0">
                   <Label className="font-semibold text-sm">Gender</Label>
                   {isEditingGeneral ? (
-                    <Input
+                    <Select
                       value={editedGender}
-                      onChange={(e) => setEditedGender(e.target.value)}
-                    />
+                      onValueChange={setEditedGender}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select gender" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          <SelectItem value="Male">Male</SelectItem>
+                          <SelectItem value="Female">Female</SelectItem>
+                          <SelectItem value="Other">Other</SelectItem>
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
                   ) : (
                     <p className="text-sm">{selected.gender}</p>
                   )}
@@ -472,11 +514,51 @@ const PersonTabs = () => {
                 <div className="space-y-0">
                   <Label className="font-semibold text-sm">Death</Label>
                   {isEditingGeneral ? (
-                    <DatePickerInput date={editedDod} setDate={setEditedDod} />
+                    <>
+                      <DatePickerInput
+                        date={editedDod}
+                        setDate={setEditedDod}
+                      />
+                      <div className="grid grid-cols-2 gap-4 mt-2">
+                        <div className="space-y-2 mt-2">
+                          <Input
+                            value={deathTown}
+                            onChange={(e) => setDeathTown(e.target.value)}
+                            placeholder="Town"
+                          />
+                          <Input
+                            value={deathCity}
+                            onChange={(e) => setDeathCity(e.target.value)}
+                            placeholder="City"
+                          />
+                        </div>
+                        <div className="space-y-2 mt-2">
+                          <Input
+                            value={deathState}
+                            onChange={(e) => setDeathState(e.target.value)}
+                            placeholder="State"
+                          />
+                          <Input
+                            value={deathCountry}
+                            onChange={(e) => setDeathCountry(e.target.value)}
+                            placeholder="Country"
+                          />
+                        </div>
+                      </div>
+                    </>
                   ) : (
-                    <p className="text-sm">
-                      {formatDisplayDate(editedDod, true)}
-                    </p>
+                    <>
+                      <p className="text-sm">
+                        {formatDisplayDate(editedDod, true)}
+                      </p>
+                      {editedDod && (
+                        <p className="text-sm">
+                          {[deathTown, deathCity, deathState, deathCountry]
+                            .filter(Boolean)
+                            .join(", ")}
+                        </p>
+                      )}
+                    </>
                   )}
                 </div>
 
@@ -1076,7 +1158,7 @@ const PersonTabs = () => {
             <CardHeader>
               <CardTitle>Gallery</CardTitle>
             </CardHeader>
-            <CardContent className="grid grid-cols-4 justify-center w-full items-start p-0 m-0 gap-3">
+            <CardContent className="grid grid-cols-3 justify-center w-full items-start p-0 m-0 gap-3">
               <label htmlFor="uploadFile">
                 <UploadImage />
               </label>
@@ -1097,7 +1179,7 @@ const PersonTabs = () => {
 
                     {img.image_url !== selected.profileImage && (
                       <button
-                        className="bg-white absolute top-7 right-1 rounded p-1 text-xs shadow hover:bg-blue-100 z-10 opacity-0 group-hover:opacity-100 transition"
+                        className="bg-white absolute top-7 -right-2 rounded p-1 text-xs shadow hover:bg-blue-100 z-10 opacity-0 group-hover:opacity-100 transition"
                         onClick={() =>
                           promoteGalleryImageToProfile(img.image_url)
                         }
@@ -1111,7 +1193,7 @@ const PersonTabs = () => {
                       description="This action cannot be undone. The image will be permanently removed from the gallery."
                       onConfirm={() => handleDeleteImage(img.image_url)}
                       trigger={
-                        <span className="bg-white absolute top-0 right-1 rounded p-1 shadow hover:bg-red-100 z-10 opacity-0 group-hover:opacity-100 transition cursor-pointer">
+                        <span className="bg-white absolute top-0 -right-2 rounded p-1 shadow hover:bg-red-100 z-10 opacity-0 group-hover:opacity-100 transition cursor-pointer">
                           <X size={16} />
                         </span>
                       }
