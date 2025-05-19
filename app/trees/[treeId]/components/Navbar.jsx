@@ -34,8 +34,6 @@ import { Button } from "@/components/ui/button";
 import { useSafeToast } from "../../../lib/toast";
 import SearchModal from "./SearchModal";
 
-import { useSafeToast } from "../../../lib/toast";
-
 const dancingScript = Dancing_Script({ subsets: ["latin"] });
 
 export function Navbar() {
