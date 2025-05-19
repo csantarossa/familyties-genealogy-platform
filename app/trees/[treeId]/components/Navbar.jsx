@@ -31,7 +31,7 @@ import { useUser, logout } from "@/app/contexts/UserContext";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
-import { useSafeToast } from "../../../lib/toast";
+import { useSafeToast } from "@/app/lib/toast";
 import SearchModal from "./SearchModal";
 
 const dancingScript = Dancing_Script({ subsets: ["latin"] });

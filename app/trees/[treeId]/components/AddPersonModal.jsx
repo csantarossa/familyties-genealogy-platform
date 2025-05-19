@@ -38,7 +38,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-import { useSafeToast } from "../../../lib/toast";
+import { useSafeToast } from "@/app/lib/toast";
 
 const AddPersonModal = ({ trigger }) => {
   const { toast } = useSafeToast();

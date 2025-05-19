@@ -25,7 +25,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-import { useSafeToast } from "../../../lib/toast";
+import { useSafeToast } from "@/app/lib/toast";
 
 // Adjusted dimensions and spacing for better layout
 const NODE_W = 360; // Reduced from 720 to match TreeNode's actual width

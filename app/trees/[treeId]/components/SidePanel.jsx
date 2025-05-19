@@ -9,7 +9,7 @@ import {
 import { useParams } from "next/navigation";
 import ConfirmModal from "./ConfirmModal";
 import { CircleCheck, CircleMinus, Trash, Edit2 } from "lucide-react";
-import { useSafeToast } from "../../../lib/toast";
+import { useSafeToast } from "@/app/lib/toast";
 import PersonTabs from "./PersonTabs";
 import {
   Select,

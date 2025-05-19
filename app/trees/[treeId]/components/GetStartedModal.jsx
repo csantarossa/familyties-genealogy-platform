@@ -29,7 +29,7 @@ import {
 } from "@/components/ui/select";
 import { FileInputContext } from "../page";
 
-import { useSafeToast } from "../../../lib/toast";
+import { useSafeToast } from "@/app/lib/toast";
 
 const GetStartedModal = ({ treeId }) => {
   const toast = useSafeToast();

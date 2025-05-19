@@ -34,7 +34,7 @@ import {
   X,
 } from "lucide-react";
 import { getImmediateFamily, getSiblingsBySharedParents } from "@/app/actions";
-import { useSafeToast } from "../../../lib/toast";
+import { useSafeToast } from "@/app/lib/toast";
 import DatePickerInput from "./DatePickerInput";
 import { Textarea } from "@/components/ui/textarea";
 import { useParams } from "next/navigation";

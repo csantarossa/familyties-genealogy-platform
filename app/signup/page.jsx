@@ -91,7 +91,6 @@ export default function SignupPage() {
                     <Label htmlFor="firstname" className="dark:text-zinc-200">Firstname</Label>
                     <Input
                       id="firstname"
-                      id="firstname"
                       placeholder="Firstname"
                       value={newUser.firstname}
                       onChange={(e) =>
@@ -145,7 +144,6 @@ export default function SignupPage() {
                   <Label htmlFor="confirmPassword" className="dark:text-zinc-200">Confirm Password</Label>
                   <Input
                     type="password"
-                    id="confirmPassword"
                     id="confirmPassword"
                     placeholder="Confirm Password"
                     value={newUser.confirmedPassword}
