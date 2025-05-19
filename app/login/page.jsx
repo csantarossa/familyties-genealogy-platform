@@ -32,35 +32,38 @@ export default function Home() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    console.log("Notifications enabled?", notificationsEnabled);
     const toastId = toast.loading("Logging in...");
 
-    const response = await fetch("/api/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        email: loginUser.email,
-        password: loginUser.password,
-      }),
-    });
+    try {
+      const response = await fetch("/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: loginUser.email,
+          password: loginUser.password,
+        }),
+      });
 
-    const data = await response.json();
+      const data = await response.json();
 
-    toast.dismiss(toastId);
+      toast.dismiss(toastId);
 
-    if (data.success) {
+      if (!response.ok || !data.success) {
+        toast.error(data.message || "Login failed. Please try again.");
+        setLoginUser({ email: "", password: "" });
+        return;
+      }
+
       login(data.user);
-      console.log("Notifications enabled?", notificationsEnabled);
       toast.success("Welcome back!");
       router.push("/trees");
-    } else {
-      console.log("Notifications enabled?", notificationsEnabled);
-      toast.error(data.message); // Toast error when invalid credentials
-      setLoginUser({ email: "", password: "" }); // Reset form on error
+    } catch (error) {
+      toast.dismiss(toastId);
+      toast.error("Something went wrong. Please try again.");
+      console.error("Login error:", error);
     }
-    console.log("Notifications enabled?", notificationsEnabled);
-    toast.dismiss();
   };
+
 
   return (
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)] dark:bg-zinc-900 dark:text-white dark:bg-zinc-900 dark:text-white">

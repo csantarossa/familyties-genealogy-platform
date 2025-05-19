@@ -6,20 +6,16 @@ import { ChevronLeft } from 'lucide-react';
 import { useUser } from '@/app/contexts/UserContext';
 import { useSafeToast } from '../lib/toast';
 
-export default function PreferencesClient() {
-  const [theme, setTheme] = useState(null); // Dropdown selection
-  const [savedTheme, setSavedTheme] = useState(null); // Actually applied theme
+export default function PreferencesClient({ treeId }) {
+  const [theme, setTheme] = useState(null);
+  const [savedTheme, setSavedTheme] = useState(null);
   const [prefs, setPrefs] = useState(null);
   const [saving, setSaving] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
 
-  const { notificationsEnabled, setNotificationsEnabled } = useUser(); // Access global toast state
-
+  const { notificationsEnabled, setNotificationsEnabled } = useUser();
   const toast = useSafeToast();
-
-  const searchParams = useSearchParams();
   const router = useRouter();
-  const treeId = searchParams.get('treeId');
 
   useEffect(() => {
     const storedTheme = localStorage.getItem('theme') || 'light';

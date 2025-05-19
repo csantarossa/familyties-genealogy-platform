@@ -12,8 +12,12 @@ export async function POST(req) {
     const result = await sql`SELECT * FROM users WHERE user_email = ${email}`;
 
     if (result.length === 0) {
-      return NextResponse.json({ success: false, message: "User not found" });
+      return NextResponse.json(
+        { success: false, message: "User not found" },
+        { status: 401 }
+      );
     }
+
 
     const user = result[0];
 
@@ -21,11 +25,16 @@ export async function POST(req) {
     const passwordMatch = await bcrypt.compare(password, user.user_password);
 
     if (!passwordMatch) {
-      return NextResponse.json({ success: false, message: "Invalid password" });
+      return NextResponse.json(
+        { success: false, message: "Invalid password" },
+        { status: 401 }
+      );
     }
 
+
     // Success
-    return NextResponse.json({
+    return NextResponse.json(
+    {
       success: true,
       user: {
         id: user.user_id,
@@ -33,7 +42,9 @@ export async function POST(req) {
         lastname: user.user_lastname,
         email: user.user_email,
       },
-    });
+    },
+    { status: 200 }
+  );
   } catch (error) {
     console.error("Login Error:", error);
     return NextResponse.json({

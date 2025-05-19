@@ -1,10 +1,8 @@
-import { Suspense } from 'react';
 import PreferencesClient from './PreferencesClient';
 
-export default function PreferencesPageWrapper() {
-  return (
-    <Suspense fallback={<div>Loading preferences...</div>}>
-      <PreferencesClient />
-    </Suspense>
-  );
+export default async function PreferencesPage({ searchParams }) {
+  const params = await searchParams;
+  const treeId = params?.treeId ?? null;
+
+  return <PreferencesClient treeId={treeId} />;
 }
