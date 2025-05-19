@@ -34,6 +34,8 @@ import { Button } from "@/components/ui/button";
 import { useSafeToast } from "../../../lib/toast";
 import SearchModal from "./SearchModal";
 
+import { useSafeToast } from "../../../lib/toast";
+
 const dancingScript = Dancing_Script({ subsets: ["latin"] });
 
 export function Navbar() {
@@ -162,11 +164,11 @@ export function Navbar() {
           <MenubarContent className="dark:bg-zinc-800 dark:text-white">
             <MenubarItem>Tutorials</MenubarItem>
             <MenubarItem>
-              <Link href = "/userguides">User Guides</Link>
+              <Link href="/userguides">User Guides</Link>
             </MenubarItem>
             <MenubarSeparator />
             <MenubarItem>
-              <Link href ="/team">About the Team</Link>
+              <Link href="/team">About the Team</Link>
             </MenubarItem>
             <MenubarItem>
               <Link href="/contact">Contact Us</Link>

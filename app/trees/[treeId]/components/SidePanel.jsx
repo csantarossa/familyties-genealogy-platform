@@ -113,11 +113,11 @@ const SidePanel = () => {
         prev.map((p) =>
           p.id === selected.id
             ? {
-                ...p,
-                firstname: editedFirstname,
-                middlename: editedMiddlename,
-                lastname: editedLastname,
-              }
+              ...p,
+              firstname: editedFirstname,
+              middlename: editedMiddlename,
+              lastname: editedLastname,
+            }
             : p
         )
       );

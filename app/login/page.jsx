@@ -59,10 +59,11 @@ export default function Home() {
       setLoginUser({ email: "", password: "" }); // Reset form on error
     }
     console.log("Notifications enabled?", notificationsEnabled);
+    toast.dismiss();
   };
 
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)] dark:bg-zinc-900 dark:text-white">
+    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)] dark:bg-zinc-900 dark:text-white dark:bg-zinc-900 dark:text-white">
       <div className="flex justify-center items-center gap-2">
         <div className="h-10 w-10 relative">
           <Image objectFit="fit" layout="fill" alt="logo" src="/logo.png" />
@@ -77,7 +78,7 @@ export default function Home() {
 
       <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start shadow-md">
         <form onSubmit={handleLogin}>
-          <Card className="w-[350px] dark:bg-zinc-800 dark:border-zinc-700">
+          <Card className="w-[350px] dark:bg-zinc-800 dark:border-zinc-700 dark:bg-zinc-800 dark:border-zinc-700">
             <CardHeader>
               <CardTitle className="dark:text-white">Login</CardTitle>
               <CardDescription className="dark:text-zinc-300">
@@ -87,7 +88,7 @@ export default function Home() {
             <CardContent>
               <div className="grid w-full items-center gap-4">
                 <div className="flex flex-col space-y-1.5">
-                  <Label htmlFor="email" className="dark:text-zinc-200">Email</Label>
+                  <Label htmlFor="name" className="dark:text-zinc-200">Email</Label>
                   <Input
                     id="email"
                     required

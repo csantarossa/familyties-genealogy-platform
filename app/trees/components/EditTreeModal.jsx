@@ -94,7 +94,7 @@ const EditTreeModal = ({
           className="w-full flex flex-col gap-4 pt-2"
         >
           <div className="grid w-full items-center gap-1.5">
-            <Label htmlFor="treeTitle" className="text-sm font-medium dark:text-gray-200"> Title *</Label>
+            <Label htmlFor="treeTitle" className="text-sm font-medium dark:text-gray-200" className="text-sm font-medium dark:text-gray-200"> Title *</Label>
             <Input
               id="treeTitle"
               value={localTitle}
