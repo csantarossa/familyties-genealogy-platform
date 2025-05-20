@@ -29,10 +29,12 @@ const ConfirmModal = ({
       >
         {trigger}
       </AlertDialogTrigger>
-      <AlertDialogContent>
+      <AlertDialogContent className="dark:bg-zinc-900 dark:text-white">
         <AlertDialogHeader>
           <AlertDialogTitle>{title}</AlertDialogTitle>
-          <AlertDialogDescription>{description}</AlertDialogDescription>
+          <AlertDialogDescription className="dark:text-zinc-300">
+            {description}
+          </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel

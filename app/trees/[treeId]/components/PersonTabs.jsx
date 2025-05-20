@@ -34,7 +34,7 @@ import {
   X,
 } from "lucide-react";
 import { getImmediateFamily, getSiblingsBySharedParents } from "@/app/actions";
-import toast from "react-hot-toast";
+import { useSafeToast } from "@/app/lib/toast";
 import DatePickerInput from "./DatePickerInput";
 import { Textarea } from "@/components/ui/textarea";
 import { useParams } from "next/navigation";
@@ -50,6 +50,8 @@ import { createRelationship, deleteRelationship } from "@/app/actions";
 import { PersonContext } from "@/app/contexts/PersonContext";
 
 const PersonTabs = () => {
+  const toast = useSafeToast();
+
   const { treeId } = useParams();
   const { selected, setPeople, setSelected } = useContext(PersonContext);
 
@@ -154,7 +156,7 @@ const PersonTabs = () => {
       const personId = selected.id;
       let uploadedImageUrl = null;
 
-      // ✅ Upload the image first if one was selected
+      // Upload the image first if one was selected
       if (img) {
         const compressedFile = await imageCompression(img, {
           maxSizeMB: 0.3,
@@ -238,7 +240,7 @@ const PersonTabs = () => {
 
       toast.success("Image deleted");
     } catch (err) {
-      console.error("❌ Error deleting image:", err);
+      console.error("Error deleting image:", err);
       toast.error("Error deleting image");
     } finally {
       toast.dismiss();
@@ -391,21 +393,21 @@ const PersonTabs = () => {
   return (
     <div className="max-h-full overflow-hidden">
       <Tabs defaultValue="info" className="w-[450px] h-full">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger className="hover:bg-gray-200" value="info">
+        <TabsList className="grid w-full grid-cols-3 bg-white dark:bg-zinc-900">
+          <TabsTrigger className="hover:bg-gray-200 dark:hover:bg-zinc-800" value="info">
             Info
           </TabsTrigger>
-          <TabsTrigger className="hover:bg-gray-200" value="gallery">
+          <TabsTrigger className="hover:bg-gray-200 dark:hover:bg-zinc-800" value="gallery">
             Gallery
           </TabsTrigger>
-          <TabsTrigger className="hover:bg-gray-200" value="notes">
+          <TabsTrigger className="hover:bg-gray-200 dark:hover:bg-zinc-800" value="notes">
             Notes
           </TabsTrigger>
         </TabsList>
 
         {/* Info tab */}
         <TabsContent value="info" className="h-full">
-          <Card className="border-none shadow-none h-full">
+          <Card className="border-none shadow-none h-full bg-white dark:bg-zinc-950 text-black dark:text-white">
             <div className="h-full pb-10 overflow-y-auto px-4">
               {/* General Info */}
               <CardHeader className="flex flex-row justify-between">
@@ -418,8 +420,8 @@ const PersonTabs = () => {
                       const dobParsed = parseDate(selected.dob);
                       const dodParsed = parseDate(selected.dod);
 
-                      console.log("🧠 RAW DOB:", selected.dob);
-                      console.log("🧠 PARSED DOB:", dobParsed);
+                      console.log("RAW DOB:", selected.dob);
+                      console.log("PARSED DOB:", dobParsed);
 
                       setEditedDob(dobParsed);
                       setEditedDod(dodParsed);
@@ -589,11 +591,11 @@ const PersonTabs = () => {
                         </Button>
                       </div>
 
-                      <div className="flex flex-wrap gap-2 mt-2">
+                      <div className="flex flex-wrap gap-2 mt-2 bg-zinc-100 dark:bg-zinc-800 p-2 rounded">
                         {editedTags.map((tag, idx) => (
                           <span
                             key={idx}
-                            className="text-sm bg-zinc-100 px-2 py-1 rounded-lg flex items-center gap-1"
+                            className="text-sm bg-zinc-100 dark:bg-zinc-800 text-black dark:text-white px-2 py-1 rounded-lg flex items-center gap-1"
                           >
                             {tag}
                             <button
@@ -611,11 +613,11 @@ const PersonTabs = () => {
                       </div>
                     </>
                   ) : (
-                    <div className="flex flex-wrap gap-2 mt-2">
+                    <div className="flex flex-wrap gap-2 mt-2 bg-zinc-100 dark:bg-zinc-800 p-2 rounded">
                       {editedTags.map((tag, idx) => (
                         <span
                           key={idx}
-                          className="text-sm bg-zinc-100 px-2 py-1 rounded-lg"
+                          className="text-sm bg-zinc-100 dark:bg-zinc-800 text-black dark:text-white px-2 py-1 rounded-lg"
                         >
                           {tag}
                         </span>
@@ -670,7 +672,7 @@ const PersonTabs = () => {
               <CardContent className="space-y-4">
                 {/* Add‑new form */}
                 {isEditingRelationships && showAddRelation && (
-                  <div className="flex flex-col gap-2 p-2 bg-gray-50 rounded">
+                  <div className="flex flex-col gap-2 p-2 bg-gray-50 dark:bg-zinc-900 rounded">
                     <RelationshipSelector
                       treeId={treeId}
                       excludeId={personId}
@@ -1152,7 +1154,7 @@ const PersonTabs = () => {
 
         {/* Gallery */}
         <TabsContent value="gallery">
-          <Card className="border-none shadow-none">
+          <Card className="border-none shadow-none bg-white dark:bg-zinc-950 text-black dark:text-white">
             <CardHeader>
               <CardTitle>Gallery</CardTitle>
             </CardHeader>

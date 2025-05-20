@@ -1,8 +1,8 @@
 import localFont from "next/font/local";
 import "./globals.css";
 import { Plus_Jakarta_Sans } from "next/font/google";
-import { Toaster } from "react-hot-toast";
 import { UserProvider } from "./contexts/UserContext";
+import SafeToaster from "@/app/lib/toast";
 const plusJakarta = Plus_Jakarta_Sans({ subsets: ["latin"] });
 
 export const metadata = {
@@ -12,13 +12,29 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  const theme = localStorage.getItem('theme') || 'light';
+                  document.documentElement.classList.remove('light', 'dark');
+                  document.documentElement.classList.add(theme);
+                } catch(e) {}
+              })();
+            `,
+          }}
+        />
+      </head>
       <body className={`${plusJakarta.className} antialiased`}>
         <UserProvider>
-          <Toaster position="bottom-right" />
+          <SafeToaster />
           {children}
         </UserProvider>
       </body>
     </html>
   );
 }
+

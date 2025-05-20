@@ -10,7 +10,6 @@ import {
 } from "@xyflow/react";
 import dagre from "@dagrejs/dagre";
 import "@xyflow/react/dist/style.css";
-import toast from "react-hot-toast";
 
 import TreeNode from "./TreeNode";
 import SpouseContainerNode from "./SpouseContainerNode";
@@ -25,6 +24,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+
+import { useSafeToast } from "@/app/lib/toast";
 
 // Adjusted dimensions and spacing for better layout
 const NODE_W = 360; // Reduced from 720 to match TreeNode's actual width
@@ -676,9 +677,8 @@ function createEdges(relationships, nodeMap, nodeToContainerMap) {
     uniqueEdgeKeys.add(edgeKey);
 
     // Generate a unique ID that includes the relationship ID to guarantee uniqueness
-    const edgeId = `${fk_type_id}-${effectiveSrc}-${effectiveTgt}-${
-      r.relationship_id || Math.random().toString(36).substr(2, 9)
-    }`;
+    const edgeId = `${fk_type_id}-${effectiveSrc}-${effectiveTgt}-${r.relationship_id || Math.random().toString(36).substr(2, 9)
+      }`;
 
     // Determine source and target handles based on relationship type and container status
     let sourceHandle = fk_type_id === 3 ? "right" : "bottom";
@@ -720,6 +720,20 @@ export default function FlowSpace({ refreshTrigger }) {
   const [nodes, setNodes] = useNodesState([]);
   const [edges, setEdges] = useEdgesState([]);
   const [loading, setLoading] = useState(true);
+
+  const [mounted, setMounted] = useState(false);
+  const [isDark, setIsDark] = useState(false);
+
+  const toast = useSafeToast();
+
+  useEffect(() => {
+    setMounted(true);
+    // read the actual class on <html> once we've hydrated
+    setIsDark(
+      typeof window !== 'undefined' &&
+      document.documentElement.classList.contains('dark')
+    );
+  }, []);
 
   // Remove node from UI
   const handleDeleteNode = (id) => {
@@ -788,13 +802,55 @@ export default function FlowSpace({ refreshTrigger }) {
   );
 
   return (
-    <div className="w-screen h-screen bg-zinc-200/50 relative">
+    <div className="w-screen h-screen bg-zinc-200/50 dark:bg-zinc-900 relative">
+      {/* Global overrides so edges, controls & watermark invert in dark mode */}
+      {mounted && (
+        <style jsx global>{`
+          /* ---------- Light mode (defaults) ---------- */
+          .react-flow__edge-path {
+            stroke: #000 !important;
+          }
+          .react-flow__controls button svg {
+            stroke: #000 !important;
+          }
+          .react-flow__attribution {
+            filter: none !important;
+          }
+      
+          /* ---------- Dark mode overrides ---------- */
+          .dark .react-flow__edge-path {
+            stroke: #fff !important;
+          }
+          .dark .react-flow__controls button svg {
+            stroke: #fff !important;
+          }
+          .dark .react-flow__attribution {
+            filter: invert(1) !important;
+          }
+          .dark .react-flow__controls {
+            background: rgba(0, 0, 0, 0.6) !important;
+            border-radius: 4px !important;
+            padding: 4px !important;
+          }
+          .dark .react-flow__controls-button {
+            background: transparent !important;
+            border: 1px solid rgba(255, 255, 255, 0.3) !important;
+            margin: 2px !important;
+          }
+          .dark .react-flow__controls-button:hover {
+            background: rgba(255, 255, 255, 0.1) !important;
+          }
+          .dark .react-flow__controls-button svg {
+            stroke: #fff !important;
+          }
+        `}</style>
+      )}
       <ReactFlow
         nodes={nodes}
         edges={edges}
         nodeTypes={nodeTypes}
         fitView
-        style={{ backgroundColor: "#F7F9FB" }}
+        style={{ backgroundColor: "var(--rf-background-color)" }}
       >
         {loading ? null : nodes.length === 0 ? (
           <GetStartedModal treeId={treeId} />

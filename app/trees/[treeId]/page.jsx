@@ -5,13 +5,14 @@ import AddPersonButton from "./components/AddPersonButton";
 import SidePanel from "./components/SidePanel";
 import { createContext, useEffect, useState } from "react";
 import AddPersonModal from "./components/AddPersonModal";
-import toast, { Toaster } from "react-hot-toast";
 import { Navbar } from "./components/Navbar";
 import { useParams, useRouter } from "next/navigation";
 import { useUser } from "@/app/contexts/UserContext";
 import { getTrees } from "@/app/actions";
 import { PersonProvider } from "@/app/contexts/PersonContext";
 import { useRef } from "react";
+
+import { useSafeToast } from "../../lib/toast";
 
 export const SidePanelContext = createContext();
 export const AddPersonModalContext = createContext();
@@ -26,13 +27,15 @@ function Home() {
     other: "",
     img: "",
   });
-  const [version, setVersion] = useState(0); // ✅ Auto-refresh state
+  const [version, setVersion] = useState(0); // Auto-refresh state
 
   const { user } = useUser();
 
   const { treeId } = useParams();
 
   const [addPersonModal, setAddPersonModal] = useState(false);
+
+  const toast = useSafeToast();
 
   useEffect(() => {
     checkUserOwnsTree();
@@ -62,8 +65,8 @@ function Home() {
         <SidePanelContext.Provider
           value={[sidePanelContent, setSidePanelContent]}
         >
-          <div className="w-screen max-h-screen">
-            <div className="flex justify-center items-center p-5 gap-10 rounded-2xl shadow-md w-fit absolute z-50 bg-white left-[50%] translate-x-[-50%]">
+          <div className="w-screen max-h-screen bg-white dark:bg-zinc-900">
+            <div className="flex justify-center items-center p-5 gap-10 rounded-2xl shadow-md dark:shadow-zinc-700/50 w-fit absolute z-50 bg-white dark:bg-zinc-900 left-[50%] translate-x-[-50%]">
               {/* <Link href={"#"}>Logo</Link> */}
               <Navbar />
             </div>
