@@ -12,22 +12,19 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <script
           dangerouslySetInnerHTML={{
             __html: `
-                (function() {
-                  try {
-                    const theme = localStorage.getItem('theme') || 'light';
-                    if (theme === 'dark') {
-                      document.documentElement.classList.add('dark');
-                    } else {
-                      document.documentElement.classList.remove('dark');
-                    }
-                  } catch (e) {}
-                })();
-              `,
+              (function() {
+                try {
+                  const theme = localStorage.getItem('theme') || 'light';
+                  document.documentElement.classList.remove('light', 'dark');
+                  document.documentElement.classList.add(theme);
+                } catch(e) {}
+              })();
+            `,
           }}
         />
       </head>
@@ -40,3 +37,4 @@ export default function RootLayout({ children }) {
     </html>
   );
 }
+

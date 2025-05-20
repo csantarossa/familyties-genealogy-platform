@@ -33,15 +33,13 @@ export default function PreferencesClient({ treeId }) {
   }, []);
 
   useEffect(() => {
-    if (savedTheme) {
+    // Wait until client-side mount before modifying the DOM
+    if (theme !== null) {
       const root = document.documentElement;
-      if (savedTheme === 'dark') {
-        root.classList.add('dark');
-      } else {
-        root.classList.remove('dark');
-      }
+      root.classList.remove('dark', 'light'); // clear any old class
+      root.classList.add(theme);
     }
-  }, [savedTheme]);
+  }, [theme]);
 
   if (!prefs || theme === null) return null;
 

@@ -41,7 +41,7 @@ import {
 import { useSafeToast } from "@/app/lib/toast";
 
 const AddPersonModal = ({ trigger }) => {
-  const { toast } = useSafeToast();
+  const toast = useSafeToast(); //This matches your hook's return
   const params = useParams();
   const treeId = params?.treeId;
   const [addPersonModal, setAddPersonModal] = useContext(AddPersonModalContext);
@@ -76,6 +76,18 @@ const AddPersonModal = ({ trigger }) => {
     }));
   }, [dobDate, dodDate]);
 
+  useEffect(() => {
+    if (addPersonModal) {
+      loadRelationshipTypes();
+    }
+  }, [addPersonModal]);
+
+  useEffect(() => {
+    if (addPersonModal) {
+      getNodes();
+    }
+  }, [addPersonModal]);
+
   const getNodes = async () => {
     toast.loading("Finding potential relations");
     const people = await getPeople(treeId);
@@ -90,6 +102,7 @@ const AddPersonModal = ({ trigger }) => {
     toast.dismiss();
   };
 
+
   const handleSubmitForm = async (e) => {
     e.preventDefault();
     const newPersonLoading = toast.loading("Creating new person");
@@ -98,7 +111,7 @@ const AddPersonModal = ({ trigger }) => {
     try {
       let uploadedImageUrl = null;
 
-      // ✅ Upload the image first if one was selected
+      // Upload the image first if one was selected
       if (imageFile) {
         const compressedFile = await imageCompression(imageFile, {
           maxSizeMB: 0.5,
@@ -118,7 +131,7 @@ const AddPersonModal = ({ trigger }) => {
         uploadedImageUrl = uploadData.url;
       }
 
-      // ✅ Construct full person object
+      // Construct full person object
       const personToSubmit = {
         ...newPerson,
         img: uploadedImageUrl,
