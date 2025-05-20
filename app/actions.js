@@ -63,27 +63,26 @@ export async function getImmediateFamily(id) {
 
 export async function getSiblingsBySharedParents(id) {
   const sql = neon(process.env.DATABASE_URL);
+
   const data = await sql`
-    -- Case A: child → parent (fk_type_id = 2)
-    SELECT DISTINCT s.person_id, s.person_firstname, s.person_lastname
+    --  Find people who share at least one parent with the given person
+    SELECT DISTINCT
+      s.person_id,
+      s.person_firstname,
+      s.person_lastname
     FROM relationships r1
-    JOIN relationships r2 ON r1.person_2 = r2.person_2
-    JOIN person s ON s.person_id = r2.person_1
-    WHERE r1.fk_type_id = 2 AND r2.fk_type_id = 2
-      AND r1.person_1 = ${id}
-      AND r2.person_1 != ${id}
-
-    UNION
-
-    -- Case B: parent → child (fk_type_id = 1)
-    SELECT DISTINCT s.person_id, s.person_firstname, s.person_lastname
-    FROM relationships r1
-    JOIN relationships r2 ON r1.person_1 = r2.person_1
-    JOIN person s ON s.person_id = r2.person_2
-    WHERE r1.fk_type_id = 1 AND r2.fk_type_id = 1
-      AND r1.person_2 = ${id}
-      AND r2.person_2 != ${id};
+    -- r1: relationships where the selected person is a child
+    -- r2: relationships where other people are children of the same parent
+    JOIN relationships r2
+      ON r1.person_2 = r2.person_2 -- Match on shared parent (person_2)
+      AND r1.person_1 != r2.person_1 -- Exclude the selected person themself
+      AND r1.fk_type_id = 4 -- Only use parent-child relationships
+      AND r2.fk_type_id = 4
+    JOIN person s
+      ON s.person_id = r2.person_1 --  Get sibling info (person_1 in r2 is the sibling)
+    WHERE r1.person_1 = ${id}; -- The current person whose siblings we want
   `;
+
   return data;
 }
 
