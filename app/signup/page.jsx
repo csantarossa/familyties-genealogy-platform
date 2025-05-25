@@ -25,28 +25,46 @@ export default function SignupPage() {
     confirmedPassword: "",
   });
 
+  const [errors, setErrors] = useState({});
+
   const router = useRouter();
   const toast = useSafeToast();
 
   const handleSignup = async (e) => {
     e.preventDefault();
+    const { firstname, lastname, email, password, confirmedPassword } = newUser;
+
+    const newErrors = {};
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!firstname) newErrors.firstname = "Required";
+    if (!lastname) newErrors.lastname = "Required";
+    if (!email) newErrors.email = "Required";
+    else if (!emailRegex.test(email)) newErrors.email = "Invalid";
+    if (!password) newErrors.password = "Required";
+    if (!confirmedPassword) newErrors.confirmedPassword = "Required";
+    if (password && confirmedPassword && password !== confirmedPassword) {
+      newErrors.confirmedPassword = "Mismatch";
+      setErrors(newErrors);
+      toast.error("Passwords does not match!");
+      return;
+    }
+
+
+    setErrors(newErrors);
+
+    if (Object.keys(newErrors).length > 0) {
+      toast.error("Fill in all required fields!");
+      return;
+    }
+
     const toastId = toast.loading("Creating user...");
 
     try {
-      if (newUser.password !== newUser.confirmedPassword) {
-        toast.dismiss(toastId);
-        return toast.error("Passwords don't match");
-      }
-
       const response = await fetch("/api/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          firstname: newUser.firstname,
-          lastname: newUser.lastname,
-          email: newUser.email,
-          password: newUser.password,
-        }),
+        body: JSON.stringify({ firstname, lastname, email, password }),
       });
 
       const data = await response.json();
@@ -62,15 +80,17 @@ export default function SignupPage() {
           password: "",
           confirmedPassword: "",
         });
+        setErrors({});
       } else {
-        toast.error(data.message); // e.g., "Account already exists"
+        toast.error(data.message);
       }
     } catch (error) {
-      toast.dismiss(toastId);
       console.error(error);
+      toast.dismiss(toastId);
       toast.error("Something went wrong. Please try again.");
     }
   };
+
 
   return (
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)] dark:bg-zinc-900 dark:text-white">
@@ -88,33 +108,36 @@ export default function SignupPage() {
               <div className="grid w-full items-center gap-4">
                 <div className="flex gap-3">
                   <div className="flex flex-col space-y-1.5 w-[40%]">
-                    <Label htmlFor="firstname" className="dark:text-zinc-200">Firstname</Label>
+                    <Label htmlFor="firstname" className="dark:text-zinc-200">First Name*</Label>
                     <Input
                       id="firstname"
-                      placeholder="Firstname"
+                      placeholder="First Name"
                       value={newUser.firstname}
                       onChange={(e) =>
                         setNewUser({ ...newUser, firstname: e.target.value })
                       }
-                      className="dark:bg-zinc-700 dark:text-white dark:border-zinc-600"
+                      className={`dark:bg-zinc-700 dark:text-white dark:border-zinc-600 ${errors.firstname ? "border-red-500" : ""}`}
                     />
+
+
                   </div>
                   <div className="flex flex-col space-y-1.5">
-                    <Label htmlFor="lastlastname" className="dark:text-zinc-200">Lastname</Label>
+                    <Label htmlFor="lastlastname" className="dark:text-zinc-200">Last Name*</Label>
                     <Input
                       id="lastname"
-                      placeholder="Lastname"
+                      placeholder="Last Name"
                       value={newUser.lastname}
                       onChange={(e) =>
                         setNewUser({ ...newUser, lastname: e.target.value })
                       }
-                      className="dark:bg-zinc-700 dark:text-white dark:border-zinc-600"
+                      className={`dark:bg-zinc-700 dark:text-white dark:border-zinc-600 ${errors.lastname ? "border-red-500" : ""}`}
                     />
+
                   </div>
                 </div>
 
                 <div className="flex flex-col space-y-1.5">
-                  <Label htmlFor="email" className="dark:text-zinc-200">Email</Label>
+                  <Label htmlFor="email" className="dark:text-zinc-200">Email*</Label>
                   <Input
                     id="email"
                     placeholder="Email Address"
@@ -122,12 +145,13 @@ export default function SignupPage() {
                     onChange={(e) =>
                       setNewUser({ ...newUser, email: e.target.value })
                     }
-                    className="dark:bg-zinc-700 dark:text-white dark:border-zinc-600"
+                    className={`dark:bg-zinc-700 dark:text-white dark:border-zinc-600 ${errors.email ? "border-red-500" : ""}`}
                   />
+
                 </div>
 
                 <div className="flex flex-col space-y-1.5">
-                  <Label htmlFor="password" className="dark:text-zinc-200">Password</Label>
+                  <Label htmlFor="password" className="dark:text-zinc-200">Password*</Label>
                   <Input
                     type="password"
                     id="password"
@@ -136,12 +160,13 @@ export default function SignupPage() {
                     onChange={(e) =>
                       setNewUser({ ...newUser, password: e.target.value })
                     }
-                    className="dark:bg-zinc-700 dark:text-white dark:border-zinc-600"
+                    className={`dark:bg-zinc-700 dark:text-white dark:border-zinc-600 ${errors.password ? "border-red-500" : ""}`}
                   />
+
                 </div>
 
                 <div className="flex flex-col space-y-1.5">
-                  <Label htmlFor="confirmPassword" className="dark:text-zinc-200">Confirm Password</Label>
+                  <Label htmlFor="confirmPassword" className="dark:text-zinc-200">Confirm Password*</Label>
                   <Input
                     type="password"
                     id="confirmPassword"
@@ -153,8 +178,9 @@ export default function SignupPage() {
                         confirmedPassword: e.target.value,
                       })
                     }
-                    className="dark:bg-zinc-700 dark:text-white dark:border-zinc-600"
+                    className={`dark:bg-zinc-700 dark:text-white dark:border-zinc-600 ${errors.confirmedPassword ? "border-red-500" : ""}`}
                   />
+
                 </div>
               </div>
             </CardContent>
