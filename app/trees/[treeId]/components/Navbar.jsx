@@ -49,10 +49,15 @@ export function Navbar() {
   const [openSearchModal, setOpenSearchModal] = useState(false);
   const toast = useSafeToast();
 
-  const handleGedcomUpload = async (e) => {
-    setLoading(true);
-    setShowFileInput(false);
-    if (!gedcomFile) return;
+  const handleGedcomUpload = async () => {
+  if (!gedcomFile) {
+    toast.error("Please select a GEDCOM file before uploading.");
+    return;
+  }
+
+  setLoading(true);
+  setShowFileInput(false);
+
 
     try {
       const text = await gedcomFile.text();
