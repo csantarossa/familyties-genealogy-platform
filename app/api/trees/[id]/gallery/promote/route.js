@@ -4,7 +4,7 @@ import { neon } from "@neondatabase/serverless";
 const sql = neon(process.env.DATABASE_URL);
 
 export async function PUT(req, context) {
-  const { id: treeId } = context.params;
+  const { id: treeId } = await context.params;
   const { person_id, image_url } = await req.json();
 
   if (!person_id || !image_url) {

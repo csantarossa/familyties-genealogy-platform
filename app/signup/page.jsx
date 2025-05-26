@@ -12,10 +12,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { useState } from "react";
-import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 
-export default function Home() {
+import { useSafeToast } from "../lib/toast";
+
+export default function SignupPage() {
   const [newUser, setNewUser] = useState({
     firstname: "",
     lastname: "",
@@ -25,6 +26,7 @@ export default function Home() {
   });
 
   const router = useRouter();
+  const toast = useSafeToast();
 
   const handleSignup = async (e) => {
     e.preventDefault();
@@ -71,12 +73,12 @@ export default function Home() {
   };
 
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
+    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)] dark:bg-zinc-900 dark:text-white">
       <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Card className="w-[400px]">
+        <Card className="w-[400px] dark:bg-zinc-800 dark:border-zinc-700">
           <CardHeader>
-            <CardTitle>Create Account</CardTitle>
-            <CardDescription>
+            <CardTitle className="dark:text-white">Create Account</CardTitle>
+            <CardDescription className="dark:text-zinc-300">
               Get started on your family tree today.
             </CardDescription>
           </CardHeader>
@@ -86,7 +88,7 @@ export default function Home() {
               <div className="grid w-full items-center gap-4">
                 <div className="flex gap-3">
                   <div className="flex flex-col space-y-1.5 w-[40%]">
-                    <Label htmlFor="firstname">Firstname</Label>
+                    <Label htmlFor="firstname" className="dark:text-zinc-200">Firstname</Label>
                     <Input
                       id="firstname"
                       placeholder="Firstname"
@@ -94,10 +96,11 @@ export default function Home() {
                       onChange={(e) =>
                         setNewUser({ ...newUser, firstname: e.target.value })
                       }
+                      className="dark:bg-zinc-700 dark:text-white dark:border-zinc-600"
                     />
                   </div>
                   <div className="flex flex-col space-y-1.5">
-                    <Label htmlFor="lastname">Lastname</Label>
+                    <Label htmlFor="lastlastname" className="dark:text-zinc-200">Lastname</Label>
                     <Input
                       id="lastname"
                       placeholder="Lastname"
@@ -105,12 +108,13 @@ export default function Home() {
                       onChange={(e) =>
                         setNewUser({ ...newUser, lastname: e.target.value })
                       }
+                      className="dark:bg-zinc-700 dark:text-white dark:border-zinc-600"
                     />
                   </div>
                 </div>
 
                 <div className="flex flex-col space-y-1.5">
-                  <Label htmlFor="email">Email</Label>
+                  <Label htmlFor="email" className="dark:text-zinc-200">Email</Label>
                   <Input
                     id="email"
                     placeholder="Email Address"
@@ -118,11 +122,12 @@ export default function Home() {
                     onChange={(e) =>
                       setNewUser({ ...newUser, email: e.target.value })
                     }
+                    className="dark:bg-zinc-700 dark:text-white dark:border-zinc-600"
                   />
                 </div>
 
                 <div className="flex flex-col space-y-1.5">
-                  <Label htmlFor="password">Password</Label>
+                  <Label htmlFor="password" className="dark:text-zinc-200">Password</Label>
                   <Input
                     type="password"
                     id="password"
@@ -131,11 +136,12 @@ export default function Home() {
                     onChange={(e) =>
                       setNewUser({ ...newUser, password: e.target.value })
                     }
+                    className="dark:bg-zinc-700 dark:text-white dark:border-zinc-600"
                   />
                 </div>
 
                 <div className="flex flex-col space-y-1.5">
-                  <Label htmlFor="confirmPassword">Confirm Password</Label>
+                  <Label htmlFor="confirmPassword" className="dark:text-zinc-200">Confirm Password</Label>
                   <Input
                     type="password"
                     id="confirmPassword"
@@ -147,6 +153,7 @@ export default function Home() {
                         confirmedPassword: e.target.value,
                       })
                     }
+                    className="dark:bg-zinc-700 dark:text-white dark:border-zinc-600"
                   />
                 </div>
               </div>
@@ -154,11 +161,17 @@ export default function Home() {
 
             <CardFooter className="flex justify-between">
               <Link href="/login">
-                <Button variant="outline" type="button">
+                <Button
+                  variant="outline"
+                  type="button"
+                  className="dark:bg-zinc-700 dark:text-white dark:hover:bg-zinc-600"
+                >
                   Login
                 </Button>
               </Link>
-              <Button type="submit">Create Account</Button>
+              <Button className="dark:bg-blue-600 dark:text-white dark:hover:bg-blue-500">
+                Create Account
+              </Button>
             </CardFooter>
           </form>
         </Card>

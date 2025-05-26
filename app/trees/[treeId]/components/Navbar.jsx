@@ -4,7 +4,6 @@ import React, { useContext, useRef, useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { Dancing_Script } from "next/font/google";
-import { toast } from "react-hot-toast";
 import { Search } from "@geist-ui/icons";
 import Image from "next/image";
 import { ChevronLeft, CircleAlert, Import, UserPlus } from "lucide-react";
@@ -31,6 +30,8 @@ import { AddPersonModalContext } from "../page";
 import { useUser, logout } from "@/app/contexts/UserContext";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+
+import { useSafeToast } from "@/app/lib/toast";
 import SearchModal from "./SearchModal";
 
 const dancingScript = Dancing_Script({ subsets: ["latin"] });
@@ -39,13 +40,14 @@ export function Navbar() {
   const [addPersonModal, setAddPersonModal] = useContext(AddPersonModalContext);
   const { user, logout } = useUser();
   const router = useRouter();
-  const { treeId } = useParams(); // ✅ Needed for uploading
+  const { treeId } = useParams(); // Needed for uploading
   const [showFileInput, setShowFileInput] = useState(false);
   const fileInputRef = useRef();
   const [loading, setLoading] = useState(false);
   const [openModal, setOpenModal] = useState(false);
   const [gedcomFile, setGedcomFile] = useState(null);
   const [openSearchModal, setOpenSearchModal] = useState(false);
+  const toast = useSafeToast();
 
   const handleGedcomUpload = async (e) => {
     setLoading(true);
@@ -73,8 +75,8 @@ export function Navbar() {
   };
 
   return (
-    <>
-      <Menubar className="border-none">
+    <div className="bg-transparent dark:bg-transparent border-none shadow-none">
+      <Menubar className="border-none shadow-none bg-transparent dark:bg-transparent">
         <Link
           href={"/trees"}
           className={`${dancingScript.className} antialiased font-bold text-xl px-[16px]`}
@@ -86,11 +88,11 @@ export function Navbar() {
             FamilyTies
           </div>
         </Link>
-        <div className="w-[0.8px] h-full bg-black opacity-40"></div>
+        <div className="w-[0.8px] h-full bg-black dark:bg-zinc-400 opacity-40"></div>
 
         <MenubarMenu>
           <MenubarTrigger>MyTree</MenubarTrigger>
-          <MenubarContent>
+          <MenubarContent className="dark:bg-zinc-800 dark:text-white">
             <MenubarItem onClick={() => setAddPersonModal(true)}>
               Add a Person
             </MenubarItem>
@@ -108,14 +110,14 @@ export function Navbar() {
                 <Import size={18} className="opacity-70 mt-[1px]" />
                 Import GEDCOM File
               </AlertDialogTrigger>
-              <AlertDialogContent className="w-[430px] h-fit">
+              <AlertDialogContent className="w-[430px] h-fit dark:bg-zinc-900 dark:text-white">
                 <AlertDialogHeader className="flex h-full flex-col justify-between items-start">
                   <AlertDialogTitle className="flex justify-between items-center w-full">
-                    Upload a GEDCOM file! 🎉
+                    Upload a GEDCOM file!
                   </AlertDialogTitle>
                   <div className="flex gap-2">
                     <CircleAlert className="stroke-red-600" />
-                    <AlertDialogDescription className="text-red-700 flex gap-2 font-medium">
+                    <AlertDialogDescription className="text-red-700 dark:text-red-400 flex gap-2 font-medium">
                       WARNING: Proceeding will replace your current entries with
                       the contents of the GEDCOM file.
                     </AlertDialogDescription>
@@ -157,14 +159,14 @@ export function Navbar() {
 
         <MenubarMenu>
           <MenubarTrigger>Resources</MenubarTrigger>
-          <MenubarContent>
+          <MenubarContent className="dark:bg-zinc-800 dark:text-white">
             <MenubarItem>Tutorials</MenubarItem>
             <MenubarItem>
-              <Link href = "/userguides">User Guides</Link>
+              <Link href="/userguides">User Guides</Link>
             </MenubarItem>
             <MenubarSeparator />
             <MenubarItem>
-              <Link href ="/team">About the Team</Link>
+              <Link href="/team">About the Team</Link>
             </MenubarItem>
             <MenubarItem>
               <Link href="/contact">Contact Us</Link>
@@ -174,8 +176,8 @@ export function Navbar() {
 
         <MenubarMenu>
           <MenubarTrigger>Account</MenubarTrigger>
-          <MenubarContent>
-            <Link href="/preferences" passHref>
+          <MenubarContent className="dark:bg-zinc-800 dark:text-white">
+            <Link href={`/preferences?treeId=${treeId}`} passHref>
               <MenubarItem asChild>
                 <span>Preferences</span>
               </MenubarItem>
@@ -186,7 +188,7 @@ export function Navbar() {
               </MenubarItem>
             </Link>
             <MenubarItem
-              className="bg-[#4877c3] text-white font-semibold cursor-pointer"
+              className="bg-[#4877c3] text-white font-semibold cursor-pointer hover:bg-[#3c66a8]"
               onClick={() => {
                 logout(); // Clears user from localStorage and context
                 router.push("/login"); // Redirects to login page
@@ -198,6 +200,6 @@ export function Navbar() {
         </MenubarMenu>
       </Menubar>
       <SearchModal open={openSearchModal} setOpen={setOpenSearchModal} />
-    </>
+    </div>
   );
 }

@@ -17,7 +17,7 @@ const DatePickerInput = ({ date, setDate }) => {
 
       <input
         type="date"
-        className="bg-white text-black text-sm border border-gray-300 w-full p-2 rounded-md opacity-90"
+        className="bg-white text-black text-sm border border-gray-300 dark:bg-zinc-800 dark:text-white dark:border-zinc-700 w-full p-2 rounded-md opacity-90"
         value={formatDateForInput(date)}
         onChange={(e) => {
           const [year, month, day] = e.target.value.split("-").map(Number);
