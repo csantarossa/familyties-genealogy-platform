@@ -214,7 +214,7 @@ const AddPersonModal = ({ trigger }) => {
                 : "translate-x-[150%] opacity-0 hidden"
                 }`}
             >
-              <div className={`flex gap-4 `}>
+              <div className="flex gap-4">
                 <div className="grid w-full items-center gap-1.5">
                   <Label htmlFor="firstname" className="text-sm font-medium">
                     First Name*
@@ -228,8 +228,8 @@ const AddPersonModal = ({ trigger }) => {
                       setNewPerson({ ...newPerson, firstname: e.target.value })
                     }
                   />
-
                 </div>
+
                 <div className="grid w-full max-w-sm items-center gap-1.5">
                   <Label htmlFor="middlename" className="text-sm font-medium">
                     Middle Name
@@ -238,13 +238,14 @@ const AddPersonModal = ({ trigger }) => {
                     type="text"
                     id="middlename"
                     placeholder="Middle Name"
+                    className="dark:bg-zinc-800 dark:text-white"
                     onChange={(e) =>
                       setNewPerson({ ...newPerson, middlename: e.target.value })
                     }
-                    className="dark:bg-zinc-800 dark:text-white"
                   />
                 </div>
               </div>
+
               <div className="grid w-full items-center gap-1.5">
                 <Label htmlFor="lastname" className="text-sm font-medium">
                   Last Name*
@@ -258,8 +259,8 @@ const AddPersonModal = ({ trigger }) => {
                     setNewPerson({ ...newPerson, lastname: e.target.value })
                   }
                 />
-
               </div>
+
               <div className="grid w-full items-center gap-1.5">
                 <Label htmlFor="gender" className="text-sm font-medium">
                   Gender
