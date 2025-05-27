@@ -67,6 +67,8 @@ const AddPersonModal = ({ trigger }) => {
     relationType: null,
     notes: "",
   });
+  const [errors, setErrors] = useState({});
+
 
   useEffect(() => {
     setNewPerson((prev) => ({
@@ -105,6 +107,21 @@ const AddPersonModal = ({ trigger }) => {
 
   const handleSubmitForm = async (e) => {
     e.preventDefault();
+
+    const newErrors = {};
+
+    if (!newPerson.firstname) newErrors.firstname = true;
+    if (!newPerson.lastname) newErrors.lastname = true;
+    if (!dobDate) newErrors.dob = true;
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      toast.error("Fill in all required fields!");
+      return;
+    }
+
+    setErrors({});
+
     const newPersonLoading = toast.loading("Creating new person");
     setProgress({ ...progress, progressBar: 100 });
 
@@ -197,50 +214,53 @@ const AddPersonModal = ({ trigger }) => {
                 : "translate-x-[150%] opacity-0 hidden"
                 }`}
             >
-              <div className={`flex gap-4 `}>
+              <div className="flex gap-4">
                 <div className="grid w-full items-center gap-1.5">
-                  <Label htmlFor="email" className="text-sm font-medium">
-                    Firstname *
+                  <Label htmlFor="firstname" className="text-sm font-medium">
+                    First Name*
                   </Label>
                   <Input
                     type="text"
                     id="firstname"
-                    placeholder="Firstname"
+                    placeholder="First Name"
+                    className={`dark:bg-zinc-800 dark:text-white ${errors.firstname ? "border-red-500" : ""}`}
                     onChange={(e) =>
                       setNewPerson({ ...newPerson, firstname: e.target.value })
                     }
-                    className="dark:bg-zinc-800 dark:text-white"
                   />
                 </div>
+
                 <div className="grid w-full max-w-sm items-center gap-1.5">
-                  <Label htmlFor="email" className="text-sm font-medium">
-                    Middlename
+                  <Label htmlFor="middlename" className="text-sm font-medium">
+                    Middle Name
                   </Label>
                   <Input
                     type="text"
                     id="middlename"
-                    placeholder="Middlename"
+                    placeholder="Middle Name"
+                    className="dark:bg-zinc-800 dark:text-white"
                     onChange={(e) =>
                       setNewPerson({ ...newPerson, middlename: e.target.value })
                     }
-                    className="dark:bg-zinc-800 dark:text-white"
                   />
                 </div>
               </div>
+
               <div className="grid w-full items-center gap-1.5">
-                <Label htmlFor="email" className="text-sm font-medium">
-                  Lastname *
+                <Label htmlFor="lastname" className="text-sm font-medium">
+                  Last Name*
                 </Label>
                 <Input
                   type="text"
                   id="lastname"
-                  placeholder="Lastname"
+                  placeholder="Last Name"
+                  className={`dark:bg-zinc-800 dark:text-white ${errors.lastname ? "border-red-500" : ""}`}
                   onChange={(e) =>
                     setNewPerson({ ...newPerson, lastname: e.target.value })
                   }
-                  className="dark:bg-zinc-800 dark:text-white"
                 />
               </div>
+
               <div className="grid w-full items-center gap-1.5">
                 <Label htmlFor="gender" className="text-sm font-medium">
                   Gender
@@ -266,9 +286,14 @@ const AddPersonModal = ({ trigger }) => {
               <div className="flex gap-4">
                 <div className="grid w-full items-center gap-1.5">
                   <Label htmlFor="dob" className="text-sm font-medium">
-                    Date of Birth *
+                    Date of Birth*
                   </Label>
-                  <DatePickerInput date={dobDate} setDate={setDobDate} />
+                  <DatePickerInput
+                    date={dobDate}
+                    setDate={setDobDate}
+                    class={errors.dob ? "border border-red-500 rounded-md" : ""}
+                  />
+
                 </div>
                 <div className="grid w-full items-center gap-1.5">
                   <div>
@@ -326,7 +351,7 @@ const AddPersonModal = ({ trigger }) => {
               </div>
               <div className="flex flex-row justify-center gap-4 items-center">
                 <div className="grid w-full items-center gap-1.5">
-                  <Label htmlFor="dob" className="text-sm font-medium">
+                  <Label htmlFor="relation" className="text-sm font-medium">
                     Initial Relation
                   </Label>
                   <Select
@@ -366,7 +391,7 @@ const AddPersonModal = ({ trigger }) => {
                 </div>
                 <div className="grid w-full items-center gap-1.5">
                   <Label
-                    htmlFor="dob"
+                    htmlFor="relType"
                     className="text-sm font-medium flex gap-2 justify-start items-center"
                   >
                     Type

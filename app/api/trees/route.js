@@ -9,7 +9,7 @@ export async function POST(req) {
 
     if (!title || !user_id) {
       return NextResponse.json(
-        { success: false, message: "Title and user ID are required" },
+        { success: false, message: "Tree Title is required" },
         { status: 400 }
       );
     }
