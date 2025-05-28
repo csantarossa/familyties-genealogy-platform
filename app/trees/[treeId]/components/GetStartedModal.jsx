@@ -53,6 +53,9 @@ const GetStartedModal = ({ treeId }) => {
 
   const fileInputRef = React.useRef();
 
+  const [errors, setErrors] = useState({});
+
+
   useEffect(() => {
     setNewPerson((prev) => ({
       ...prev,
@@ -96,7 +99,21 @@ const GetStartedModal = ({ treeId }) => {
 
   const handleSubmitForm = async (e) => {
     e.preventDefault();
+
+    const newErrors = {};
+    if (!newPerson.firstname) newErrors.firstname = true;
+    if (!newPerson.lastname) newErrors.lastname = true;
+    if (!dobDate) newErrors.dob = true;
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      toast.error("Please fill in all required fields.");
+      return;
+    }
+
+    setErrors({});
     toast.loading("Creating person");
+
     try {
       setLoading(true);
 
@@ -125,6 +142,8 @@ const GetStartedModal = ({ treeId }) => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...newPerson,
+          dob: dobDate ? format(dobDate, "yyyy-MM-dd") : null,
+          dod: dodDate ? format(dodDate, "yyyy-MM-dd") : null,
           img: uploadedImageUrl,
         }),
       });
@@ -135,6 +154,7 @@ const GetStartedModal = ({ treeId }) => {
       console.log("Success:", data);
     } catch (error) {
       console.error("Error submitting form:", error);
+      toast.error("Failed to create person");
     } finally {
       setFormOpen(false);
       toast.dismiss();
@@ -142,6 +162,7 @@ const GetStartedModal = ({ treeId }) => {
       window.location.reload();
     }
   };
+
 
   return (
     <div>
@@ -202,12 +223,13 @@ const GetStartedModal = ({ treeId }) => {
               <div className="flex gap-4 w-full">
                 <div className="grid w-full items-center gap-1.5">
                   <Label htmlFor="email" className="text-sm font-medium">
-                    Firstname *
+                    First Name*
                   </Label>
                   <Input
                     type="text"
                     id="firstname"
-                    placeholder="Firstname"
+                    placeholder="First Name"
+                    className={errors.firstname ? "border-red-500" : ""}
                     onChange={(e) =>
                       setNewPerson({ ...newPerson, firstname: e.target.value })
                     }
@@ -215,7 +237,7 @@ const GetStartedModal = ({ treeId }) => {
                 </div>
                 <div className="grid w-full max-w-sm items-center gap-1.5">
                   <Label htmlFor="email" className="text-sm font-medium">
-                    Middlename
+                    Middle Name
                   </Label>
                   <Input
                     type="text"
@@ -231,12 +253,13 @@ const GetStartedModal = ({ treeId }) => {
               {/* Last Name */}
               <div className="grid w-full items-center gap-1.5">
                 <Label htmlFor="email" className="text-sm font-medium">
-                  Lastname *
+                  Last Name*
                 </Label>
                 <Input
                   type="text"
                   id="lastname"
                   placeholder="Lastname"
+                  className={errors.lastname ? "border-red-500" : ""}
                   onChange={(e) =>
                     setNewPerson({ ...newPerson, lastname: e.target.value })
                   }
@@ -270,9 +293,13 @@ const GetStartedModal = ({ treeId }) => {
               <div className="flex gap-4 w-full">
                 <div className="grid w-full items-center gap-1.5">
                   <Label htmlFor="dob" className="text-sm font-medium">
-                    Date of Birth *
+                    Date of Birth*
                   </Label>
-                  <DatePickerInput date={dobDate} setDate={setDobDate} />
+                  <DatePickerInput
+                    date={dobDate}
+                    setDate={setDobDate}
+                    className={errors.dob ? "border border-red-500 rounded-md" : ""}
+                  />
                 </div>
                 <div className="grid w-full items-center gap-1.5">
                   <Label htmlFor="dod" className="text-sm font-medium">
@@ -304,7 +331,7 @@ const GetStartedModal = ({ treeId }) => {
                 </div>
               </div>
 
-              <AlertDialogAction type="submit" className="flex w-full">
+              <Button type="submit" className="flex w-full" disabled={loading}>
                 {loading ? (
                   <div className="loader"></div>
                 ) : (
@@ -313,7 +340,7 @@ const GetStartedModal = ({ treeId }) => {
                     <UserPlus className="" size={24} />
                   </>
                 )}
-              </AlertDialogAction>
+              </Button>
             </form>
           </AlertDialogContent>
         </AlertDialog>
