@@ -14,7 +14,7 @@ export function AccordionItem({ value, children, openItem, setOpenItem }) {
     <div>
       <div
         onClick={() => setOpenItem(isOpen ? null : value)}
-        className="cursor-pointer px-4 py-3 bg-gray-100 hover:bg-gray-200 font-semibold flex justify-between items-center transition-colors"
+        className="cursor-pointer px-4 py-3 bg-gray-100 hover:bg-gray-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 dark:text-white font-semibold flex justify-between items-center transition-colors"
       >
         <div className="hover:underline">
           {children[0]}
@@ -47,5 +47,5 @@ export function AccordionTrigger({ children }) {
 }
 
 export function AccordionContent({ children }) {
-  return <div className="text-sm text-gray-700">{children}</div>
+  return <div className="text-sm text-gray-700 dark:text-gray-200">{children}</div>
 }

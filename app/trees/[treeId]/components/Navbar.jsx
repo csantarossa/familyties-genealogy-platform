@@ -50,13 +50,13 @@ export function Navbar() {
   const toast = useSafeToast();
 
   const handleGedcomUpload = async () => {
-  if (!gedcomFile) {
-    toast.error("Please select a GEDCOM file before uploading.");
-    return;
-  }
+    if (!gedcomFile) {
+      toast.error("Please select a GEDCOM file before uploading.");
+      return;
+    }
 
-  setLoading(true);
-  setShowFileInput(false);
+    setLoading(true);
+    setShowFileInput(false);
 
 
     try {
@@ -101,12 +101,10 @@ export function Navbar() {
             <MenubarItem onClick={() => setAddPersonModal(true)}>
               Add a Person
             </MenubarItem>
-            <MenubarSeparator />
             <MenubarItem className="flex items-center gap-1" onClick={() => setOpenSearchModal(true)}>
               <Search size={18} strokeWidth={2} className="opacity-70" />
               Search
             </MenubarItem>
-            <MenubarSeparator />
             <AlertDialog open={openModal}>
               <AlertDialogTrigger
                 className="flex items-center justify-center gap-1 px-2 py-1 text-sm leading-none"
@@ -133,6 +131,7 @@ export function Navbar() {
                   accept=".ged"
                   ref={fileInputRef}
                   onChange={(e) => setGedcomFile(e.target.files[0])}
+                  className="text-gray-900 dark:text-white file:bg-gray-200 file:text-gray-800 dark:file:bg-zinc-700 dark:file:text-white file:border-0 file:mr-4"
                 />
                 <div className="flex w-full gap-5">
                   <Button
@@ -151,7 +150,7 @@ export function Navbar() {
                       <div className="loader"></div>
                     ) : (
                       <>
-                        Upload GEDCOM File 
+                        Upload GEDCOM File
                         <UserPlus className="" size={24} />
                       </>
                     )}
@@ -165,11 +164,9 @@ export function Navbar() {
         <MenubarMenu>
           <MenubarTrigger>Resources</MenubarTrigger>
           <MenubarContent className="dark:bg-zinc-800 dark:text-white">
-            <MenubarItem>Tutorials</MenubarItem>
             <MenubarItem>
               <Link href="/userguides">User Guides</Link>
             </MenubarItem>
-            <MenubarSeparator />
             <MenubarItem>
               <Link href="/team">About the Team</Link>
             </MenubarItem>

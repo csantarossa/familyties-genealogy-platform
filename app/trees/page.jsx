@@ -24,10 +24,14 @@ export default function Home() {
   const [editedDesc, setEditedDesc] = useState("");
 
   useEffect(() => {
-    if (user) {
+    if (!user) {
+      // not logged in → force login
+      router.push("/login");
+    } else {
+      // logged in → fetch only _their_ trees
       handleGetTrees();
     }
-  }, [user]);
+  }, [user, router]);
 
   const handleGetTrees = async () => {
     toast.loading("Fetching trees");

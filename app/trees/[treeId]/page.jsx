@@ -29,33 +29,41 @@ function Home() {
   });
   const [version, setVersion] = useState(0); // Auto-refresh state
 
-  const { user } = useUser();
+  const { user, loading } = useUser();
 
   const { treeId } = useParams();
 
   const [addPersonModal, setAddPersonModal] = useState(false);
 
   const toast = useSafeToast();
-
-  useEffect(() => {
-    checkUserOwnsTree();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]);
-
+  
   const checkUserOwnsTree = async () => {
-    if (!user) return;
-
     const trees = await getTrees(user.id);
-
-    const filteredTrees = trees.filter(
-      (tree) => Number(tree.tree_id) === Number(treeId)
-    );
-    if (filteredTrees.length > 0) {
-      return;
-    } else {
+    const ownsIt = trees.some((t) => Number(t.tree_id) === Number(treeId));
+    if (!ownsIt) {
       router.push("/trees");
     }
   };
+
+  useEffect(() => {
+    if (loading) return; // ⏳ Wait until localStorage check is done
+
+    if (!user) {
+      router.push("/login");
+      return;
+    }
+
+    checkUserOwnsTree();
+  }, [user, loading, router]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex justify-center items-center text-zinc-500">
+        Loading...
+      </div>
+    );
+  }
+
 
   return (
     <PersonProvider treeId={treeId}>
