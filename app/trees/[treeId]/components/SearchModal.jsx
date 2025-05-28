@@ -7,16 +7,16 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "react-hot-toast";
 
-const SearchModal = ({open, setOpen}) => {
+const SearchModal = ({ open, setOpen }) => {
     const [firstName, setFirstName] = useState("");
     const [lastName, setLastName] = useState("");
 
     useEffect(() => {
         if (open) {
-          setFirstName("");
-          setLastName("");
+            setFirstName("");
+            setLastName("");
         }
-      }, [open]);
+    }, [open]);
 
     const handleSearch = () => {
         // Prevent empty input
@@ -32,28 +32,28 @@ const SearchModal = ({open, setOpen}) => {
             const nameEls = node.querySelectorAll("[data-fullname]");
             const nameTexts = Array.from(nameEls).map((el) =>
                 el.textContent.toLowerCase()
-              );
-              
-              const [firstNameText = "", lastNameText = ""] = nameTexts;
+            );
 
-              //True match when there is no input on either field
-              const firstMatch = firstName.trim() == "" || firstNameText.includes(firstName.toLowerCase());
-              const lastMatch = lastName.trim() == "" || lastNameText.includes(lastName.toLowerCase());
-              
-              if (firstMatch && lastMatch){
+            const [firstNameText = "", lastNameText = ""] = nameTexts;
+
+            //True match when there is no input on either field
+            const firstMatch = firstName.trim() == "" || firstNameText.includes(firstName.toLowerCase());
+            const lastMatch = lastName.trim() == "" || lastNameText.includes(lastName.toLowerCase());
+
+            if (firstMatch && lastMatch) {
                 matchFound = true;
-                node.scrollIntoView({behavior: "smooth", block: "center"}); //Render screen into the node(s) found
+                node.scrollIntoView({ behavior: "smooth", block: "center" }); //Render screen into the node(s) found
                 node.classList.add("ring-4", "ring-green-400");
 
                 //Remove the highlight after 5 seconds
-                setTimeout(() =>{
+                setTimeout(() => {
                     node.classList.remove("ring-4", "ring-green-400");
                 }, 5000);
             }
         });
 
         //Toast error when no person found
-        if (!matchFound){
+        if (!matchFound) {
             toast.error("Person not found!");
         }
 
@@ -63,42 +63,44 @@ const SearchModal = ({open, setOpen}) => {
     return (
         <Dialog.Root open={open} onOpenChange={setOpen}>
             <Dialog.Portal>
-            <Dialog.Overlay className="fixed inset-0 bg-black/40 z-40" />
-            <Dialog.Content className="fixed top-[50%] left-[50%] z-50 bg-white p-6 rounded-md shadow-lg -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-md">
-                <Dialog.Title className="text-lg font-semibold mb-4">Search for a Person</Dialog.Title>
-                <form
-                onSubmit={(e) => {
-                    e.preventDefault();
-                    handleSearch();
-                }}
-                className="flex flex-col gap-4"
-                >
-                <Input
-                    placeholder="First Name"
-                    value={firstName}
-                    onChange={(e) => setFirstName(e.target.value)}
-                />
-                <Input
-                    placeholder="Last Name"
-                    value={lastName}
-                    onChange={(e) => setLastName(e.target.value)}
-                />
-                <div className="flex justify-end gap-2">
-                    <Button type="button" variant="ghost" onClick={() => setOpen(false)}>
-                    Cancel
-                    </Button>
-                    <Button type="submit">Search</Button>
-                </div>
-                </form>
-                <Dialog.Close asChild>
-                <button
-                    className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
-                    aria-label="Close"
-                >
-                    <Cross2Icon />
-                </button>
-                </Dialog.Close>
-            </Dialog.Content>
+                <Dialog.Overlay className="fixed inset-0 bg-black/40 z-40" />
+                <Dialog.Content className="fixed top-[50%] left-[50%] z-50 bg-white dark:bg-zinc-900 dark:text-white p-6 rounded-md shadow-lg -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-md">
+                    <Dialog.Title className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Search for a Person</Dialog.Title>
+                    <form
+                        onSubmit={(e) => {
+                            e.preventDefault();
+                            handleSearch();
+                        }}
+                        className="flex flex-col gap-4"
+                    >
+                        <Input
+                            placeholder="First Name"
+                            value={firstName}
+                            onChange={(e) => setFirstName(e.target.value)}
+                            className="text-gray-900 dark:text-white dark:bg-zinc-800"
+                        />
+                        <Input
+                            placeholder="Last Name"
+                            value={lastName}
+                            onChange={(e) => setLastName(e.target.value)}
+                            className="text-gray-900 dark:text-white dark:bg-zinc-800"
+                        />
+                        <div className="flex justify-end gap-2">
+                            <Button type="button" variant="ghost" onClick={() => setOpen(false)}>
+                                Cancel
+                            </Button>
+                            <Button type="submit">Search</Button>
+                        </div>
+                    </form>
+                    <Dialog.Close asChild>
+                        <button
+                            className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-white"
+                            aria-label="Close"
+                        >
+                            <Cross2Icon />
+                        </button>
+                    </Dialog.Close>
+                </Dialog.Content>
             </Dialog.Portal>
         </Dialog.Root>
     );
