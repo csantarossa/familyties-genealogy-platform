@@ -29,32 +29,41 @@ function Home() {
   });
   const [version, setVersion] = useState(0); // Auto-refresh state
 
-  const { user } = useUser();
+  const { user, loading } = useUser();
 
   const { treeId } = useParams();
 
   const [addPersonModal, setAddPersonModal] = useState(false);
 
   const toast = useSafeToast();
-
-  useEffect(() => {
-    if (!user) {
-      // never signed in → force login
-      router.push("/login");
-    } else {
-      // signed in → now check they actually own this tree
-      checkUserOwnsTree();
-    }
-  }, [user, router]);
-
+  
   const checkUserOwnsTree = async () => {
     const trees = await getTrees(user.id);
-    const ownsIt = trees.some(t => Number(t.tree_id) === Number(treeId));
+    const ownsIt = trees.some((t) => Number(t.tree_id) === Number(treeId));
     if (!ownsIt) {
       router.push("/trees");
     }
-    // if they do own it, we simply let the rest of the component render
   };
+
+  useEffect(() => {
+    if (loading) return; // ⏳ Wait until localStorage check is done
+
+    if (!user) {
+      router.push("/login");
+      return;
+    }
+
+    checkUserOwnsTree();
+  }, [user, loading, router]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex justify-center items-center text-zinc-500">
+        Loading...
+      </div>
+    );
+  }
+
 
   return (
     <PersonProvider treeId={treeId}>

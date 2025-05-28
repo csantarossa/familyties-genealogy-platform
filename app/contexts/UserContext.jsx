@@ -5,34 +5,35 @@ const UserContext = createContext(null);
 
 export function UserProvider({ children }) {
   const [user, setUser] = useState(null);
-  const [notificationsEnabled, setNotificationsEnabled] = useState(true); // New: global toast toggle
+  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+  const [loading, setLoading] = useState(true); // ✅ Add loading state
 
-  // Load user and notification preference from localStorage on first load
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
-      setUser(JSON.parse(storedUser)); // Restore user from storage
+      setUser(JSON.parse(storedUser));
     }
 
     const storedNotify = localStorage.getItem("notificationsEnabled");
     if (storedNotify !== null) {
-      setNotificationsEnabled(storedNotify === "true"); // Restore notification setting
+      setNotificationsEnabled(storedNotify === "true");
     }
+
+    setLoading(false); // ✅ Done loading from localStorage
   }, []);
 
-  // Save notification preference whenever it changes
   useEffect(() => {
     localStorage.setItem("notificationsEnabled", notificationsEnabled);
   }, [notificationsEnabled]);
 
   const login = (userData) => {
     setUser(userData);
-    localStorage.setItem("user", JSON.stringify(userData)); // Save user
+    localStorage.setItem("user", JSON.stringify(userData));
   };
 
   const logout = () => {
     setUser(null);
-    localStorage.removeItem("user"); // Remove user
+    localStorage.removeItem("user");
   };
 
   return (
@@ -41,8 +42,9 @@ export function UserProvider({ children }) {
         user,
         login,
         logout,
-        notificationsEnabled,       // expose to context
-        setNotificationsEnabled,    // expose setter
+        notificationsEnabled,
+        setNotificationsEnabled,
+        loading, // ✅ Expose loading
       }}
     >
       {children}
@@ -50,7 +52,6 @@ export function UserProvider({ children }) {
   );
 }
 
-// Custom hook for easy access
 export function useUser() {
   return useContext(UserContext);
 }

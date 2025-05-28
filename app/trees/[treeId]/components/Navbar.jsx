@@ -101,12 +101,10 @@ export function Navbar() {
             <MenubarItem onClick={() => setAddPersonModal(true)}>
               Add a Person
             </MenubarItem>
-            <MenubarSeparator />
             <MenubarItem className="flex items-center gap-1" onClick={() => setOpenSearchModal(true)}>
               <Search size={18} strokeWidth={2} className="opacity-70" />
               Search
             </MenubarItem>
-            <MenubarSeparator />
             <AlertDialog open={openModal}>
               <AlertDialogTrigger
                 className="flex items-center justify-center gap-1 px-2 py-1 text-sm leading-none"
@@ -169,7 +167,6 @@ export function Navbar() {
             <MenubarItem>
               <Link href="/userguides">User Guides</Link>
             </MenubarItem>
-            <MenubarSeparator />
             <MenubarItem>
               <Link href="/team">About the Team</Link>
             </MenubarItem>

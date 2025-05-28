@@ -61,9 +61,14 @@ const GetStartedModal = ({ treeId }) => {
     }));
   }, [dobDate, dodDate]);
 
-  const handleGedcomUpload = async (e) => {
+  const handleGedcomUpload = async () => {
+    if (!gedcomFile) {
+      toast.error("Please select a GEDCOM file before uploading.");
+      return;
+    }
+
     toast.loading("Uploading GEDCOM file");
-    if (!gedcomFile) return;
+    setLoading(true);
 
     try {
       const text = await gedcomFile.text();
@@ -72,16 +77,22 @@ const GetStartedModal = ({ treeId }) => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ gedcomContent: text }),
       });
+
       const json = await res.json();
+
+      if (!res.ok) throw new Error(json.message || "Failed to upload");
+
       toast.success(json.message || "Import successful!");
+      window.location.reload();
     } catch (err) {
       console.error(err);
       toast.error("Failed to upload GEDCOM file.");
     } finally {
       toast.dismiss();
-      window.location.reload();
+      setLoading(false);
     }
   };
+
 
   const handleSubmitForm = async (e) => {
     e.preventDefault();
@@ -343,6 +354,7 @@ const GetStartedModal = ({ treeId }) => {
             <AlertDialogAction
               onClick={handleGedcomUpload}
               className="flex w-full"
+              disabled={!gedcomFile || loading}
             >
               {loading ? (
                 <div className="loader"></div>
