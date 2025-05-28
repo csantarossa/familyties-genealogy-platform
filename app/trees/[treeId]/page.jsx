@@ -38,23 +38,22 @@ function Home() {
   const toast = useSafeToast();
 
   useEffect(() => {
-    checkUserOwnsTree();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]);
+    if (!user) {
+      // never signed in → force login
+      router.push("/login");
+    } else {
+      // signed in → now check they actually own this tree
+      checkUserOwnsTree();
+    }
+  }, [user, router]);
 
   const checkUserOwnsTree = async () => {
-    if (!user) return;
-
     const trees = await getTrees(user.id);
-
-    const filteredTrees = trees.filter(
-      (tree) => Number(tree.tree_id) === Number(treeId)
-    );
-    if (filteredTrees.length > 0) {
-      return;
-    } else {
+    const ownsIt = trees.some(t => Number(t.tree_id) === Number(treeId));
+    if (!ownsIt) {
       router.push("/trees");
     }
+    // if they do own it, we simply let the rest of the component render
   };
 
   return (
